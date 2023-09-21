@@ -13,7 +13,7 @@
 <script src="/assets/lib/easing/easing.min.js"></script>
 <script src="/assets/lib/waypoints/waypoints.min.js"></script>
 <script src="/assets/lib/owlcarousel/owl.carousel.min.js"></script>
-
+<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.js"></script>
 <!-- Template Javascript -->
 <script src="/assets/js/main.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js" integrity="sha512-VEd+nq25CkR676O+pLBnDW09R7VQX9Mdiij052gVCp5yVH3jGtH70Ho/UUv4mJDsEdTvqRCFZg0NKGiojGnUCw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -23,16 +23,16 @@
     const mess_warning = "${warning}"
     const info = "${info}"
     if (mess_error !== ""){
-        toastr.error(mess_error, <%= language.getProperty("error") %>)
+        toastr.error(mess_error, "<%= language.getProperty("error") %>")
     }
     if (mess_success !== ""){
-        toastr.success(mess_success, <%= language.getProperty("success") %>)
+        toastr.success(mess_success, "<%= language.getProperty("success") %>")
     }
     if (mess_warning !== ""){
-        toastr.warning(mess_warning, <%= language.getProperty("warning") %>)
+        toastr.warning(mess_warning, "<%= language.getProperty("warning") %>")
     }
     if (info !== ""){
-        toastr.info(info, <%= language.getProperty("info") %>)
+        toastr.info(info, "<%= language.getProperty("info") %>")
     }
 </script>
 

@@ -1,7 +1,9 @@
 <%@page contentType="text/html" pageEncoding="utf-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page import="java.util.Properties" %>
+<%@ page import="com.example.korean.Database.MyObject" %>
 <% Properties language = (Properties) request.getAttribute("language"); %>
+<% MyObject user = (MyObject) session.getAttribute("login"); %>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -11,6 +13,7 @@
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <meta content="" name="keywords">
     <meta content="" name="description">
+    <link rel="shortcut icon" href="/assets/img/icon-deal.png"/>
 
     <!-- Favicon -->
     <link href="img/favicon.ico" rel="icon">
@@ -18,7 +21,8 @@
     <!-- Google Web Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600&family=Inter:wght@700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600&family=Inter:wght@700;800&display=swap"
+          rel="stylesheet">
 
     <!-- Icon Font Stylesheet -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
@@ -33,25 +37,31 @@
 
     <!-- Template Stylesheet -->
     <link href="/assets/css/style.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.css" integrity="sha512-3pIirOrwegjM6erE5gPSwkUzO+3cTjpnV9lexlNZqvupR64iZBnOOTiiLPb9M36zpMScbmUNIcHUqKD47M719g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.css"
+          integrity="sha512-3pIirOrwegjM6erE5gPSwkUzO+3cTjpnV9lexlNZqvupR64iZBnOOTiiLPb9M36zpMScbmUNIcHUqKD47M719g=="
+          crossorigin="anonymous" referrerpolicy="no-referrer"/>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.css"/>
+
 </head>
 
 <body>
 <div class="" style="max-width: 80%; margin: auto;">
     <div class="container-fluid card p-0">
         <!-- Spinner Start -->
-        <div id="spinner" class="show position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
-            <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
-                <span class="sr-only">Loading...</span>
-            </div>
-        </div>
+        <%--        <div id="spinner"--%>
+        <%--             class="show position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">--%>
+        <%--            <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">--%>
+        <%--                <span class="sr-only">Loading...</span>--%>
+        <%--            </div>--%>
+        <%--        </div>--%>
         <!-- Spinner End -->
         <!-- Navbar Start -->
-        <div class="container-fluid nav-bar bg-transparent">
+        <div class="container-fluid nav-bar bg-transparent mb-2">
             <nav class="navbar navbar-expand-lg bg-white navbar-light py-0 px-4">
                 <a href="/" class="navbar-brand d-flex align-items-center text-center">
                     <div class="icon p-2 me-2">
-                        <img class="img-fluid" src="/assets/img/icon-deal.png" alt="Icon" style="width: 30px; height: 30px;">
+                        <img class="img-fluid" src="/assets/img/icon-deal.png" alt="Icon"
+                             style="width: 30px; height: 30px;">
                     </div>
                     <h1 class="m-0 text-primary">Makaan</h1>
                 </a>
@@ -60,13 +70,20 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbarCollapse">
                     <div class="navbar-nav ms-auto">
-                        <a href="/" class="nav-item nav-link active"><%= language.getProperty("head.home") %></a>
+                        <a href="/" class="nav-item nav-link active"><%= language.getProperty("head.home") %>
+                        </a>
 
                         <div class="nav-item dropdown">
-                            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><%= language.getProperty("head.language") %></a>
+                            <a href="#" class="nav-link dropdown-toggle"
+                               data-bs-toggle="dropdown"><%= language.getProperty("head.language") %>
+                            </a>
                             <div class="dropdown-menu rounded-0 m-0">
-                                <a href="/change-language?user_lang=vn&current_url=<%= request.getRequestURL() %>" class="dropdown-item"><%= language.getProperty("head.vietnamese") %></a>
-                                <a href="/change-language?user_lang=kr&current_url=<%= request.getRequestURL() %>" class="dropdown-item"><%= language.getProperty("head.korean") %></a>
+                                <a href="/change-language?user_lang=vn&current_url=<%= request.getAttribute("current_url") %>"
+                                   class="dropdown-item"><%= language.getProperty("head.vietnamese") %>
+                                </a>
+                                <a href="/change-language?user_lang=kr&current_url=<%= request.getAttribute("current_url") %>"
+                                   class="dropdown-item"><%= language.getProperty("head.korean") %>
+                                </a>
                             </div>
                         </div>
 
@@ -86,14 +103,43 @@
                                 <a href="404.html" class="dropdown-item">404 Error</a>
                             </div>
                         </div>
-                        <a href="contact.html" class="nav-item nav-link"><%= language.getProperty("head.contact") %></a>
+                        <a href="contact.html" class="nav-item nav-link"><%= language.getProperty("head.contact") %>
+
+                        </a>
+                        <% if (user != null) { %>
+                            <% if (user.getIs_admin().equals("1")) { %>
+                                <a href="/admin" class="nav-item nav-link"><%= language.getProperty("head.admin") %>
+                                </a>
+                            <%} %>
+                        <%} %>
                     </div>
+                    <% if (user == null) { %>
                     <a href="/register">
-                        <button class="btn btn-warning" style="margin-right: 5px"><%= language.getProperty("head.register") %></button>
+                        <button class="btn btn-warning"
+                                style="margin-right: 5px"><%= language.getProperty("head.register") %>
+                        </button>
                     </a>
                     <a href="/login">
-                        <button class="btn btn-primary"><%= language.getProperty("head.sign_up") %></button>
+                        <button class="btn btn-primary"><%= language.getProperty("head.sign_up") %>
+                        </button>
                     </a>
+                    <%} else {%>
+                    <div class="d-flex align-items-center">
+                        <img src="<%=user.avatar%>" alt="user avatar"
+                             style="width: 40px; height: 40px; object-fit: cover; border-radius: 50%">
+                    </div>
+                    <div class="nav-item dropdown">
+                        <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><%=user.name%>
+                        </a>
+                        <div class="dropdown-menu rounded-0 m-0">
+                            <a href="/profile" class="dropdown-item"><%= language.getProperty("head.profile") %>
+                            </a>
+                            <a href="/logout" class="dropdown-item"><%= language.getProperty("head.logout") %>
+                            </a>
+                        </div>
+                    </div>
+                    <%}%>
+
                 </div>
             </nav>
         </div>

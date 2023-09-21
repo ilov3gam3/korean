@@ -6,7 +6,4 @@
     <listener>
         <listener-class>com.example.korean.Init.Listener</listener-class>
     </listener>
-    <welcome-file-list>
-        <welcome-file>home</welcome-file>
-    </welcome-file-list>
 </web-app>

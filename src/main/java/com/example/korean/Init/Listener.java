@@ -5,12 +5,10 @@ import jakarta.servlet.ServletContextListener;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Properties;
 
-public class Listener implements ServletContextListener {
+public class Listener implements ServletContextListener{
     public HashMap<String, Properties> languages = new HashMap<>();
     @Override
     public void contextInitialized(ServletContextEvent sce) {

@@ -12,7 +12,6 @@ public class DB {
         long startTime = System.nanoTime();
 
         boolean checkEmail = getData("select * from users where email = ?", new String[]{"tranquangminh116@gmail.com"}, new String[]{"id"}).size() == 0;
-        System.out.println(checkEmail);
 
         long endTime = System.nanoTime();
 
