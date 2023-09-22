@@ -272,7 +272,6 @@ public class UserController {
                                 if (checkMail) { // chưa có acc
                                     String name = jsonResponse.get("name").asText();
                                     String avatar = jsonResponse.get("picture").asText();
-                                    req.getSession().setAttribute("mess", "success|" + language.getProperty("login_success"));
                                     req.setAttribute("email", email);
                                     req.setAttribute("name", name);
                                     req.setAttribute("avatar", avatar);
@@ -336,28 +335,16 @@ public class UserController {
                 String dob = req.getParameter("dob");
                 String avatar = req.getParameter("avatar");
                 String uuid = UUID.randomUUID().toString();
-                String sql = "insert into users(name, email, password, avatar, phone, dob, national_id,  hash, is_admin, is_verified, cards_verified) values(?, ?, ?, ?, ?, ?, ?, ?, 'false', 'false', 'false');";
-
-
-                ExecutorService executorService = Executors.newSingleThreadExecutor();
-                executorService.submit(() -> {
-                    try {
-                        String html = language.getProperty("register_mail").replace("name", name).replace("app", Config.config.get("app_name").toString()).replace("host", Config.config.get("app_host").toString()).replace("uuid", uuid);
-                        SendMail.send(email, language.getProperty("register_mail_subject"), html);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                });
-                executorService.shutdown();
+                String sql = "insert into users(name, email, password, avatar, phone, dob, national_id,  hash, is_admin, is_verified, cards_verified) values(?, ?, ?, ?, ?, ?, ?, ?, 'false', 'true', 'false');";
                 String[] vars = new String[]{name, email, password, avatar, phone, dob, national_id, uuid};
                 boolean status = DB.executeUpdate(sql, vars);
                 if (status) {
-                    req.getSession().setAttribute("mess", "success|" + language.getProperty("create_account_success"));
+                    req.getSession().setAttribute("mess", "success|" + language.getProperty("login_success"));
                     MyObject user = DB.getData("select * from users where email = ?", new String[]{email}, new String[]{"id", "name", "email", "password", "avatar", "phone", "dob", "national_id", "front_id_card", "back_id_card", "hash", "is_verified", "is_admin"}).get(0);
                     req.getSession().setAttribute("login", user);
                     resp.sendRedirect("/");
                 } else {
-                    req.getSession().setAttribute("mess", "error|" + language.getProperty("create_account_fail"));
+                    req.getSession().setAttribute("mess", "error|" + language.getProperty("login_fail"));
                     resp.sendRedirect("/login");
                 }
             }

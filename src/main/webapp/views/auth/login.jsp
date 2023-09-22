@@ -1,3 +1,4 @@
+<%@ page import="com.example.korean.Init.Config" %>
 <%@page contentType="text/html" pageEncoding="utf-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ include file="../master/head.jsp" %>
@@ -15,7 +16,7 @@
         <button type="submit" class="btn btn-primary mt-2" style="width: 100%"><%= language.getProperty("login.login_button") %></button>
         <div class="container-fluid text-center mb-2">
             <p><%= language.getProperty("login.or") %></p>
-            <a href="https://accounts.google.com/o/oauth2/auth?client_id=950893291709-9rqulakhl78cnlejkuofncru62p49epo.apps.googleusercontent.com&redirect_uri=http://localhost:8080/login-google&response_type=code&scope=openid%20profile%20email"><%= language.getProperty("login.login_with_google") %></a>
+            <a href="https://accounts.google.com/o/oauth2/auth?client_id=950893291709-9rqulakhl78cnlejkuofncru62p49epo.apps.googleusercontent.com&redirect_uri=<%=Config.config.get("redirect_uri")%>&response_type=code&scope=openid%20profile%20email"><%= language.getProperty("login.login_with_google") %></a>
         </div>
         <div class="container-fluid text-center mt-2">
             <a href="/register"><%= language.getProperty("login.register_instead") %></a>
