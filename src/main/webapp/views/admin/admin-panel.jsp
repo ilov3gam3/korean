@@ -22,7 +22,7 @@
 <div class="col-12 mb-3 d-flex justify-content-center">
     <div class="row col-8">
         <div class="gap-2 col-md-6">
-            <a href="/">
+            <a href="/property-type-management">
                 <div class="d-grid">
                     <button class="btn btn-primary">Các loại tài sản</button>
                 </div>

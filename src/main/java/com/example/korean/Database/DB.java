@@ -9,18 +9,37 @@ import java.util.ArrayList;
 
 public class DB {
     public static void main(String[] args) throws SQLException {
-        long startTime = System.nanoTime();
-
-        boolean checkEmail = getData("select * from users where email = ?", new String[]{"tranquangminh116@gmail.com"}, new String[]{"id"}).size() == 0;
-
-        long endTime = System.nanoTime();
-
-        // Calculate the execution time in milliseconds
-        long executionTimeMillis = (endTime - startTime) / 1_000_000;
-
-        System.out.println("Execution time: " + executionTimeMillis + " ms");
-
-
+        int[][] arr = new int[][]{{1, 2, 3,  4},
+                                  {5, 6, 7,  8},
+                                  {9,10,11, 12} };
+        //00 01 02 03
+        //10 11 12 13
+        //20 21 22 23
+        for (int i = 0; i < arr.length; i++) {
+            int sum = 0;
+            for (int j = 0; j < arr[i].length; j++) {
+                sum += arr[i][j];
+            }
+            System.out.println(sum);
+        }
+        System.out.println("=============================");
+        //i = 0, j=0->2
+        // 00 10 20
+        // i = 2 j=0->2
+        // 02 12 22
+        for (int i = 0; i < arr[0].length; i++) {
+            int sum = 0;
+            for (int j = 0; j < arr.length; j++) {
+                sum += arr[j][i];
+            }
+            System.out.println(sum);
+        }
+        for (int i = 0; i < 10; i++) {
+            for (int j = 0; j < 10; j++) {
+                System.out.print(" * ");
+            }
+            System.out.println();
+        }
     }
     public static Connection getConnection(){
         try {

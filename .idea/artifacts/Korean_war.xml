@@ -7,7 +7,7 @@
         <packaging>war</packaging>
       </options>
     </properties>
-    <root id="archive" name="ROOT.war">
+    <root id="archive" name="Korean-1.0-SNAPSHOT.war">
       <element id="artifact" artifact-name="Korean:war exploded" />
     </root>
   </artifact>
