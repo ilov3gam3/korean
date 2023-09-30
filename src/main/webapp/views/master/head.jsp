@@ -106,15 +106,17 @@
                         <a href="contact.html" class="nav-item nav-link"><%= language.getProperty("head.contact") %>
 
                         </a>
-                        <% if (user != null) { %>
-                            <% if (user.getIs_admin().equals("1")) { %>
-                                <a href="/admin" class="nav-item nav-link"><%= language.getProperty("head.admin") %>
-                                </a>
-                            <%} %>
-                        <%} %>
                     </div>
+                    <% if (user != null) { %>
+                    <% if (user.getIs_admin().equals("1")) { %>
+                        <a href="/admin" class="btn btn-primary" style="margin-right: 15px;"><%= language.getProperty("head.admin") %>
+                        </a>
+                        <%} else {%>
+                        <a href="/add-propertiy" class="btn btn-primary" style="margin-right: 15px;" >Add Property</a>
+                        <%} %>
+                        <%} %>
                     <% if (user == null) { %>
-                    <a href="/register">
+                    <a class="ml-1" href="/register">
                         <button class="btn btn-warning"
                                 style="margin-right: 5px"><%= language.getProperty("head.register") %>
                         </button>
@@ -124,7 +126,7 @@
                         </button>
                     </a>
                     <%} else {%>
-                    <div class="d-flex align-items-center">
+                    <div class="d-flex align-items-center ml-1">
                         <img src="<%=user.avatar%>" alt="user avatar"
                              style="width: 40px; height: 40px; object-fit: cover; border-radius: 50%">
                     </div>

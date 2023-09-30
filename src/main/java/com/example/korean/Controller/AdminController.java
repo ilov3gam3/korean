@@ -49,9 +49,52 @@ public class AdminController {
             if (check){
                 req.getSession().setAttribute("mess", "success|" + language.getProperty("update_id_card_sucess"));
             } else {
-                req.getSession().setAttribute("mess", "success|" + language.getProperty("update_id_card_fail"));
+                req.getSession().setAttribute("mess", "error|" + language.getProperty("update_id_card_fail"));
             }
             resp.sendRedirect("/user-management");
+        }
+    }
+
+    @WebServlet("/location-management")
+    public static class LocationManagement extends HttpServlet{
+        @Override
+        protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            String sql = "select * from provinces;";
+            ArrayList<MyObject> provinces_list = DB.getData(sql, new String[]{"id", "name"});
+            sql = "select * from districts;";
+            ArrayList<MyObject> districts_list = DB.getData(sql, new String[]{"id", "name", "province_id"});
+            req.setAttribute("provinces_list", provinces_list);
+            req.setAttribute("districts_list", districts_list);
+            req.getRequestDispatcher("/views/admin/location-management.jsp").forward(req, resp);
+        }
+
+        @Override
+        protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            String name = req.getParameter("province_name");
+            boolean check = DB.executeUpdate("insert into provinces(name) values(?);", new String[]{name});
+            if (check){
+                req.getSession().setAttribute("mess", "success|thành công");
+            } else {
+                req.getSession().setAttribute("mess", "error|không thành công");
+            }
+            resp.sendRedirect("/location-management");
+        }
+    }
+
+    @WebServlet("/add-districts")
+    public static class AddDistricts extends HttpServlet{
+        @Override
+        protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            String district_name = req.getParameter("district_name");
+            String province_id = req.getParameter("province_id");
+            String sql = "insert into districts(name, province_id) values(?, ?)";
+            boolean check = DB.executeUpdate(sql, new String[]{district_name, province_id});
+            if (check){
+                req.getSession().setAttribute("mess", "success|thành công");
+            } else {
+                req.getSession().setAttribute("mess", "error|không thành công");
+            }
+            resp.sendRedirect("/location-management");
         }
     }
 }

@@ -19,4 +19,13 @@ public class MyObject {
     public String path;
     public String description;
     public String cards_verified;
+    public String province_id;
+    public String property_id;
+    public String url;
+    public String user_id;
+    public String property_type_id;
+    public String for_sale;
+    public String location_id;
+    public String price;
+    public String created_at;
 }
