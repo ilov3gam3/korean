@@ -70,7 +70,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form action="/change-verified-card" method="post" >
+                <form action="/admin/change-verified-card" method="post" >
                 <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
@@ -118,7 +118,6 @@
             $("#info_cards_verified").text("<%=language.getProperty("admin.national_id_verified")%>")
             $("#info_cards_verified").attr('class', 'text-primary')
             $("#btn_remove_verified").removeAttr('hidden')
-            console.log('abcd')
         }
         if (card_verified === '0'){
             $("#info_cards_verified").text("<%=language.getProperty("admin.national_id_un_verified")%>")

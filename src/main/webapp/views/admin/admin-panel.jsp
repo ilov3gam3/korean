@@ -4,14 +4,14 @@
 <div class="col-12 mb-3 d-flex justify-content-center">
     <div class="row col-8">
             <div class="gap-2 col-md-6">
-                <a href="/user-management">
+                <a href="/admin/user-management">
                     <div class="d-grid">
                         <button class="btn btn-primary"><%= language.getProperty("admin.user_mana") %></button>
                     </div>
                 </a>
             </div>
             <div class="d-grid gap-2 col-md-6">
-                <a href="/location-management">
+                <a href="/admin/location-management">
                     <div class="d-grid">
                         <button class="btn btn-primary">Địa điểm</button>
                     </div>
@@ -22,16 +22,9 @@
 <div class="col-12 mb-3 d-flex justify-content-center">
     <div class="row col-8">
         <div class="gap-2 col-md-6">
-            <a href="/property-type-management">
+            <a href="/admin/property-type-management">
                 <div class="d-grid">
                     <button class="btn btn-primary">Các loại tài sản</button>
-                </div>
-            </a>
-        </div>
-        <div class="d-grid gap-2 col-md-6">
-            <a href="/">
-                <div class="d-grid">
-                    <button class="btn btn-primary"><%= language.getProperty("admin.user_mana") %></button>
                 </div>
             </a>
         </div>

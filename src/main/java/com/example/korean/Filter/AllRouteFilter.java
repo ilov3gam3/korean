@@ -8,7 +8,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
-@WebFilter("/*")
 public class AllRouteFilter implements Filter {
     private boolean shouldExclude(String requestURI) {
         // Define the routes you want to exclude from filtering

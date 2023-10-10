@@ -17,7 +17,10 @@ public class MyObject {
     public String is_verified;
     public String is_admin;
     public String path;
-    public String description;
+    public String name_vn;
+    public String name_kr;
+    public String description_vn;
+    public String description_kr;
     public String cards_verified;
     public String province_id;
     public String property_id;

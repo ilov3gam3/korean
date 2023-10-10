@@ -25,7 +25,7 @@
           rel="stylesheet">
 
     <!-- Icon Font Stylesheet -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
 
     <!-- Libraries Stylesheet -->
@@ -56,7 +56,7 @@
         <%--        </div>--%>
         <!-- Spinner End -->
         <!-- Navbar Start -->
-        <div class="container-fluid nav-bar bg-transparent mb-2">
+        <div class="container-fluid nav-bar bg-transparent mb-2" id="navbar">
             <nav class="navbar navbar-expand-lg bg-white navbar-light py-0 px-4">
                 <a href="/" class="navbar-brand d-flex align-items-center text-center">
                     <div class="icon p-2 me-2">
@@ -112,7 +112,7 @@
                         <a href="/admin" class="btn btn-primary" style="margin-right: 15px;"><%= language.getProperty("head.admin") %>
                         </a>
                         <%} else {%>
-                        <a href="/add-propertiy" class="btn btn-primary" style="margin-right: 15px;" >Add Property</a>
+                        <a href="/user/add-property" class="btn btn-primary" style="margin-right: 15px;" >Add Property</a>
                         <%} %>
                         <%} %>
                     <% if (user == null) { %>
@@ -134,9 +134,9 @@
                         <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><%=user.name%>
                         </a>
                         <div class="dropdown-menu rounded-0 m-0">
-                            <a href="/profile" class="dropdown-item"><%= language.getProperty("head.profile") %>
+                            <a href="/user/profile" class="dropdown-item"><%= language.getProperty("head.profile") %>
                             </a>
-                            <a href="/logout" class="dropdown-item"><%= language.getProperty("head.logout") %>
+                            <a href="/user/logout" class="dropdown-item"><%= language.getProperty("head.logout") %>
                             </a>
                         </div>
                     </div>

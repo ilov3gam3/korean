@@ -198,7 +198,7 @@ public class UserController {
         }
     }
 
-    @WebServlet("/logout")
+    @WebServlet("/user/logout")
     public static class Logout extends HttpServlet {
         @Override
         protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -207,7 +207,7 @@ public class UserController {
         }
     }
 
-    @WebServlet("/profile")
+    @WebServlet("/user/profile")
     public static class Profile extends HttpServlet {
         @Override
         protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -351,7 +351,7 @@ public class UserController {
         }
     }
 
-    @WebServlet("/change-avatar")
+    @WebServlet("/user/change-avatar")
     @MultipartConfig(
             fileSizeThreshold = 1024 * 1024, // 1 MB
             maxFileSize = 1024 * 1024 * 10,      // 10 MB
@@ -406,11 +406,11 @@ public class UserController {
                 e.printStackTrace();
                 req.setAttribute("error", language.getProperty("update_avatar_fail"));
             }
-            resp.sendRedirect("/profile");
+            resp.sendRedirect("/user/profile");
         }
     }
 
-    @WebServlet("/update-cards")
+    @WebServlet("/user/update-cards")
     @MultipartConfig(
             fileSizeThreshold = 1024 * 1024, // 1 MB
             maxFileSize = 1024 * 1024 * 10,      // 10 MB
@@ -457,7 +457,7 @@ public class UserController {
                 e.printStackTrace();
                 req.setAttribute("error", language.getProperty("update_avatar_fail"));
             }
-            resp.sendRedirect("/profile");
+            resp.sendRedirect("/user/profile");
         }
     }
 }

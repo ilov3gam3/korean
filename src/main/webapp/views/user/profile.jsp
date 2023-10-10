@@ -40,7 +40,7 @@
             </form>
         </div>
         <div class="col-md-6">
-            <form action="/change-avatar" method="post" class="mb-3" enctype="multipart/form-data">
+            <form action="/user/change-avatar" method="post" class="mb-3" enctype="multipart/form-data">
                 <div class="row ">
                     <div class="col-4">
                         <h4><%= language.getProperty("profile.avatar") %>

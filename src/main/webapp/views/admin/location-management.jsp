@@ -16,7 +16,7 @@
             </form>
 
             <h2>Thêm quận, huyện</h2>
-            <form action="/add-districts" method="post">
+            <form action="/admin/add-districts" method="post">
                 <div class="form-group">
                     <label for="district_name">Tên quận, huyện</label>
                     <input class="form-control" type="text" name="district_name" id="district_name">

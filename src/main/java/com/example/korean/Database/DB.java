@@ -1,47 +1,56 @@
 package com.example.korean.Database;
 
 import com.example.korean.Init.Config;
-import com.example.korean.Init.SendMail;
 
 import java.lang.reflect.Field;
+import java.math.BigInteger;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
 
 public class DB {
-    public static void main(String[] args) throws SQLException {
-        int[][] arr = new int[][]{{1, 2, 3,  4},
-                                  {5, 6, 7,  8},
-                                  {9,10,11, 12} };
-        //00 01 02 03
-        //10 11 12 13
-        //20 21 22 23
-        for (int i = 0; i < arr.length; i++) {
-            int sum = 0;
-            for (int j = 0; j < arr[i].length; j++) {
-                sum += arr[i][j];
+    static String slurpStdin() {
+        String input = "";
+        Scanner scan = new Scanner(System.in);
+
+        while (true) {
+            input += scan.nextLine();
+            if (scan.hasNextLine()) {
+                input += "\n";
+            } else {
+                break;
             }
-            System.out.println(sum);
         }
-        System.out.println("=============================");
-        //i = 0, j=0->2
-        // 00 10 20
-        // i = 2 j=0->2
-        // 02 12 22
-        for (int i = 0; i < arr[0].length; i++) {
-            int sum = 0;
-            for (int j = 0; j < arr.length; j++) {
-                sum += arr[j][i];
-            }
-            System.out.println(sum);
-        }
-        for (int i = 0; i < 10; i++) {
-            for (int j = 0; j < 10; j++) {
-                System.out.print(" * ");
-            }
-            System.out.println();
-        }
+
+        return input;
     }
-    public static Connection getConnection(){
+
+
+    public static void main(String[] args) throws SQLException {
+        String input = slurpStdin();
+        BigInteger N = new BigInteger(input.split(" ")[0]);
+        BigInteger A = new BigInteger(input.split(" ")[1]);
+        BigInteger B = new BigInteger(input.split(" ")[2]);
+        BigInteger count = new BigInteger("0");
+        BigInteger count_blue = new BigInteger("0");
+        for (float i = 0; i < Math.pow(10, 10); i++) {
+            count = count.add(A);
+            if (count.compareTo(N)>=0){
+                count_blue = count_blue.add(A.subtract(count.subtract(N)));
+                break;
+            } else {
+                count_blue = count_blue.add(A);
+            }
+            count = count.add(B);
+            if (count.compareTo(N)>=0){
+                break;
+            }
+        }
+        System.out.println(count_blue);
+    }
+
+    public static Connection getConnection() {
         try {
             Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
             String serverName = Config.config.getProperty("db_server");
@@ -49,12 +58,13 @@ public class DB {
             String databaseName = Config.config.getProperty("db_name");
             String username = Config.config.getProperty("db_username");
             String password = Config.config.getProperty("db_password");
-            String url = "jdbc:sqlserver://" + serverName + ":"+port+";databaseName=" + databaseName + ";trustServerCertificate=true;";
+            String url = "jdbc:sqlserver://" + serverName + ":" + port + ";databaseName=" + databaseName + ";trustServerCertificate=true;";
             return DriverManager.getConnection(url, username, password);
         } catch (ClassNotFoundException | SQLException e) {
             throw new RuntimeException(e);
         }
     }
+
     public static boolean executeUpdate(String sql) {// insert update delete
         Connection connection = getConnection();
         try {
@@ -66,12 +76,13 @@ public class DB {
             throw new RuntimeException(e);
         }
     }
-    public static boolean executeUpdate(String sql, String[] fields){// insert update delete
+
+    public static boolean executeUpdate(String sql, String[] fields) {// insert update delete
         Connection connection = getConnection();
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             for (int i = 0; i < fields.length; i++) {
-                preparedStatement.setString(i+1,fields[i]);
+                preparedStatement.setString(i + 1, fields[i]);
             }
             int row = preparedStatement.executeUpdate();
             connection.close();
@@ -81,13 +92,15 @@ public class DB {
             return false;
         }
     }
-    public static ArrayList<MyObject> getData(String sql, String[] fields){
+
+    public static ArrayList<MyObject> getData(String sql, String[] fields) {
         Connection connection = getConnection();
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             ResultSet resultSet = preparedStatement.executeQuery();
             ArrayList<MyObject> result = new ArrayList<>();
-            while (resultSet.next()){
+            List<MyObject> re ;
+            while (resultSet.next()) {
                 MyObject myObject = new MyObject();
                 for (int i = 0; i < fields.length; i++) {
                     Field field = MyObject.class.getDeclaredField(fields[i]);
@@ -102,16 +115,17 @@ public class DB {
             throw new RuntimeException(e);
         }
     }
-    public static ArrayList<MyObject> getData(String sql,String[] vars, String[] fields){
+
+    public static ArrayList<MyObject> getData(String sql, String[] vars, String[] fields) {
         Connection connection = getConnection();
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             for (int i = 0; i < vars.length; i++) {
-                preparedStatement.setString(i+1,vars[i]);
+                preparedStatement.setString(i + 1, vars[i]);
             }
             ResultSet resultSet = preparedStatement.executeQuery();
             ArrayList<MyObject> result = new ArrayList<>();
-            while (resultSet.next()){
+            while (resultSet.next()) {
                 MyObject myObject = new MyObject();
                 for (int i = 0; i < fields.length; i++) {
                     Field field = MyObject.class.getDeclaredField(fields[i]);

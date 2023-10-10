@@ -21,7 +21,7 @@ public class AdminController {
         }
     }
 
-    @WebServlet("/user-management")
+    @WebServlet("/admin/user-management")
     public static class UserManagement extends HttpServlet{
         @Override
         protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -31,7 +31,7 @@ public class AdminController {
         }
     }
 
-    @WebServlet("/change-verified-card")
+    @WebServlet("/admin/change-verified-card")
     public static class ChangeVerifiedCards extends HttpServlet{
         @Override
         protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -51,11 +51,11 @@ public class AdminController {
             } else {
                 req.getSession().setAttribute("mess", "error|" + language.getProperty("update_id_card_fail"));
             }
-            resp.sendRedirect("/user-management");
+            resp.sendRedirect("/admin/user-management");
         }
     }
 
-    @WebServlet("/location-management")
+    @WebServlet("/admin/location-management")
     public static class LocationManagement extends HttpServlet{
         @Override
         protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -77,11 +77,11 @@ public class AdminController {
             } else {
                 req.getSession().setAttribute("mess", "error|không thành công");
             }
-            resp.sendRedirect("/location-management");
+            resp.sendRedirect("/admin/location-management");
         }
     }
 
-    @WebServlet("/add-districts")
+    @WebServlet("/admin/add-districts")
     public static class AddDistricts extends HttpServlet{
         @Override
         protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -94,7 +94,7 @@ public class AdminController {
             } else {
                 req.getSession().setAttribute("mess", "error|không thành công");
             }
-            resp.sendRedirect("/location-management");
+            resp.sendRedirect("/admin/location-management");
         }
     }
 }

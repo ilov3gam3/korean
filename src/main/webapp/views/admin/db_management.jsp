@@ -5,7 +5,7 @@
     <title>Title</title>
 </head>
 <body>
-<a href="/manage-database"><button>re create all tables (reset)</button></a><br>
+<a href="/admin/manage-database"><button>re create all tables (reset)</button></a><br>
 <c:choose>
     <c:when test="${db_exists eq true}">
         <p>db already exist</p>
