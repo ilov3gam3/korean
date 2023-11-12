@@ -42,13 +42,22 @@ public class UserController {
         public static boolean checkEmail(String email) {
             return DB.getData("select * from users where email = ?", new String[]{email}, new String[]{"id"}).size() == 0;
         }
+        public static boolean checkEmailExcept(String email, String id) {
+            return DB.getData("select * from users where email = ? and id != ?", new String[]{email, id}, new String[]{"id"}).size() == 0;
+        }
 
         public static boolean checkPhone(String phone) {
             return DB.getData("select * from users where email = ?", new String[]{phone}, new String[]{"id"}).size() == 0;
         }
+        public static boolean checkPhoneExcept(String phone, String id) {
+            return DB.getData("select * from users where email = ? and id != ?", new String[]{phone, id}, new String[]{"id"}).size() == 0;
+        }
 
         public static boolean checkNational_id(String national_id) {
             return DB.getData("select * from users where national_id = ?", new String[]{national_id}, new String[]{"id"}).size() == 0;
+        }
+        public static boolean checkNational_idExcept(String national_id, String id) {
+            return DB.getData("select * from users where national_id = ? and id != ?", new String[]{national_id, id}, new String[]{"id"}).size() == 0;
         }
 
         @Override
@@ -66,6 +75,7 @@ public class UserController {
             String email = req.getParameter("email");
             String phone = req.getParameter("phone");
             String national_id = req.getParameter("national_id");
+            String nationality = req.getParameter("nationality");
             String name = req.getParameter("name");
             String password = req.getParameter("password");
             String dob = req.getParameter("dob");
@@ -92,11 +102,12 @@ public class UserController {
                 load_form.phone = phone;
                 load_form.dob = dob;
                 load_form.national_id = national_id;
+                load_form.nationality = nationality;
                 req.getSession().setAttribute("load_reg_form", load_form);
-                resp.sendRedirect("/register");
+                resp.sendRedirect(req.getContextPath() + "/register");
             } else {
                 String uuid = UUID.randomUUID().toString();
-                String sql = "insert into users(name, email, password, avatar, phone, dob, national_id,  hash, is_admin, is_verified, cards_verified) values(?, ?, ?, '/files/default-avatar.webp', ?, ?, ?, ?, 'false', 'false', 'false');";
+                String sql = "insert into users(name, email, password, avatar, phone, dob, national_id,  hash, is_admin, is_verified, cards_verified, nationality) values(?, ?, ?, ?, ?, ?, ?, ?, 'false', 'false', 'false', ?);";
                 ExecutorService executorService = Executors.newSingleThreadExecutor();
                 executorService.submit(() -> {
                     try {
@@ -107,11 +118,11 @@ public class UserController {
                     }
                 });
                 executorService.shutdown();
-                String[] vars = new String[]{name, email, password, phone, dob, national_id, uuid};
+                String[] vars = new String[]{name, email, password,req.getContextPath() + "/files/default-avatar.webp" ,phone, dob, national_id, uuid, nationality};
                 boolean status = DB.executeUpdate(sql, vars);
                 if (status) {
                     req.getSession().setAttribute("mess", "success|" + language.getProperty("create_account_success"));
-                    resp.sendRedirect("/login");
+                    resp.sendRedirect(req.getContextPath() + "/login");
                 } else {
                     req.getSession().setAttribute("mess", "error|" + language.getProperty("create_account_fail"));
                     MyObject load_form = new MyObject();
@@ -120,8 +131,9 @@ public class UserController {
                     load_form.phone = phone;
                     load_form.dob = dob;
                     load_form.national_id = national_id;
+                    load_form.nationality = nationality;
                     req.getSession().setAttribute("load_reg_form", load_form);
-                    resp.sendRedirect("/register");
+                    resp.sendRedirect(req.getContextPath() + "/register");
                 }
             }
         }
@@ -131,10 +143,10 @@ public class UserController {
     public static class LoginController extends HttpServlet {
         @Override
         protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-            if (req.getSession().getAttribute("load_log_form") != null){
-                MyObject load_log_form = (MyObject) req.getSession().getAttribute("load_log_form");
-                req.setAttribute("load_form", load_log_form);
-                req.getSession().removeAttribute("load_log_form");
+            if (req.getSession().getAttribute("form") != null){
+                MyObject load_log_form = (MyObject) req.getSession().getAttribute("form");
+                req.setAttribute("form", load_log_form);
+                req.getSession().removeAttribute("form");
             }
             req.getRequestDispatcher("/views/auth/login.jsp").forward(req, resp);
         }
@@ -145,21 +157,28 @@ public class UserController {
             String password = req.getParameter("password");
             String sql = "select * from users where email = ? and password = ?";
             String[] vars = new String[]{email, password};
-            String[] fields = new String[]{"id", "name", "email", "password", "avatar", "phone", "dob", "national_id", "front_id_card", "back_id_card", "hash", "is_verified", "is_admin"};
+            String[] fields = new String[]{"id", "name", "email", "password", "avatar", "phone", "dob", "national_id", "front_id_card", "back_id_card", "hash", "is_verified", "is_admin", "nationality"};
             ArrayList<MyObject> list = DB.getData(sql, vars, fields);
             Properties language = (Properties) req.getAttribute("language");
             if (list.size() == 0) {
                 req.getSession().setAttribute("mess", "warning|" + language.getProperty("login_fail"));
-                resp.sendRedirect("/login");
+                MyObject form = new MyObject();
+                form.email = email;
+                form.password = password;
+                req.getSession().setAttribute("form", form);
+                resp.sendRedirect(req.getContextPath() + "/login");
             } else {
                 if (list.get(0).is_verified.equals("false")){
                     req.getSession().setAttribute("mess", "success|" + language.getProperty("account_not_verified"));
-                    req.getSession().setAttribute("load_log_form", email);
-                    resp.sendRedirect("/login");
+                    MyObject form = new MyObject();
+                    form.email = email;
+                    form.password = password;
+                    req.getSession().setAttribute("form", form);
+                    resp.sendRedirect(req.getContextPath() + "/login");
                 } else {
                     req.getSession().setAttribute("mess", "success|" + language.getProperty("login_success"));
                     req.getSession().setAttribute("login", list.get(0));
-                    resp.sendRedirect("/");
+                    resp.sendRedirect(req.getContextPath() + "/");
                 }
             }
         }
@@ -203,7 +222,7 @@ public class UserController {
         @Override
         protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
             req.getSession().removeAttribute("login");
-            resp.sendRedirect("/");
+            resp.sendRedirect(req.getContextPath() + "/");
         }
     }
 
@@ -211,23 +230,36 @@ public class UserController {
     public static class Profile extends HttpServlet {
         @Override
         protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-/*            MyObject user = (MyObject) req.getSession().getAttribute("login");
-            String sql = "select files.* from files inner join users on files.id = users.front_id_card or files.id = users.back_id_card where users.id = ?";
-            String[] vars = new String[]{user.id};
-            String[] fields = new String[]{"id", "path"};
-            ArrayList<MyObject> id_cards = DB.getData(sql, vars, fields);
-            if (id_cards.size() != 0){
-                for (int i = 0; i < id_cards.size(); i++) {
-                    if (id_cards.get(i).id.equals(user.front_id_card)){
-                        id_cards.get(i).description = "front";
-                    } else {
-                        id_cards.get(i).description = "back";
-                    }
-                    System.out.println(id_cards.get(i).path + "|" + id_cards.get(i).description);
-                }
-                req.setAttribute("id_cards", id_cards);
-            }*/
             req.getRequestDispatcher("/views/user/profile.jsp").forward(req, resp);
+        }
+
+        @Override
+        protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            String email = req.getParameter("email");
+            String phone = req.getParameter("phone");
+            String national_id = req.getParameter("national_id");
+            String nationality = req.getParameter("nationality");
+            String name = req.getParameter("name");
+            String dob = req.getParameter("dob");
+            MyObject user = (MyObject) req.getSession().getAttribute("login");
+            Properties language = (Properties) req.getAttribute("language");
+            if (!RegisterController.checkEmailExcept(email, user.id)){
+                req.getSession().setAttribute("mess", "warning|"+language.getProperty("email") + language.getProperty("duplicated"));
+            } else if (!RegisterController.checkNational_idExcept(national_id, user.id)){
+                req.getSession().setAttribute("mess", "warning|"+language.getProperty("national_id") + language.getProperty("duplicated"));
+            } else if (!RegisterController.checkPhoneExcept(phone, user.id)) {
+                req.getSession().setAttribute("mess", "warning|"+language.getProperty("phone") + language.getProperty("duplicated"));
+            } else {
+                String sql = "update users set email = ?, phone = ?, national_id = ?, nationality = ?, name = ?, dob = ? where id = ?";
+                String[] vars = new String[]{email, phone, national_id, nationality, name, dob, user.id};
+                boolean check = DB.executeUpdate(sql, vars);
+                if (check){
+                    req.getSession().setAttribute("mess","success|" + language.getProperty("update_id_card_success"));
+                } else {
+                    req.getSession().setAttribute("mess","error|" + language.getProperty("update_id_card_fail"));
+                }
+            }
+            resp.sendRedirect(req.getContextPath() + "/user/profile");
         }
     }
 
@@ -262,7 +294,6 @@ public class UserController {
                         try {
                             HttpResponse responseFromGet = httpGetClient.execute(httpGet);
                             HttpEntity responseEntityFromGet = responseFromGet.getEntity();
-
                             if (responseEntityFromGet != null) {
                                 String responseStringFromGet = EntityUtils.toString(responseEntityFromGet);
                                 objectMapper = new ObjectMapper();
@@ -280,7 +311,7 @@ public class UserController {
                                     MyObject user = DB.getData("select * from users where email = ?", new String[]{email}, new String[]{"id", "name", "email", "password", "avatar", "phone", "dob", "national_id", "front_id_card", "back_id_card", "hash", "is_verified", "is_admin"}).get(0);
                                     req.getSession().setAttribute("login", user);
                                     req.getSession().setAttribute("mess", "success|" + language.getProperty("login_success"));
-                                    resp.sendRedirect("/");
+                                    resp.sendRedirect(req.getContextPath() + "/");
                                 }
 
                             }
@@ -317,7 +348,7 @@ public class UserController {
             boolean check_national_id = RegisterController.checkNational_id(national_id);
             boolean error = check_email && check_phone && check_national_id;
             Properties language = (Properties) req.getAttribute("language");
-            if (!error) {
+/*            if (!error) {
                 String err_mess = "";
                 if (!check_email) {
                     err_mess += language.getProperty("email");
@@ -329,25 +360,25 @@ public class UserController {
                     err_mess += err_mess.equals("") ? language.getProperty("national_id") : ", " + language.getProperty("national_id");
                 }
                 req.getSession().setAttribute("mess", "warning|" + err_mess + " " + language.getProperty("duplicated") + ".");
+            } else {*/
+            String name = req.getParameter("name");
+            String password = req.getParameter("password");
+            String dob = req.getParameter("dob");
+            String avatar = req.getParameter("avatar");
+            String nationality = req.getParameter("nationality");
+            String sql = "insert into users(name, email, password, avatar, phone, dob, national_id, is_admin, is_verified, cards_verified, nationality) values(?, ?, ?, ?, ?, ?, ?, 'false', 'true', 'false', ?);";
+            String[] vars = new String[]{name, email, password, avatar, phone, dob, national_id, nationality};
+            boolean status = DB.executeUpdate(sql, vars);
+            if (status) {
+                req.getSession().setAttribute("mess", "success|" + language.getProperty("login_success"));
+                MyObject user = DB.getData("select * from users where email = ?", new String[]{email}, new String[]{"id", "name", "email", "password", "avatar", "phone", "dob", "national_id", "front_id_card", "back_id_card", "hash", "is_verified", "is_admin"}).get(0);
+                req.getSession().setAttribute("login", user);
+                resp.sendRedirect(req.getContextPath() + "/");
             } else {
-                String name = req.getParameter("name");
-                String password = req.getParameter("password");
-                String dob = req.getParameter("dob");
-                String avatar = req.getParameter("avatar");
-                String uuid = UUID.randomUUID().toString();
-                String sql = "insert into users(name, email, password, avatar, phone, dob, national_id,  hash, is_admin, is_verified, cards_verified) values(?, ?, ?, ?, ?, ?, ?, ?, 'false', 'true', 'false');";
-                String[] vars = new String[]{name, email, password, avatar, phone, dob, national_id, uuid};
-                boolean status = DB.executeUpdate(sql, vars);
-                if (status) {
-                    req.getSession().setAttribute("mess", "success|" + language.getProperty("login_success"));
-                    MyObject user = DB.getData("select * from users where email = ?", new String[]{email}, new String[]{"id", "name", "email", "password", "avatar", "phone", "dob", "national_id", "front_id_card", "back_id_card", "hash", "is_verified", "is_admin"}).get(0);
-                    req.getSession().setAttribute("login", user);
-                    resp.sendRedirect("/");
-                } else {
-                    req.getSession().setAttribute("mess", "error|" + language.getProperty("login_fail"));
-                    resp.sendRedirect("/login");
-                }
+                req.getSession().setAttribute("mess", "error|" + language.getProperty("login_fail"));
+                resp.sendRedirect(req.getContextPath() + "/login");
             }
+//            }
         }
     }
 
@@ -367,7 +398,7 @@ public class UserController {
             String uniquePart = UUID.randomUUID().toString();
             return uniquePart + "." + extension;
         }
-        private static String getFileName(Part part) {
+        public static String getFileName(Part part) {
             String contentDisposition = part.getHeader("content-disposition");
             String[] tokens = contentDisposition.split(";");
             for (String token : tokens) {
@@ -406,7 +437,7 @@ public class UserController {
                 e.printStackTrace();
                 req.setAttribute("error", language.getProperty("update_avatar_fail"));
             }
-            resp.sendRedirect("/user/profile");
+            resp.sendRedirect(req.getContextPath() + "/user/profile");
         }
     }
 
@@ -435,7 +466,7 @@ public class UserController {
                 String sql = "";
                 if (req.getParameter("side").equals("front")){
                     sql = "update users set front_id_card = ? where id = ?";
-                    boolean check = DB.executeUpdate(sql, new String[]{"/files/" + newFileName, user.id});
+                    boolean check = DB.executeUpdate(sql, new String[]{req.getContextPath() + "/files/" + newFileName, user.id});
                     if (check){
                         user.front_id_card = "/files/" + newFileName;
                         req.getSession().setAttribute("mess", "success|" + language.getProperty("update_avatar_success"));
@@ -447,7 +478,7 @@ public class UserController {
                     boolean check = DB.executeUpdate(sql, new String[]{"/files/" + newFileName, user.id});
                     if (check){
                         user.back_id_card= "/files/" + newFileName;
-                        req.getSession().setAttribute("mess", "success|" + language.getProperty("update_id_card_sucess"));
+                        req.getSession().setAttribute("mess", "success|" + language.getProperty("update_id_card_success"));
                     } else {
                         req.getSession().setAttribute("mess", "error|" + language.getProperty("update_id_card_fail"));
                     }
@@ -457,7 +488,100 @@ public class UserController {
                 e.printStackTrace();
                 req.setAttribute("error", language.getProperty("update_avatar_fail"));
             }
-            resp.sendRedirect("/user/profile");
+            resp.sendRedirect(req.getContextPath() + "/user/profile");
+        }
+    }
+
+    @WebServlet("/user/change-password")
+    public static class ChangePassword extends HttpServlet{
+        @Override
+        protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            req.getRequestDispatcher("/views/auth/change-password.jsp").forward(req, resp);
+        }
+
+        @Override
+        protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            Properties language = (Properties) req.getAttribute("language");
+            MyObject user = (MyObject) req.getSession().getAttribute("login");
+            if (user.password.equals(req.getParameter("current_password"))){
+                String new_password = req.getParameter("new_password");
+                String confirm_new_password = req.getParameter("confirm_new_password");
+                if (new_password.equals(confirm_new_password)){
+                    String sql = "update users set password = ? where id = ?";
+                    String[] vars = new String[]{new_password, user.id};
+                    if (DB.executeUpdate(sql, vars)){
+                        req.getSession().setAttribute("mess","success|" + language.getProperty("update_id_card_success"));
+                    } else {
+                        req.getSession().setAttribute("mess","error|" + language.getProperty("update_id_card_fail"));
+                    }
+                }else {
+                    req.getSession().setAttribute("mess", "warning|" + language.getProperty("password_mismatch"));
+                }
+            } else {
+                req.getSession().setAttribute("mess", "warning|" + language.getProperty("wrong_current_password"));
+            }
+            resp.sendRedirect(req.getContextPath() + "/user/profile");
+        }
+    }
+
+    @WebServlet("/forgot-password")
+    public static class ForgotPassword extends HttpServlet{
+        @Override
+        protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            req.getRequestDispatcher("/views/auth/forgot-password.jsp").forward(req, resp);
+        }
+
+        @Override
+        protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            String email = req.getParameter("email");
+            String uuid = UUID.randomUUID().toString();
+            String sql = "update users set hash = ? where email = ?";
+            String[] vars = new String[]{uuid, email};
+            DB.executeUpdate(sql, vars);
+            Properties language = (Properties) req.getAttribute("language");
+            ExecutorService executorService = Executors.newSingleThreadExecutor();
+            executorService.submit(() -> {
+                try {
+                    String html = language.getProperty("forgot_password_mail").replace("app", Config.config.get("app_name").toString()).replace("host", Config.config.get("app_host").toString()).replace("uuid", uuid);
+                    SendMail.send(email, language.getProperty("reset_password_subject"), html);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+            executorService.shutdown();
+            req.setAttribute("message", language.getProperty("check_mail"));
+            req.getRequestDispatcher("/views/auth/forgot-password.jsp").forward(req, resp);
+        }
+    }
+
+    @WebServlet("/reset-password")
+    public static class ResetPassword extends HttpServlet{
+        @Override
+        protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            req.getRequestDispatcher("/views/auth/reset-password.jsp").forward(req, resp);
+        }
+
+        @Override
+        protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            Properties language = (Properties) req.getAttribute("language");
+            String key = req.getParameter("key");
+            String password = req.getParameter("password");
+            String sql = "select * from users where hash = ?";
+            String[] vars = new String[]{key};
+            String[] fields = new String[]{"id", "name", "email", "password", "avatar", "phone", "dob", "national_id", "front_id_card", "back_id_card", "hash", "is_verified", "is_admin", "nationality"};
+            ArrayList<MyObject> users = DB.getData(sql, vars, fields);
+            if (users.size() != 0 || !key.equals("")){
+                sql = "update users set password = ?, hash = '' where hash = ?";
+                vars = new String[]{password, key};
+                if (DB.executeUpdate(sql, vars)){
+                    req.setAttribute("message", language.get("reset_password_success"));
+                } else {
+                    req.setAttribute("message", language.get("reset_password_fail"));
+                }
+            } else {
+                req.setAttribute("message", language.get("reset_password_error_hash"));
+            }
+            req.getRequestDispatcher("/views/auth/reset-password.jsp").forward(req, resp);
         }
     }
 }

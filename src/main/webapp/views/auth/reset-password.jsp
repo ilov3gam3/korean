@@ -8,13 +8,13 @@
         </div>
     </c:if>
     <c:if test="${empty message}">
-        <h2><%= language.getProperty("forgot_password_title") %></h2>
-        <form action="${pageContext.request.contextPath}/forgot-password" method="post" class="m-1" id="form">
+        <h2><%= language.getProperty("reset_password_title") %></h2>
+        <form action="" method="post" class="m-1" id="form">
             <div class="form-group mt-1 mb-1">
-                <label for="email"><%= language.getProperty("forgot_password_email") %></label>
-                <input required class="form-control" type="email" name="email" id="email">
+                <label for="password"><%= language.getProperty("reset_password_password") %></label>
+                <input required class="form-control" type="password" name="password" id="password">
             </div>
-            <button type="submit" class="btn btn-primary mt-2" style="width: 100%"><%= language.getProperty("forgot_password_submit") %></button>
+            <button type="submit" class="btn btn-primary mt-2" style="width: 100%"><%= language.getProperty("reset_password_button") %></button>
         </form>
     </c:if>
 </div>

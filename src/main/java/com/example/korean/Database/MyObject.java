@@ -1,7 +1,10 @@
 package com.example.korean.Database;
 
 import lombok.Getter;
+import lombok.ToString;
+
 @Getter
+@ToString
 public class MyObject {
     public String id;
     public String name;
@@ -11,6 +14,7 @@ public class MyObject {
     public String phone;
     public String dob;
     public String national_id;
+    public String nationality;
     public String front_id_card;
     public String back_id_card;
     public String hash;

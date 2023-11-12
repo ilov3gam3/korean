@@ -4,7 +4,7 @@
 <div class="container-fluid col-12 mb-3 d-flex justify-content-center">
     <div class="row col-11 ">
         <div class="col-md-12">
-            <h2><%= language.getProperty("property_type_title") %></h2>
+            <h2><%= language.getProperty("near_location_title") %></h2>
             <button type="button" data-bs-toggle="modal" data-bs-target="#addModal" class="btn btn-primary mb-2 ml-2">
                 <%= language.getProperty("property_type_add_new") %>
             </button>
@@ -12,20 +12,16 @@
                 <thead>
                 <tr>
                     <th scope="col">#</th>
-                    <th><%= language.getProperty("property_type_vn_name") %></th>
-                    <th><%= language.getProperty("property_type_kr_name") %></th>
-                    <th><%= language.getProperty("property_type_vn_des") %></th>
-                    <th><%= language.getProperty("property_type_kr_des") %></th>
+                    <th><%= language.getProperty("near_location_name_vn") %></th>
+                    <th><%= language.getProperty("near_location_name_kr") %></th>
                 </tr>
                 </thead>
                 <tbody>
-                <c:forEach var="item" items="${property_list}">
+                <c:forEach var="location" items="${locations}">
                     <tr>
-                        <td>${item.getId()}</td>
-                        <td>${item.getName_vn()}</td>
-                        <td>${item.getName_kr()}</td>
-                        <td>${item.getDescription_vn()}</td>
-                        <td>${item.getDescription_kr()}</td>
+                        <td>${location.getId()}</td>
+                        <td>${location.getName_vn()}</td>
+                        <td>${location.getName_kr()}</td>
                     </tr>
                 </c:forEach>
                 </tbody>
@@ -42,12 +38,12 @@
             </div>
             <div class="modal-body">
                 <div class="col-md-12">
-                    <form action="${pageContext.request.contextPath}/admin/property-type-management" method="post">
+                    <form action="${pageContext.request.contextPath}/admin/near-by-locations" method="post">
                         <div class="form-group m-1">
-                            <label for="name_vi"><%= language.getProperty("property_type_vn_name") %></label>
+                            <label for="name_vn"><%= language.getProperty("property_type_vn_name") %></label>
                             <div class="row">
                                 <div class="col-md-9">
-                                    <input class="form-control" type="text" name="name_vi" id="name_vi">
+                                    <input class="form-control" type="text" name="name_vn" id="name_vn">
                                 </div>
                                 <div class="col-md-3">
                                     <button class="btn btn-primary" type="button" id="trans_to_kr" style="width: 100%;">
@@ -68,33 +64,8 @@
                             </div>
 
                         </div>
-                        <div class="form-group m-1">
-                            <div class="row  mt-1 mb-1">
-                                <div class="col-9">
-                                    <label for="description_vi"><%= language.getProperty("property_type_vn_des") %></label>
-                                </div>
-                                <div class="col-3">
-                                    <button class="btn btn-primary" type="button" id="trans_des_to_kr" style="width: 100%"><%= language.getProperty("property_type_tran2kr") %></button>
-                                </div>
-                            </div>
-                            <textarea class="form-control" name="description_vi" id="description_vi" rows="8"
-                                      style="width: 100%"></textarea>
-                        </div>
-                        <div class="form-group m-1">
-                            <div class="row mt-1 mb-1">
-                                <div class="col-9">
-                                    <label for="description_kr"><%= language.getProperty("property_type_kr_des") %></label>
-                                </div>
-                                <div class="col-3">
-                                    <button class="btn btn-primary" type="button" id="trans_des_to_vn" style="width: 100%"><%= language.getProperty("property_type_tran2vn") %></button>
-                                </div>
-                            </div>
-
-                            <textarea class="form-control" name="description_kr" id="description_kr" rows="8"
-                                      style="width: 100%"></textarea>
-                        </div>
                         <div class="col-md-12 d-grid gap-2 mt-2">
-                            <button class="btn btn-primary"><%= language.getProperty("property_type_add_new") %></button>
+                            <button class="btn btn-primary"><%= language.getProperty("near_location_add") %></button>
                         </div>
                     </form>
                 </div>
@@ -140,24 +111,41 @@
                 translated_text = res.data[0].translations[0].text
             })
     }
+
+    /*$("#name_vi").on('blur', async function () {
+        if ($("#name_vi").val() !== '') {
+            await translate($("#name_vi").val(), 'ko')
+            if (detected_language !== 'vi') {
+                toastr.warning("ngôn ngữ phải là tiếng việt")
+            } else {
+                if ($("#name_kr").val() === '') {
+                    $("#name_kr").val(translated_text)
+                    translated_text = ''
+                }
+            }
+        }
+    });
+    $("#name_kr").on('blur', async function () {
+        if ($("#name_kr").val() !== '') {
+            await translate($("#name_kr").val(), 'vi')
+            if (detected_language !== 'ko') {
+                toastr.warning("ngôn ngữ phải là tiếng hàn")
+            } else {
+                if ($("#name_vi").val() === '') {
+                    $("#name_vi").val(translated_text)
+                    translated_text = ''
+                }
+            }
+        }
+    });*/
     $("#trans_to_kr").on('click', async function () {
-        await translate($("#name_vi").val(), 'ko')
+        await translate($("#name_vn").val(), 'ko')
         $("#name_kr").val(translated_text)
         translated_text = ''
     })
     $("#trans_to_vn").on('click', async function () {
         await translate($("#name_kr").val(), 'vi')
-        $("#name_vi").val(translated_text)
-        translated_text = ''
-    })
-    $("#trans_des_to_kr").on('click',async function () {
-        await translate($("#description_vi").val(), 'ko')
-        $("#description_kr").val(translated_text)
-        translated_text = ''
-    })
-    $("#trans_des_to_vn").on('click',async function () {
-        await translate($("#description_kr").val(), 'vi')
-        $("#description_vi").val(translated_text)
+        $("#name_vn").val(translated_text)
         translated_text = ''
     })
 </script>

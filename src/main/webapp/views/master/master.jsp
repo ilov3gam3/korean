@@ -4,9 +4,9 @@
 <!-- Navbar Start -->
         <div class="container-fluid nav-bar bg-transparent">
             <nav class="navbar navbar-expand-lg navbar-light py-0 px-4">
-                <a href="index.html" class="navbar-brand d-flex align-items-center text-center">
+                <a href="${pageContext.request.contextPath}/" class="navbar-brand d-flex align-items-center text-center">
                     <div class="icon p-2 me-2">
-                        <img class="img-fluid" src="/assets/img/icon-deal.png" alt="Icon" style="width: 30px; height: 30px;">
+                        <img class="img-fluid" src="${pageContext.request.contextPath}/assets/img/icon-deal.png" alt="Icon" style="width: 30px; height: 30px;">
                     </div>
                     <h1 class="m-0 text-primary">Makaan</h1>
                 </a>
@@ -37,7 +37,7 @@
                     <div class="ml-1">
                         <button class="btn btn-primary ml-1 mr-1">Add Property</button>
                         <button class="btn btn-primary ml-1 mr-1">Login</button>
-                        <a href="/register">
+                        <a href="${pageContext.request.contextPath}/register">
                             <button class="btn btn-primary ml-1 mr-1">Sign up</button>
                         </a>
                     </div>
@@ -47,7 +47,7 @@
         <!-- Navbar End -->
         <div class="container col-6 mb-3">
             <h1>Form đăng kí</h1>
-            <form action="/register" method="post" class="m-1">
+            <form action="${pageContext.request.contextPath}/register" method="post" class="m-1">
                 <div class="form-group">
                     <label for="username">Nhập username</label>
                     <input class="form-control" type="text" id="username" placeholder="Username">

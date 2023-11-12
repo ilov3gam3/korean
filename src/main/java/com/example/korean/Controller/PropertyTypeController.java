@@ -33,7 +33,7 @@ public class PropertyTypeController {
             } else {
                 req.getSession().setAttribute("mess", "error|No OK");
             }
-            resp.sendRedirect("/admin/property-type-management");
+            resp.sendRedirect(req.getContextPath() + "/admin/property-type-management");
         }
     }
 }

@@ -70,7 +70,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form action="/admin/change-verified-card" method="post" >
+                <form action="${pageContext.request.contextPath}/admin/change-verified-card" method="post" >
                 <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
@@ -81,10 +81,8 @@
                         <div class="col-md-6 d-flex align-items-end">
                             <div class="form-group" style="width: 100%">
                                 <label id="info_cards_verified"></label>
-<%--                                <input type="submit" class="btn btn-primary form-control" style="width: 100%" id="btn_verified" value="Xác nhận" hidden>--%>
                                 <button type="submit" class="btn btn-primary" style="width: 100%" id="btn_verified" value="verified" name="status" hidden><%=language.getProperty("admin.confirm")%></button>
                                 <button type="submit" class="btn btn-danger" style="width: 100%" id="btn_remove_verified" value="un_verified" name="status" hidden><%=language.getProperty("admin.un_confirm")%></button>
-<%--                                <input type="submit" class="btn btn-danger form-control" style="width: 100%" id="btn_remove_verified" value="Bỏ xác nhận" hidden>--%>
                             </div>
                         </div>
                 </div>
@@ -101,10 +99,6 @@
                         <p class="text-danger" hidden id="no_back"><%=language.getProperty("admin.no_back")%></p>
                     </div>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary">Save changes</button>
             </div>
         </div>
     </div>

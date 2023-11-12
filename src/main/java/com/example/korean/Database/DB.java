@@ -10,54 +10,30 @@ import java.util.List;
 import java.util.Scanner;
 
 public class DB {
-    static String slurpStdin() {
-        String input = "";
-        Scanner scan = new Scanner(System.in);
-
-        while (true) {
-            input += scan.nextLine();
-            if (scan.hasNextLine()) {
-                input += "\n";
-            } else {
-                break;
-            }
-        }
-
-        return input;
-    }
-
-
     public static void main(String[] args) throws SQLException {
-        String input = slurpStdin();
-        BigInteger N = new BigInteger(input.split(" ")[0]);
-        BigInteger A = new BigInteger(input.split(" ")[1]);
-        BigInteger B = new BigInteger(input.split(" ")[2]);
-        BigInteger count = new BigInteger("0");
-        BigInteger count_blue = new BigInteger("0");
-        for (float i = 0; i < Math.pow(10, 10); i++) {
-            count = count.add(A);
-            if (count.compareTo(N)>=0){
-                count_blue = count_blue.add(A.subtract(count.subtract(N)));
-                break;
-            } else {
-                count_blue = count_blue.add(A);
-            }
-            count = count.add(B);
-            if (count.compareTo(N)>=0){
-                break;
-            }
-        }
-        System.out.println(count_blue);
+        System.out.println(insertGetLastId("insert into provinces(name) values(?)", new String[]{"eragdfgdrtgaegerge"}));
     }
 
     public static Connection getConnection() {
-        try {
+        /*try {
             Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
             String serverName = Config.config.getProperty("db_server");
             String port = Config.config.getProperty("db_port");
             String databaseName = Config.config.getProperty("db_name");
             String username = Config.config.getProperty("db_username");
             String password = Config.config.getProperty("db_password");
+            String url = "jdbc:sqlserver://" + serverName + ":" + port + ";databaseName=" + databaseName + ";trustServerCertificate=true;";
+            return DriverManager.getConnection(url, username, password);
+        } catch (ClassNotFoundException | SQLException e) {
+            throw new RuntimeException(e);
+        }*/
+        try {
+            Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+            String serverName = "minh.database.windows.net";
+            String port = "1433";
+            String databaseName = "korean";
+            String username = "minh";
+            String password = "Matkhaulagivaytroi1";
             String url = "jdbc:sqlserver://" + serverName + ":" + port + ";databaseName=" + databaseName + ";trustServerCertificate=true;";
             return DriverManager.getConnection(url, username, password);
         } catch (ClassNotFoundException | SQLException e) {
@@ -90,6 +66,26 @@ public class DB {
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
+        }
+    }
+
+    public static int insertGetLastId(String sql, String[] fields){
+        Connection connection = getConnection();
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            for (int i = 0; i < fields.length; i++) {
+                preparedStatement.setString(i + 1, fields[i]);
+            }
+            preparedStatement.executeUpdate();
+            ResultSet generatedKeys = preparedStatement.getGeneratedKeys();
+            if (generatedKeys.next()){
+                return (int) generatedKeys.getLong(1);
+            } else {
+                return 0;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return 0;
         }
     }
 

@@ -51,7 +51,7 @@ public class AdminController {
             } else {
                 req.getSession().setAttribute("mess", "error|" + language.getProperty("update_id_card_fail"));
             }
-            resp.sendRedirect("/admin/user-management");
+            resp.sendRedirect(req.getContextPath() + "/admin/user-management");
         }
     }
 
@@ -70,14 +70,15 @@ public class AdminController {
 
         @Override
         protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            Properties language = (Properties) req.getAttribute("language");
             String name = req.getParameter("province_name");
             boolean check = DB.executeUpdate("insert into provinces(name) values(?);", new String[]{name});
             if (check){
-                req.getSession().setAttribute("mess", "success|thành công");
+                req.getSession().setAttribute("mess", "success|"+language.get("add_success"));
             } else {
-                req.getSession().setAttribute("mess", "error|không thành công");
+                req.getSession().setAttribute("mess", "error|"+language.get("add_fail"));
             }
-            resp.sendRedirect("/admin/location-management");
+            resp.sendRedirect(req.getContextPath() + "/admin/location-management");
         }
     }
 
@@ -85,16 +86,17 @@ public class AdminController {
     public static class AddDistricts extends HttpServlet{
         @Override
         protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            Properties language = (Properties) req.getAttribute("language");
             String district_name = req.getParameter("district_name");
             String province_id = req.getParameter("province_id");
             String sql = "insert into districts(name, province_id) values(?, ?)";
             boolean check = DB.executeUpdate(sql, new String[]{district_name, province_id});
             if (check){
-                req.getSession().setAttribute("mess", "success|thành công");
+                req.getSession().setAttribute("mess", "success|"+language.getProperty("add_success"));
             } else {
-                req.getSession().setAttribute("mess", "error|không thành công");
+                req.getSession().setAttribute("mess", "error|"+language.getProperty("add_fail"));
             }
-            resp.sendRedirect("/admin/location-management");
+            resp.sendRedirect(req.getContextPath() + "/admin/location-management");
         }
     }
 }

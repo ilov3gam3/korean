@@ -19,7 +19,7 @@ public class LoginFilter implements Filter {
             chain.doFilter(request, response);
         } else {
             req.getSession().setAttribute("mess", "error|" + language.getProperty("login_pls"));
-            resp.sendRedirect("/login");
+            resp.sendRedirect(req.getContextPath() + "/login");
         }
     }
 }
