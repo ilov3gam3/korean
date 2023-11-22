@@ -29,50 +29,6 @@
         </div>
     </div>
 </div>
-<div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-xl ">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel"><%= language.getProperty("property_type_add_new") %></h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="col-md-12">
-                    <form action="${pageContext.request.contextPath}/admin/near-by-locations" method="post">
-                        <div class="form-group m-1">
-                            <label for="name_vn"><%= language.getProperty("property_type_vn_name") %></label>
-                            <div class="row">
-                                <div class="col-md-9">
-                                    <input class="form-control" type="text" name="name_vn" id="name_vn">
-                                </div>
-                                <div class="col-md-3">
-                                    <button class="btn btn-primary" type="button" id="trans_to_kr" style="width: 100%;">
-                                        <%= language.getProperty("property_type_tran2kr") %></button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group m-1">
-                            <label for="name_kr"><%= language.getProperty("property_type_kr_name") %></label>
-                            <div class="row">
-                                <div class="col-md-9">
-                                    <input class="form-control" type="text" name="name_kr" id="name_kr">
-                                </div>
-                                <div class="col-md-3">
-                                    <button class="btn btn-primary" type="button" id="trans_to_vn" style="width: 100%;">
-                                        <%= language.getProperty("property_type_tran2vn") %></button>
-                                </div>
-                            </div>
-
-                        </div>
-                        <div class="col-md-12 d-grid gap-2 mt-2">
-                            <button class="btn btn-primary"><%= language.getProperty("near_location_add") %></button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 <%@ include file="../master/foot.jsp" %>
 <script>
     var addModal = $("#addModal");

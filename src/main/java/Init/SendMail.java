@@ -1,4 +1,4 @@
-package com.example.korean.Init;
+package Init;
 
 import jakarta.mail.*;
 import jakarta.mail.internet.InternetAddress;

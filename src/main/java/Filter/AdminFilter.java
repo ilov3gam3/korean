@@ -1,6 +1,6 @@
-package com.example.korean.Filter;
+package Filter;
 
-import com.example.korean.Database.MyObject;
+import Database.MyObject;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -8,17 +8,18 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Properties;
 
-public class LoginFilter implements Filter {
+
+public class AdminFilter implements Filter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse resp = (HttpServletResponse) response;
         MyObject user = (MyObject) req.getSession().getAttribute("login");
         Properties language = (Properties) req.getAttribute("language");
-        if (user !=null){
+        if (user.getIs_admin().equals("1")){
             chain.doFilter(request, response);
         } else {
-            req.getSession().setAttribute("mess", "error|" + language.getProperty("login_pls"));
+            req.getSession().setAttribute("mess", "error|" + language.getProperty("login_as_admin_pls"));
             resp.sendRedirect(req.getContextPath() + "/login");
         }
     }

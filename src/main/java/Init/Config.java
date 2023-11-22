@@ -1,4 +1,4 @@
-package com.example.korean.Init;
+package Init;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;

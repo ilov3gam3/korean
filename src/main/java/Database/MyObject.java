@@ -1,4 +1,4 @@
-package com.example.korean.Database;
+package Database;
 
 import lombok.Getter;
 import lombok.ToString;
@@ -35,4 +35,25 @@ public class MyObject {
     public String location_id;
     public String price;
     public String created_at;
+    public String floor_number;
+    public String at_floor;
+    public String district_id;
+    public String address;
+    public String bedrooms;
+    public String bathrooms;
+    public String area;
+    public String hidden;
+    public String sold;
+    public String property_type_name_vn;
+    public String property_type_name_kr;
+    public String district_name;
+    public String province_name;
+    public String floor_numbers;
+    public String is_thumb_nail;
+    public String amenity_name_vn;
+    public String amenity_name_kr;
+    public String nearby_location_name_vn;
+    public String nearby_location_name_kr;
+    public String near_location_id;
+    public String amenity_id;
 }

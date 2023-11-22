@@ -70,6 +70,7 @@
                     </div>
                 </div>
             </div>
+
             <div class="col-12">
                 <div class="row">
                     <div class="col-md-4">
@@ -132,7 +133,7 @@
                         <input type="number" class="form-control" name="bathrooms" id="bathrooms">
                     </div>
                     <div class="col-md-2">
-                        <label for="area"><%= language.getProperty("add_property_area") %></label>
+                        <label for="area"><%= language.getProperty("add_property_area") %>(m²)</label>
                         <input type="number" class="form-control" name="area" id="area">
                     </div>
                     <div class="col-md-2 mt-3">
@@ -148,7 +149,11 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-4">
+                    <div class="col-md-2">
+                        <label for="price"><%= language.getProperty("add_property_price") %></label>
+                        <input type="number" class="form-control" name="price" id="price">
+                    </div>
+                    <div class="col-2">
                         <label for="imgs"><%= language.getProperty("add_property_add_img") %></label>
                         <label for="imgs" class="btn btn-primary" style="width: 100%;"><%= language.getProperty("add_property_add_img") %></label><br>
                         <input hidden="hidden" type="file" multiple onchange="choose_multiple_img(event)" id="imgs" accept="image/*">
@@ -262,7 +267,7 @@
         $("#description_kr").val(translated_text)
         translated_text = ''
     })
-    $("#trans_des_to_vn").on('click',async function () {
+    $("#trans_des_to_vi").on('click',async function () {
         await translate($("#description_kr").val(), 'vi')
         $("#description_vi").val(translated_text)
         translated_text = ''

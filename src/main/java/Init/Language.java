@@ -1,4 +1,4 @@
-package com.example.korean.Init;
+package Init;
 
 import java.util.HashMap;
 import java.util.Properties;

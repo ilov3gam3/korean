@@ -1,9 +1,9 @@
-package com.example.korean.Controller;
+package Controller;
 
-import com.example.korean.Database.DB;
-import com.example.korean.Database.MyObject;
-import com.example.korean.Init.Config;
-import com.example.korean.Init.SendMail;
+import Database.DB;
+import Init.Config;
+import Init.SendMail;
+import Database.MyObject;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;

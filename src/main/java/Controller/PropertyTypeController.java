@@ -1,7 +1,7 @@
-package com.example.korean.Controller;
+package Controller;
 
-import com.example.korean.Database.DB;
-import com.example.korean.Database.MyObject;
+import Database.DB;
+import Database.MyObject;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;

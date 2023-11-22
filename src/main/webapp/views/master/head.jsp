@@ -1,7 +1,7 @@
 <%@page contentType="text/html" pageEncoding="utf-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page import="java.util.Properties" %>
-<%@ page import="com.example.korean.Database.MyObject" %>
+<%@ page import="Database.MyObject" %>
 <% Properties language = (Properties) request.getAttribute("language"); %>
 <% MyObject user = (MyObject) session.getAttribute("login"); %>
 <!DOCTYPE html>
@@ -52,7 +52,7 @@
 </head>
 
 <body>
-<div class="" style="max-width: 80%; margin: auto;">
+<div class="" style="max-width: 85%; margin: auto;">
     <div class="container-fluid card p-0">
         <!-- Spinner Start -->
                 <div id="spinner"

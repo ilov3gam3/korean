@@ -1,25 +1,19 @@
-<%@page contentType="text/html" pageEncoding="utf-8" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ include file="/views/master/head.jsp" %>
-<div class="col-12 mb-3  d-flex justify-content-center">
-  <form onsubmit="a(event)" id="my_form1">
-    <input type="text" name="1">
-    <input type="text" name="2">
-    <input type="text" name="3">
-    <input type="text" name="4">
-    <input type="text" name="5">
+<%@ page import="java.util.Date" %>
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+<% System.out.println(new Date()); %>
+<h1>hello</h1>
+<form action="${pageContext.request.contextPath}/user/change-hidden" method="post">
+    <input type="text" name="p_id">
     <button type="submit">submit</button>
-  </form>
-</div>
-<%@ include file="/views/master/foot.jsp" %>
-<script>
-  function a(e) {
-    e.preventDefault()
-    const form = document.getElementById("my_form1")
-    const formData = new FormData(form);
-    const form_data_object = {};
-    formData.forEach((value, key) =>{
-      console.log(key + ":" + value)
-    })
-  }
-</script>
+</form>
+</body>
+</html>

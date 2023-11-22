@@ -1,13 +1,9 @@
-package com.example.korean.Database;
-
-import com.example.korean.Init.Config;
+package Database;
 
 import java.lang.reflect.Field;
-import java.math.BigInteger;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
 public class DB {
     public static void main(String[] args) throws SQLException {

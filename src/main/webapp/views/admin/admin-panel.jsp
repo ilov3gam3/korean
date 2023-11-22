@@ -13,7 +13,7 @@
             <div class="d-grid gap-2 col-md-6">
                 <a href="${pageContext.request.contextPath}/admin/location-management">
                     <div class="d-grid">
-                        <button class="btn btn-primary">Địa điểm</button>
+                        <button class="btn btn-primary"><%= language.getProperty("admin_panel_location") %></button>
                     </div>
                 </a>
             </div>
@@ -24,14 +24,14 @@
         <div class="gap-2 col-md-6">
             <a href="${pageContext.request.contextPath}/admin/property-type-management">
                 <div class="d-grid">
-                    <button class="btn btn-primary">Các loại nhà ở</button>
+                    <button class="btn btn-primary"><%= language.getProperty("admin_panel_property_type") %></button>
                 </div>
             </a>
         </div>
         <div class="gap-2 col-md-6">
             <a href="${pageContext.request.contextPath}/admin/near-by-locations">
                 <div class="d-grid">
-                    <button class="btn btn-primary">Các địa điểm gần nhà ở</button>
+                    <button class="btn btn-primary"><%= language.getProperty("admin_panel_near_location") %></button>
                 </div>
             </a>
         </div>
@@ -42,14 +42,14 @@
         <div class="gap-2 col-md-6">
             <a href="${pageContext.request.contextPath}/admin/amenities">
                 <div class="d-grid">
-                    <button class="btn btn-primary">Tiện ích</button>
+                    <button class="btn btn-primary"><%= language.getProperty("admin_panel_location") %></button>
                 </div>
             </a>
         </div>
         <div class="gap-2 col-md-6">
             <a href="${pageContext.request.contextPath}/admin/near-by-locations">
                 <div class="d-grid">
-                    <button class="btn btn-primary">Các địa điểm gần nhà ở</button>
+                    <button class="btn btn-primary">sắp ra mắt</button>
                 </div>
             </a>
         </div>

@@ -1,4 +1,4 @@
-package com.example.korean.Init;
+package Init;
 
 import jakarta.servlet.ServletContextEvent;
 import jakarta.servlet.ServletContextListener;
