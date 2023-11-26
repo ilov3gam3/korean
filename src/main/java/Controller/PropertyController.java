@@ -129,15 +129,16 @@ public class PropertyController {
             ArrayList<MyObject> property_list = DB.getData("select * from property_types", new String[]{"id", "name_vn","name_kr", "description_vn", "description_kr"});
             ArrayList<MyObject> provinces_list = DB.getData("select * from provinces;", new String[]{"id", "name"});
             ArrayList<MyObject> districts_list = DB.getData("select * from districts;", new String[]{"id", "name", "province_id"});
-            ArrayList<MyObject> amenities = DB.getData("select * from amenities", new String[]{"id", "name_vn", "name_kr"});
-            ArrayList<MyObject> locations = DB.getData("select * from nearby_locations;", new String[]{"id", "name_vn", "name_kr"});
-            req.setAttribute("property_list", property_list); //thực ra là type list, đặt lộn tên
+            /*ArrayList<MyObject> amenities = DB.getData("select * from amenities", new String[]{"id", "name_vn", "name_kr"});
+            ArrayList<MyObject> locations = DB.getData("select * from nearby_locations;", new String[]{"id", "name_vn", "name_kr"});*/
             req.setAttribute("property_near_location", property_near_location);
             req.setAttribute("property_amenities", property_amenities);
             req.setAttribute("properties", properties);
             req.setAttribute("images", images);
-            req.setAttribute("locations", locations);
-            req.setAttribute("amenities", amenities);
+            /*req.setAttribute("locations", locations);
+            req.setAttribute("amenities", amenities);*/
+            //thực ra là type list, đặt lộn tên
+            req.setAttribute("property_list", property_list);
             req.setAttribute("provinces_list", provinces_list);
             req.setAttribute("districts_list", districts_list);
             req.getRequestDispatcher("/views/user/view-properties.jsp").forward(req, resp);

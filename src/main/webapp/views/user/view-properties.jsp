@@ -482,27 +482,29 @@
         }
     }
 </script>
-<%--<script>--%>
-<%--var app = new Vue({--%>
-<%--    el: "#app",--%>
-<%--    data:{--%>
-<%--        near_locations: [],--%>
-<%--        amenities: [],--%>
-<%--    },--%>
-<%--    created(){--%>
-<%--        this.getAllData();--%>
-<%--    },--%>
-<%--    methods:{--%>
-<%--        getAllData(){--%>
-<%--            axios.get('<%=request.getContextPath()%>/api/get-amenities')--%>
-<%--                .then((res)=>{--%>
-<%--                    this.amenities = JSON.parse(res.data.amenities)--%>
-<%--                })--%>
-<%--            axios.get('<%=request.getContextPath()%>/api/get-near-locations')--%>
-<%--                .then((res)=>{--%>
-<%--                    this.near_locations = JSON.parse(res.data.locations)--%>
-<%--                })--%>
-<%--        }--%>
-<%--    }--%>
-<%--})--%>
-<%--</script>--%>
+<script>
+var app = new Vue({
+    el: "#app",
+    data:{
+        near_locations: [],
+        amenities: [],
+    },
+    created(){
+        this.getAllData();
+    },
+    methods:{
+        getAllData(){
+            axios.get('<%=request.getContextPath()%>/api/get-amenities')
+                .then((res)=>{
+                    this.amenities = JSON.parse(res.data.amenities)
+                    console.log(this.amenities)
+                })
+            axios.get('<%=request.getContextPath()%>/api/get-near-locations')
+                .then((res)=>{
+                    this.near_locations = JSON.parse(res.data.locations)
+                    console.log(this.near_locations)
+                })
+        }
+    }
+})
+</script>
