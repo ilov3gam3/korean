@@ -274,12 +274,20 @@ public class HomeController {
                     "    sold           bit,\n" +
                     "    created_at     datetime\n" +
                     ")\n" +
+                    "INSERT INTO korean.dbo.properties (name_vn, name_kr, property_type, description_vn, description_kr, price, floor_numbers, at_floor, district_id, address, bedrooms, bathrooms, area, user_id, hidden, for_sale, sold, created_at) VALUES (N'căn hộ cao cấp', N'럭셔리 아파트먼트 (Luxury Apartments)', 9, N'Khu căn hộ cao cấp tại Đà Nẵng · Regal Complex: Dự án căn hộ tại Đà Nẵng · Căn hộ Felicia Oceanview Apart – Hotel Đà Nẵng · Căn hộ Asiana Luxury Residences Đà Nẵng.', N'다낭의 고급 아파트 · Regal Complex : 다낭의 아파트 프로젝트 · 아파트 펠리시아 오션뷰 아파트 – 호텔 다낭 · 아시아나 럭셔리 레지던스 다낭.', 28000000, 30, 10, 3, N'Đào Duy Tùng, Ngũ Hành Sơn, Đà Nẵng', 3, 1, 150, 2, 0, 0, 0, N'2023-11-24 11:14:52.000');\n" +
+                    "INSERT INTO korean.dbo.properties (name_vn, name_kr, property_type, description_vn, description_kr, price, floor_numbers, at_floor, district_id, address, bedrooms, bathrooms, area, user_id, hidden, for_sale, sold, created_at) VALUES (N'Biệt thự ABC', N'ABC 빌라', 3, N'con chó', N'개', 10000000000, 3, 1, 7, N'Hoà Xuân', 5, 3, 200, 2, 0, 1, 0, N'2023-11-24 14:52:51.000');\n" +
                     "create table property_amenities\n" +
                     "(\n" +
                     "    id          int identity primary key,\n" +
                     "    property_id int foreign key references properties,\n" +
                     "    amenity_id  int foreign key references amenities\n" +
                     ")\n" +
+                    "INSERT INTO korean.dbo.property_amenities (property_id, amenity_id) VALUES (1, 1);\n" +
+                    "INSERT INTO korean.dbo.property_amenities (property_id, amenity_id) VALUES (1, 2);\n" +
+                    "INSERT INTO korean.dbo.property_amenities (property_id, amenity_id) VALUES (1, 6);\n" +
+                    "INSERT INTO korean.dbo.property_amenities (property_id, amenity_id) VALUES (2, 15);\n" +
+                    "INSERT INTO korean.dbo.property_amenities (property_id, amenity_id) VALUES (2, 12);\n" +
+                    "INSERT INTO korean.dbo.property_amenities (property_id, amenity_id) VALUES (2, 1);\n" +
                     "create table property_images\n" +
                     "(\n" +
                     "    id            int identity primary key,\n" +
@@ -287,22 +295,45 @@ public class HomeController {
                     "    path          nvarchar(500),\n" +
                     "    is_thumb_nail bit\n" +
                     ")\n" +
+                    "INSERT INTO korean.dbo.property_images (property_id, path, is_thumb_nail) VALUES (1, N'/files/3815cdf2-4624-45dc-a34b-90e2012ace27.jpg', 0);\n" +
+                    "INSERT INTO korean.dbo.property_images (property_id, path, is_thumb_nail) VALUES (1, N'/files/fd7b4c92-7bfa-48cc-b516-ad1aa44f0bef.jpg', 0);\n" +
+                    "INSERT INTO korean.dbo.property_images (property_id, path, is_thumb_nail) VALUES (1, N'/files/12a9ac08-85e5-4895-af89-4d28fd34c6ce.jpg', 0);\n" +
+                    "INSERT INTO korean.dbo.property_images (property_id, path, is_thumb_nail) VALUES (1, N'/files/da54f703-5c38-4e1d-9870-93ebcddaaf53.jpeg', 1);\n" +
+                    "INSERT INTO korean.dbo.property_images (property_id, path, is_thumb_nail) VALUES (1, N'/files/128930ad-2651-42b8-94cc-978faf81d084.jpg', 0);\n" +
+                    "INSERT INTO korean.dbo.property_images (property_id, path, is_thumb_nail) VALUES (2, N'/files/669c4ea6-8f1c-4cea-afcd-4d381f78ea13.jpg', 0);\n" +
+                    "INSERT INTO korean.dbo.property_images (property_id, path, is_thumb_nail) VALUES (2, N'/files/f3c7a0a9-c51a-459f-8a5a-c3192533a0fb.jpg', 0);\n" +
+                    "INSERT INTO korean.dbo.property_images (property_id, path, is_thumb_nail) VALUES (2, N'/files/007552f5-5b4e-4d93-bfc1-e1146c457886.jpg', 1);\n" +
+                    "INSERT INTO korean.dbo.property_images (property_id, path, is_thumb_nail) VALUES (2, N'/files/0ebe01d3-0f3f-426a-81cb-f65ceef1172d.jpg', 0);\n" +
+                    "INSERT INTO korean.dbo.property_images (property_id, path, is_thumb_nail) VALUES (2, N'/files/74b46816-80e9-4886-ae0f-a3bd62b33a84.jpg', 0);\n" +
+                    "\n" +
                     "create table property_near_location\n" +
                     "(\n" +
                     "    id               int identity primary key,\n" +
                     "    property_id      int foreign key references properties,\n" +
                     "    near_location_id int foreign key references nearby_locations\n" +
                     ")\n" +
+                    "INSERT INTO korean.dbo.property_near_location (property_id, near_location_id) VALUES (1, 2);\n" +
+                    "INSERT INTO korean.dbo.property_near_location (property_id, near_location_id) VALUES (1, 5);\n" +
+                    "INSERT INTO korean.dbo.property_near_location (property_id, near_location_id) VALUES (1, 7);\n" +
+                    "INSERT INTO korean.dbo.property_near_location (property_id, near_location_id) VALUES (1, 10);\n" +
+                    "INSERT INTO korean.dbo.property_near_location (property_id, near_location_id) VALUES (2, 4);\n" +
+                    "INSERT INTO korean.dbo.property_near_location (property_id, near_location_id) VALUES (2, 6);\n" +
+                    "INSERT INTO korean.dbo.property_near_location (property_id, near_location_id) VALUES (2, 11);\n" +
+                    "INSERT INTO korean.dbo.property_near_location (property_id, near_location_id) VALUES (2, 2);\n" +
                     "create table subscribe_plans\n" +
                     "(\n" +
                     "    id                 int identity primary key,\n" +
                     "    name_vn            nvarchar(500),\n" +
                     "    name_kr            nvarchar(500),\n" +
-                    "    benefits_vn        nvarchar( max),\n" +
-                    "    benefits_kr        nvarchar( max),\n" +
                     "    number_of_property int,\n" +
-                    "    price_per_month    int\n" +
+                    "    price_per_month    int,\n" +
+                    "    number_of_comments int,\n" +
+                    "    number_of_words_per_cmt int,\n" +
+                    "    hidden bit\n" +
                     ")\n" +
+                    "insert into subscribe_plans(name_vn, name_kr, number_of_property, price_per_month, number_of_comments, number_of_words_per_cmt) values (N'Bạc', N'은', 5, 100000, 20, 20)\n" +
+                    "insert into subscribe_plans(name_vn, name_kr, number_of_property, price_per_month, number_of_comments, number_of_words_per_cmt) values (N'Vàng', N'노란색', 10, 200000, 30, 30)\n" +
+                    "insert into subscribe_plans(name_vn, name_kr, number_of_property, price_per_month, number_of_comments, number_of_words_per_cmt) values (N'Kim cương', N'다이아몬드', 15, 300000, 40, 40)\n" +
                     "create table subscriptions\n" +
                     "(\n" +
                     "    id                 int identity primary key,\n" +
@@ -310,7 +341,21 @@ public class HomeController {
                     "    subscribe_plans_id int references subscribe_plans,\n" +
                     "    from_date          datetime,\n" +
                     "    to_date            datetime,\n" +
-                    "    created_at         datetime\n" +
+                    "    number_of_property int,\n" +
+                    "    price_per_month    int,\n" +
+                    "    number_of_comments int,\n" +
+                    "    number_of_words_per_cmt int,\n" +
+                    "    discount int,\n" +
+                    "    price_to_pay int,\n" +
+                    "    vnp_BankCode          varchar(50),\n" +
+                    "    vnp_TransactionNo     varchar(50),\n" +
+                    "    vnp_TransactionStatus varchar(50),\n" +
+                    "    vnp_OrderInfo         varchar(50),\n" +
+                    "    vnp_TxnRef            varchar(50),\n" +
+                    "    vnp_CardType          varchar(50),\n" +
+                    "    vnp_BankTranNo        varchar(50),\n" +
+                    "    create_order_at       datetime,\n" +
+                    "    paid_at               datetime,\n" +
                     ")";
             boolean check = DB.executeUpdate(String.valueOf(sqlContent));
             Properties language = (Properties) req.getAttribute("language");
