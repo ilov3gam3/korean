@@ -1,8 +1,6 @@
-<%@ page import="java.util.ArrayList" %>
 <%@page contentType="text/html" pageEncoding="utf-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ include file="../master/head.jsp" %>
-<% String lang = language.get("lang").toString(); %>
 <div class="col-12 mb-3  d-flex justify-content-center">
     <div class="row col-11  d-flex justify-content-center">
         <h2><%= language.getProperty("add_property_title") %>
@@ -70,14 +68,14 @@
                     </div>
                 </div>
             </div>
-
-            <div class="col-12">
-                <div class="row">
-                    <div class="col-md-4">
-                        <label for="property_type"><%= language.getProperty("add_property_choose_type") %></label>
-                        <select required class="form-control" name="property_type" id="property_type">
-                            <option value=""><%= language.getProperty("add_property_choose_type") %></option>
-                                <% ArrayList<MyObject> property_list = (ArrayList<MyObject>) request.getAttribute("property_list");%>
+            <div id="app">
+                <div class="col-12">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label for="property_type"><%= language.getProperty("add_property_choose_type") %></label>
+                            <select required class="form-control" name="property_type" id="property_type">
+                                <option value=""><%= language.getProperty("add_property_choose_type") %></option>
+                                <%--<% ArrayList<MyObject> property_list = (ArrayList<MyObject>) request.getAttribute("property_list");%>
                                 <% if (lang.equals("kr")) { %>
                                     <% for (int i = 0; i < property_list.size(); i++) { %>
                                         <option value="<%=property_list.get(i).getId()%>"><%=property_list.get(i).getName_kr()%></option>
@@ -86,132 +84,187 @@
                                     <% for (int i = 0; i < property_list.size(); i++) { %>
                                     <option value="<%=property_list.get(i).getId()%>"><%=property_list.get(i).getName_vn()%></option>
                                     <% } %>
-                                <% } %>
-                        </select>
-                    </div>
-                    <div class="col-md-4">
-                        <label for="province_id"><%= language.getProperty("add_property_choose_province") %></label>
-                        <select data-placeholder="Chọn thành phố" required class="form-control" name="province_id" id="province_id" onchange="change_district(this.value)">
-                            <option value=""><%= language.getProperty("add_property_choose_province") %></option>
-                            <c:forEach var="province" items="${provinces_list}">
-                                <option value="${province.getId()}">${province.getName()}</option>
-                            </c:forEach>
-                        </select>
-                    </div>
-                    <div class="col-md-4">
-                        <label for="district_id"><option value=""><%= language.getProperty("add_property_choose_district") %></option></label>
-                        <select required class="form-control" name="district_id" id="district_id">
+                                <% } %>--%>
+                                <template v-for="(value, key) in property_types">
+                                    <%if (lang.equals("kr")){ %>
+                                    <option :value="value.id">{{value.name_kr}}</option>
+                                    <% } %>
+                                    <%if (lang.equals("vn")){ %>
+                                    <option :value="value.id">{{value.name_vn}}</option>
+                                    <% } %>
+                                </template>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="province_id"><%= language.getProperty("add_property_choose_province") %></label>
+                            <select data-placeholder="Chọn thành phố" required class="form-control" name="province_id" id="province_id" onchange="change_district(this.value)">
+                                <option value=""><%= language.getProperty("add_property_choose_province") %></option>
+                                <%--                            <c:forEach var="province" items="${provinces_list}">--%>
+                                <%--                                <option value="${province.getId()}">${province.getName()}</option>--%>
+                                <%--                            </c:forEach>--%>
+                                <template v-for="(value, key) in provinces">
+                                    <option :value="value.id">{{value.name}}</option>
+                                </template>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="district_id"><%= language.getProperty("add_property_choose_district") %></label>
+                            <select required class="form-control" name="district_id" id="district_id">
 
-                        </select>
-                    </div>
-                </div>
-            </div>
-            <div class="col-12">
-                <div class="row">
-                    <div class="col-8">
-                        <label for="address"><%= language.getProperty("add_property_address") %></label>
-                        <input required type="text" class="form-control" name="address" id="address">
-                    </div>
-                    <div class="col-2">
-                        <label for="floor_numbers"><%= language.getProperty("add_property_number_floor") %></label>
-                        <input required type="number" class="form-control" name="floor_numbers" min="1" id="floor_numbers">
-                    </div>
-                    <div class="col-2">
-                        <label for="at_floor"><%= language.getProperty("add_property_at_floor") %></label>
-                        <input required type="number" class="form-control" name="at_floor" min="1" id="at_floor">
-                    </div>
-                </div>
-            </div>
-            <div class="col-12">
-                <div class="row">
-                    <div class="col-md-2">
-                        <label for="bedrooms"><%= language.getProperty("add_property_bed_room") %></label>
-                        <input type="number" class="form-control" name="bedrooms" id="bedrooms">
-                    </div>
-                    <div class="col-md-2">
-                        <label for="bathrooms"><%= language.getProperty("add_property_bath_room") %></label>
-                        <input type="number" class="form-control" name="bathrooms" id="bathrooms">
-                    </div>
-                    <div class="col-md-2">
-                        <label for="area"><%= language.getProperty("add_property_area") %>(m²)</label>
-                        <input type="number" class="form-control" name="area" id="area">
-                    </div>
-                    <div class="col-md-2 mt-3">
-                        <label><%= language.getProperty("add_property_type") %></label><br>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <input type="radio" id="yes" name="sale" value="true">
-                                <label for="yes"><%= language.getProperty("add_property_type_sale") %></label>
-                            </div>
-                            <div class="col-md-6">
-                                <input type="radio" id="no" name="sale" value="false">
-                                <label for="no"><%= language.getProperty("add_property_type_rent") %></label>
-                            </div>
+                            </select>
                         </div>
                     </div>
-                    <div class="col-md-2">
-                        <label for="price"><%= language.getProperty("add_property_price") %></label>
-                        <input type="number" class="form-control" name="price" id="price">
-                    </div>
-                    <div class="col-2">
-                        <label for="imgs"><%= language.getProperty("add_property_add_img") %></label>
-                        <label for="imgs" class="btn btn-primary" style="width: 100%;"><%= language.getProperty("add_property_add_img") %></label><br>
-                        <input hidden="hidden" type="file" multiple onchange="choose_multiple_img(event)" id="imgs" accept="image/*">
+                </div>
+                <div class="col-12">
+                    <div class="row">
+                        <div class="col-8">
+                            <label for="address"><%= language.getProperty("add_property_address") %></label>
+                            <input required type="text" class="form-control" name="address" id="address">
+                        </div>
+                        <div class="col-2">
+                            <label for="floor_numbers"><%= language.getProperty("add_property_number_floor") %></label>
+                            <input required type="number" class="form-control" name="floor_numbers" min="1" id="floor_numbers">
+                        </div>
+                        <div class="col-2">
+                            <label for="at_floor"><%= language.getProperty("add_property_at_floor") %></label>
+                            <input required type="number" class="form-control" name="at_floor" min="1" id="at_floor">
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-12">
-                <div class="row">
-                    <div class="col-5">
-                        <label for="amenity"><%= language.getProperty("add_property_choose_amenities") %></label>
-                        <select required data-placeholder="<%= language.getProperty("add_property_choose_amenities") %>" class="chosen-select form-control" multiple name="amenity_id" id="amenity">
-                            <% ArrayList<MyObject> amenities = (ArrayList<MyObject>) request.getAttribute("amenities");%>
-                                <% if (lang.equals("kr")) { %>
-                                    <% for (int i = 0; i < amenities.size(); i++) { %>
-                                        <option value="<%=amenities.get(i).getId()%>"><%=amenities.get(i).getName_kr()%></option>
-                                        <% } %>
-                                    <% } else { %>
+                <div class="col-12">
+                    <div class="row">
+                        <div class="col-md-2">
+                            <label for="bedrooms"><%= language.getProperty("add_property_bed_room") %></label>
+                            <input type="number" class="form-control" name="bedrooms" id="bedrooms">
+                        </div>
+                        <div class="col-md-2">
+                            <label for="bathrooms"><%= language.getProperty("add_property_bath_room") %></label>
+                            <input type="number" class="form-control" name="bathrooms" id="bathrooms">
+                        </div>
+                        <div class="col-md-2">
+                            <label for="area"><%= language.getProperty("add_property_area") %>(m²)</label>
+                            <input type="number" class="form-control" name="area" id="area">
+                        </div>
+                        <div class="col-md-2 mt-3">
+                            <label><%= language.getProperty("add_property_type") %></label><br>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <input type="radio" id="yes" name="sale" value="true">
+                                    <label for="yes"><%= language.getProperty("add_property_type_sale") %></label>
+                                </div>
+                                <div class="col-md-6">
+                                    <input type="radio" id="no" name="sale" value="false">
+                                    <label for="no"><%= language.getProperty("add_property_type_rent") %></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="price"><%= language.getProperty("add_property_price") %></label>
+                            <input type="number" class="form-control" name="price" id="price">
+                        </div>
+                        <div class="col-2">
+                            <label for="imgs"><%= language.getProperty("add_property_add_img") %></label>
+                            <label for="imgs" class="btn btn-primary" style="width: 100%;"><%= language.getProperty("add_property_add_img") %></label><br>
+                            <input hidden="hidden" type="file" multiple onchange="choose_multiple_img(event)" id="imgs" accept="image/*">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="row">
+                        <div class="col-5">
+                            <label ><%= language.getProperty("add_property_choose_amenities") %></label>
+                            <input type="hidden" name="amenity_id" :value="user_choose_amenity_str">
+                            <%--<select required data-placeholder="<%= language.getProperty("add_property_choose_amenities") %>" class="chosen-select form-control" multiple name="amenity_id" id="amenity">
+                                <% ArrayList<MyObject> amenities = (ArrayList<MyObject>) request.getAttribute("amenities");%>
+                                    <% if (lang.equals("kr")) { %>
                                         <% for (int i = 0; i < amenities.size(); i++) { %>
-                                        <option value="<%=amenities.get(i).getId()%>"><%=amenities.get(i).getName_vn()%></option>
-                                        <% } %>
-                                <% } %>
-                        </select>
-                    </div>
-                    <div class="col-5">
-                        <label for="nearby_location_id"><%= language.getProperty("add_property_choose_nearby") %></label>
-                        <select name="nearby_location_id" required data-placeholder="<%= language.getProperty("add_property_choose_nearby") %>" class="chosen-select form-control" multiple name="nearby_location_id" id="nearby_location_id">
-                            <% ArrayList<MyObject> locations = (ArrayList<MyObject>) request.getAttribute("locations");%>
-                                <% if (lang.equals("kr")) { %>
-                                    <% for (int i = 0; i < locations.size(); i++) { %>
-                                    <option value="<%=locations.get(i).getId()%>"><%=locations.get(i).getName_kr()%></option>
+                                            <option value="<%=amenities.get(i).getId()%>"><%=amenities.get(i).getName_kr()%></option>
+                                            <% } %>
+                                        <% } else { %>
+                                            <% for (int i = 0; i < amenities.size(); i++) { %>
+                                            <option value="<%=amenities.get(i).getId()%>"><%=amenities.get(i).getName_vn()%></option>
+                                            <% } %>
                                     <% } %>
-                                    <% } else { %>
-                                    <% for (int i = 0; i < locations.size(); i++) { %>
-                                    <option value="<%=locations.get(i).getId()%>"><%=locations.get(i).getName_vn()%></option>
-                                <% } %>
-                            <% } %>
-                        </select>
-                    </div>
+                            </select>--%>
+                            <div class="dropdown">
+                                <div class="form-control" aria-labelledby="amenities" id="amenities" data-bs-toggle="dropdown">
+                                    <p style="margin: 0" v-if="user_choose_amenity.length == 0"><%= language.getProperty("add_property_choose_amenities") %></p>
+                                    <template v-if="user_choose_amenity.length != 0" v-for="(value, key) in user_choose_amenity">
+                                        <% if (lang.equals("kr")) { %>
+                                        <button v-on:click="remove_amenity(value.id)" style='height: 28px; border: 0;padding-left: 6px; padding-right: 6px; padding-top: 1px; padding-bottom: 1px; margin-bottom: 1px' class='btn btn-primary'>{{value.name_kr}}</button>&nbsp;
+                                        <% } else { %>
+                                        <button v-on:click="remove_amenity(value.id)" style='height: 28px; border: 0;padding-left: 6px; padding-right: 6px; padding-top: 1px; padding-bottom: 1px; margin-bottom: 1px' class='btn btn-primary'>{{value.name_vn}}</button>&nbsp;
+                                        <% } %>
+                                    </template>
+                                </div>
+                                <ul style="max-height: 400px;overflow-y: scroll" class="dropdown-menu col-12">
+                                    <template v-for="(value, key) in amenities">
+                                        <% if (lang.equals("kr")) { %>
+                                        <li v-on:click="choose_amenity(value.id)" class="dropdown-item">{{value.name_kr}}</li>
+                                        <% } else { %>
+                                        <li v-on:click="choose_amenity(value.id)" class="dropdown-item">{{value.name_vn}}</li>
+                                        <% } %>
+                                    </template>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-5">
+                            <label ><%= language.getProperty("add_property_choose_nearby") %></label>
+                            <input type="hidden" name="nearby_location_id" :value="user_choose_near_locations_str">
+                            <%--<select name="nearby_location_id" required data-placeholder="<%= language.getProperty("add_property_choose_nearby") %>" class="chosen-select form-control" multiple name="nearby_location_id" id="nearby_location_id">
+                                <% ArrayList<MyObject> locations = (ArrayList<MyObject>) request.getAttribute("locations");%>
+                                    <% if (lang.equals("kr")) { %>
+                                        <% for (int i = 0; i < locations.size(); i++) { %>
+                                        <option value="<%=locations.get(i).getId()%>"><%=locations.get(i).getName_kr()%></option>
+                                        <% } %>
+                                        <% } else { %>
+                                        <% for (int i = 0; i < locations.size(); i++) { %>
+                                        <option value="<%=locations.get(i).getId()%>"><%=locations.get(i).getName_vn()%></option>
+                                        <% } %>
+                                    <% } %>
 
-                    <div class="col-1">
-                        <label for="add_new"><%= language.getProperty("add_property_add_new") %></label>
-                        <button id="add_new" type="submit" class="btn btn-primary" style="width: 100%"><%= language.getProperty("add_property_add_new") %></button>
-                    </div>
-                    <div class="col-1">
-                        <label for="add_new"><%= language.getProperty("add_property_clear_form") %></label>
-                        <button id="clear_form" type="button" class="btn btn-primary" style="width: 100%"><%= language.getProperty("add_property_clear_form") %></button>
+                            </select>--%>
+                            <div class="dropdown">
+                                <div class="form-control" aria-labelledby="amenities" id="near_locations" data-bs-toggle="dropdown">
+                                    <p style="margin: 0" v-if="user_choose_near_locations.length == 0"><%= language.getProperty("add_property_choose_nearby") %></p>
+                                    <template v-if="user_choose_near_locations.length != 0" v-for="(value, key) in user_choose_near_locations">
+                                        <% if (lang.equals("kr")) { %>
+                                        <button v-on:click="remove_near_location(value.id)" style='height: 28px; border: 0;padding-left: 6px; padding-right: 6px; padding-top: 1px; padding-bottom: 1px; margin-bottom: 1px' class='btn btn-primary'>{{value.name_kr}}</button>&nbsp;
+                                        <% } else { %>
+                                        <button v-on:click="remove_near_location(value.id)" style='height: 28px; border: 0;padding-left: 6px; padding-right: 6px; padding-top: 1px; padding-bottom: 1px; margin-bottom: 1px' class='btn btn-primary'>{{value.name_vn}}</button>&nbsp;
+                                        <% } %>
+                                    </template>
+                                </div>
+                                <ul style="max-height: 400px;overflow-y: scroll" class="dropdown-menu col-12">
+                                    <template v-for="(value, key) in near_locations">
+                                        <% if (lang.equals("kr")) { %>
+                                        <li v-on:click="choose_near_location(value.id)" class="dropdown-item">{{value.name_kr}}</li>
+                                        <% } else { %>
+                                        <li v-on:click="choose_near_location(value.id)" class="dropdown-item">{{value.name_vn}}</li>
+                                        <% } %>
+                                    </template>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-1">
+                            <label for="add_new"><%= language.getProperty("add_property_add_new") %></label>
+                            <button id="add_new" type="submit" class="btn btn-primary" style="width: 100%"><%= language.getProperty("add_property_add_new") %></button>
+                        </div>
+                        <div class="col-1">
+                            <label for="add_new"><%= language.getProperty("add_property_clear_form") %></label>
+                            <button id="clear_form" type="button" class="btn btn-primary" style="width: 100%"><%= language.getProperty("add_property_clear_form") %></button>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-12 mt-1">
-                <div class="row" id="preview_images">
+                <div class="col-12 mt-1">
+                    <div class="row" id="preview_images">
+                    </div>
                 </div>
             </div>
         </form>
     </div>
 </div>
 <%@ include file="../master/foot.jsp" %>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.0/axios.min.js" integrity="sha512-WrdC3CE9vf1nBf58JHepuWT4x24uTacky9fuzw2g/3L9JkihgwZ6Cfv+JGTtNyosOhEmttMtEZ6H3qJWfI7gIQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script>
     $("#amenity").chosen();
     $("#nearby_location_id").chosen();
@@ -384,4 +437,82 @@
             toastr.warning("<%= language.getProperty("add_property_fill_full_form") %>")
         }
     }
+    //======================================//======================================//======================================//======================================
+
+</script>
+<script>
+var app = new Vue({
+    el: "#app",
+    data:{
+        provinces: [],
+        districts: [],
+        near_locations: [],
+        property_types: [],
+        amenities: [],
+        user_choose_amenity: [],
+        user_choose_amenity_str: [],
+        user_choose_near_locations: [],
+        user_choose_near_locations_str: [],
+    },
+    created(){
+        this.getAllData();
+    },
+    methods:{
+        getAllData(){
+            axios.get('<%=request.getContextPath()%>/api/get-amenities')
+                .then((res)=>{
+                    this.amenities = JSON.parse(res.data.amenities)
+                })
+            axios.get('<%=request.getContextPath()%>/api/get-property-types')
+                .then((res)=>{
+                    this.property_types = JSON.parse(res.data.property_type_list)
+                })
+            axios.get('<%=request.getContextPath()%>/api/get-near-locations')
+                .then((res)=>{
+                    this.near_locations = JSON.parse(res.data.locations)
+                })
+            axios.get('<%=request.getContextPath()%>/api/get-locations')
+                .then((res)=>{
+                    this.provinces = JSON.parse(res.data.provinces_list)
+                    this.districts = JSON.parse(res.data.districts_list)
+                })
+        },
+        choose_amenity(id){
+            this.user_choose_amenity_str += id + "|"
+            for (let i = 0; i < this.amenities.length; i++) {
+                if (this.amenities[i].id === id){
+                    this.user_choose_amenity.push(this.amenities[i])
+                    this.amenities.splice(i, 1)
+                }
+            }
+        },
+        remove_amenity(id){
+            this.user_choose_amenity_str.replace(id + "|", "")
+            for (let i = 0; i < this.user_choose_amenity.length; i++) {
+                if (this.user_choose_amenity[i].id === id){
+                    this.amenities.push(this.user_choose_amenity[i])
+                    this.user_choose_amenity.splice(i, 1)
+                }
+            }
+        },
+        choose_near_location(id){
+            this.user_choose_near_locations_str += id + "|"
+            for (let i = 0; i < this.near_locations.length; i++) {
+                if (this.near_locations[i].id === id){
+                    this.user_choose_near_locations.push(this.near_locations[i])
+                    this.near_locations.splice(i, 1)
+                }
+            }
+        },
+        remove_near_location(id){
+            this.user_choose_near_locations_str.replace(id + "|", "")
+            for (let i = 0; i < this.user_choose_near_locations.length; i++) {
+                if (this.user_choose_near_locations[i].id === id){
+                    this.near_locations.push(this.user_choose_near_locations[i])
+                    this.user_choose_near_locations.splice(i,1)
+                }
+            }
+        }
+    }
+})
 </script>

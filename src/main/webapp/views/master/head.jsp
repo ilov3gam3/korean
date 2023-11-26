@@ -3,6 +3,7 @@
 <%@ page import="java.util.Properties" %>
 <%@ page import="Database.MyObject" %>
 <% Properties language = (Properties) request.getAttribute("language"); %>
+<% String lang = language.get("lang").toString(); %>
 <% MyObject user = (MyObject) session.getAttribute("login"); %>
 <!DOCTYPE html>
 <html lang="en">
@@ -149,11 +150,20 @@
                             <a href="${pageContext.request.contextPath}/user/profile"
                                class="dropdown-item"><%= language.getProperty("head.profile") %>
                             </a>
-                            <a href="${pageContext.request.contextPath}/user/logout"
-                               class="dropdown-item"><%= language.getProperty("head.logout") %>
-                            </a>
+
+
+                            <% if (user.getIs_admin().equals("0")) { %>
                             <a href="${pageContext.request.contextPath}/user/your-property"
                                class="dropdown-item"><%= language.getProperty("head.your_property") %>
+                            </a>
+                            <a href="${pageContext.request.contextPath}/user/upgrade-account"
+                               class="dropdown-item"><%= language.getProperty("head.subscribe") %>
+                            </a>
+                            <%} else {%>
+
+                            <%} %>
+                            <a href="${pageContext.request.contextPath}/user/logout"
+                               class="dropdown-item"><%= language.getProperty("head.logout") %>
                             </a>
                         </div>
                     </div>

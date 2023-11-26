@@ -25,7 +25,7 @@ public class AdminController {
     public static class UserManagement extends HttpServlet{
         @Override
         protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-            ArrayList<MyObject> list = DB.getData("select * from users",  new String[]{"id", "name", "email", "avatar", "phone", "dob", "national_id", "front_id_card", "back_id_card", "is_verified", "cards_verified", "is_admin"});
+            ArrayList<MyObject> list = DB.getData("select * from users",  new String[]{"id", "name", "email", "avatar", "phone", "dob", "national_id", "front_id_card", "back_id_card", "is_verified", "cards_verified", "is_admin", "nationality"});
             req.setAttribute("list", list);
             req.getRequestDispatcher("/views/admin/user-management.jsp").forward(req, resp);
         }
@@ -55,46 +55,95 @@ public class AdminController {
         }
     }
 
-    @WebServlet("/admin/location-management")
-    public static class LocationManagement extends HttpServlet{
-        @Override
-        protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-            String sql = "select * from provinces;";
-            ArrayList<MyObject> provinces_list = DB.getData(sql, new String[]{"id", "name"});
-            sql = "select * from districts;";
-            ArrayList<MyObject> districts_list = DB.getData(sql, new String[]{"id", "name", "province_id"});
-            req.setAttribute("provinces_list", provinces_list);
-            req.setAttribute("districts_list", districts_list);
-            req.getRequestDispatcher("/views/admin/location-management.jsp").forward(req, resp);
-        }
-
+    @WebServlet("/admin/update-user")
+    public static class UpdateUser extends HttpServlet{
         @Override
         protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
             Properties language = (Properties) req.getAttribute("language");
-            String name = req.getParameter("province_name");
-            boolean check = DB.executeUpdate("insert into provinces(name) values(?);", new String[]{name});
+            String update_name = req.getParameter("update_name");
+            String update_email = req.getParameter("update_email");
+            String update_phone = req.getParameter("update_phone");
+            String update_nationality = req.getParameter("update_nationality");
+            String update_dob = req.getParameter("update_dob");
+            String id = req.getParameter("id");
+            String sql = "update users set name = ?, email = ?, phone = ?, nationality = ?, dob = ? where id = ?";
+            String[] vars = new String[]{update_name, update_email, update_phone, update_nationality, update_dob, id};
+            boolean check = DB.executeUpdate(sql, vars);
             if (check){
-                req.getSession().setAttribute("mess", "success|"+language.get("add_success"));
+                req.getSession().setAttribute("mess", "success|" + language.getProperty("update_id_card_success"));
             } else {
-                req.getSession().setAttribute("mess", "error|"+language.get("add_fail"));
+                req.getSession().setAttribute("mess", "error|" + language.getProperty("update_id_card_fail"));
+            }
+            resp.sendRedirect(req.getContextPath() + "/admin/user-management");
+        }
+    }
+    @WebServlet("/admin/change-admin")
+    public static class ChangeAdmin extends HttpServlet{
+        @Override
+        protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            Properties language = (Properties) req.getAttribute("language");
+            String id = req.getParameter("id");
+            String sql = "update users set is_admin = ~is_admin where id = ?";
+            String[] vars = new String[]{id};
+            boolean check = DB.executeUpdate(sql, vars);
+            if (check){
+                req.getSession().setAttribute("mess", "success|" + language.getProperty("update_id_card_success"));
+            } else {
+                req.getSession().setAttribute("mess", "error|" + language.getProperty("update_id_card_fail"));
+            }
+            resp.sendRedirect(req.getContextPath() + "/admin/user-management");
+        }
+    }
+
+    @WebServlet("/admin/change-verify-email")
+    public static class ChangeVerifyEmail extends HttpServlet{
+        @Override
+        protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            Properties language = (Properties) req.getAttribute("language");
+            String id = req.getParameter("id");
+            String sql = "update users set is_verified = ~is_verified where id = ?";
+            String[] vars = new String[]{id};
+            boolean check = DB.executeUpdate(sql, vars);
+            if (check){
+                req.getSession().setAttribute("mess", "success|" + language.getProperty("update_id_card_success"));
+            } else {
+                req.getSession().setAttribute("mess", "error|" + language.getProperty("update_id_card_fail"));
+            }
+            resp.sendRedirect(req.getContextPath() + "/admin/user-management");
+        }
+    }
+    @WebServlet("/admin/update-province")
+    public static class UpdateProvince extends HttpServlet{
+        @Override
+        protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            Properties language = (Properties) req.getAttribute("language");
+            String id = req.getParameter("update_province_id");
+            String name = req.getParameter("update_province_name");
+            String sql = "update provinces set name = ? where id = ?";
+            String[] vars = new String[]{name, id};
+            boolean check = DB.executeUpdate(sql, vars);
+            if (check){
+                req.getSession().setAttribute("mess", "success|" + language.getProperty("update_id_card_success"));
+            } else {
+                req.getSession().setAttribute("mess", "error|" + language.getProperty("update_id_card_fail"));
             }
             resp.sendRedirect(req.getContextPath() + "/admin/location-management");
         }
     }
-
-    @WebServlet("/admin/add-districts")
-    public static class AddDistricts extends HttpServlet{
+    @WebServlet("/admin/update-district")
+    public static class UpdateDistrict extends HttpServlet{
         @Override
         protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
             Properties language = (Properties) req.getAttribute("language");
-            String district_name = req.getParameter("district_name");
-            String province_id = req.getParameter("province_id");
-            String sql = "insert into districts(name, province_id) values(?, ?)";
-            boolean check = DB.executeUpdate(sql, new String[]{district_name, province_id});
+            String id = req.getParameter("update_district_id");
+            String name = req.getParameter("update_district_name");
+            String sql = "update districts set name = ? where id = ?";
+            String[] vars = new String[]{name, id};
+            boolean check = DB.executeUpdate(sql, vars);
             if (check){
-                req.getSession().setAttribute("mess", "success|"+language.getProperty("add_success"));
+                req.getSession().setAttribute("mess", "success|" + language.getProperty("update_id_card_success"));
             } else {
-                req.getSession().setAttribute("mess", "error|"+language.getProperty("add_fail"));
+                req.getSession().setAttribute("mess", "error|" + language.getProperty("update_id_card_fail"));
             }
             resp.sendRedirect(req.getContextPath() + "/admin/location-management");
         }

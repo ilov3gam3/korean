@@ -56,4 +56,26 @@ public class MyObject {
     public String nearby_location_name_kr;
     public String near_location_id;
     public String amenity_id;
+    public String property_type;
+    public String numbers;
+    public String benefits_vn;
+    public String benefits_kr;
+    public String number_of_property;
+    public String price_per_month;
+    public String subscribe_plans_id;
+    public String from_date;
+    public String to_date;
+    public String number_of_comments;
+    public String number_of_words_per_cmt;
+    public String discount;
+    public String price_to_pay;
+    public String vnp_BankCode;
+    public String vnp_TransactionNo;
+    public String vnp_TransactionStatus;
+    public String vnp_OrderInfo;
+    public String vnp_TxnRef;
+    public String vnp_CardType;
+    public String vnp_BankTranNo;
+    public String create_order_at;
+    public String paid_at;
 }

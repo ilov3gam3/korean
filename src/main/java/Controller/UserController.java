@@ -168,8 +168,8 @@ public class UserController {
                 req.getSession().setAttribute("form", form);
                 resp.sendRedirect(req.getContextPath() + "/login");
             } else {
-                if (list.get(0).is_verified.equals("false")){
-                    req.getSession().setAttribute("mess", "success|" + language.getProperty("account_not_verified"));
+                if (list.get(0).is_verified.equals("0")){
+                    req.getSession().setAttribute("mess", "warning|" + language.getProperty("account_not_verified"));
                     MyObject form = new MyObject();
                     form.email = email;
                     form.password = password;
@@ -584,4 +584,6 @@ public class UserController {
             req.getRequestDispatcher("/views/auth/reset-password.jsp").forward(req, resp);
         }
     }
+
+
 }

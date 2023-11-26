@@ -8,9 +8,8 @@
 <% ArrayList<MyObject> images = (ArrayList<MyObject>) request.getAttribute("images");%>
 <% ArrayList<MyObject> property_near_location = (ArrayList<MyObject>) request.getAttribute("property_near_location");%>
 <% ArrayList<MyObject> property_amenities = (ArrayList<MyObject>) request.getAttribute("property_amenities");%>
-<% String lang = language.get("lang").toString(); %>
 <% for (int i = 0; i < properties.size(); i++) { %>
-  <div class="p-5 mb-4 bg-body-tertiary rounded-3">
+<div class="p-5 mb-4 bg-body-tertiary rounded-3">
   <div class="container-fluid py-5">
     <div class="col-12 row">
       <div class="col-4">
@@ -24,7 +23,7 @@
                   <% } %>
                 <% } %>
               </div>
-              <div class="row" id="small_img">
+              <div class="row" id="small_imgs_<%=properties.get(i).getId()%>">
                 <% for (int j = 0; j < images.size(); j++) { %>
                   <% if (images.get(j).getProperty_id().equals(properties.get(i).getId())){%>
                     <img id="small_<%=images.get(j).getId()%>" onclick="changePreview('<%=thumb_nail_id%>', '<%=images.get(j).getId()%>', '<%=images.get(j).getPath()%>', '<%=properties.get(i).getId()%>')" hidden="hidden" class="small_images m-1 p-0 img-thumbnail <%=images.get(j).getIs_thumb_nail().equals("1") ? "border-3 border-primary" : ""%>" src="${pageContext.request.contextPath}<%=images.get(j).getPath()%>" alt="">
@@ -63,7 +62,7 @@
             </div>
             <div class="col-3">
                 <%NumberFormat formatter = new DecimalFormat("#0");%>
-                <%=language.getProperty("add_property_price")%>: <%=formatter.format(Double.parseDouble(properties.get(i).getPrice()))%>
+                <%=language.getProperty("add_property_price")%>: <%=formatter.format(Double.parseDouble(properties.get(i).getPrice()))%> ₫
             </div>
             <div class="col-3">
                 <%=language.getProperty("add_property_area")%>: <%=properties.get(i).getArea()%> m²
@@ -132,7 +131,7 @@
                   </p>
               </div>
               <div class="col-3">
-                  <button onclick="addValueModal('<%=properties.get(i).getName_vn()%>', '<%=properties.get(i).getName_kr()%>', '<%=properties.get(i).getDescription_vn()%>', '<%=properties.get(i).getDescription_kr()%>', '<%=properties.get(i).getId()%>')" data-bs-toggle="modal" data-bs-target="#editModal" style="width: 100%" class="btn btn-warning">Chỉnh sửa</button>
+                  <button onclick="addValueModal('<%=properties.get(i).getName_vn()%>', '<%=properties.get(i).getName_kr()%>', '<%=properties.get(i).getDescription_vn()%>', '<%=properties.get(i).getDescription_kr()%>', '<%=properties.get(i).getId()%>', '<%=formatter.format(Double.parseDouble(properties.get(i).getPrice()))%>', '<%=properties.get(i).getArea()%>', '<%=properties.get(i).getFloor_numbers()%>', '<%=properties.get(i).getAt_floor()%>', '<%=properties.get(i).getAddress()%>', '<%=properties.get(i).getBathrooms()%>', '<%=properties.get(i).getBedrooms()%>','<%=properties.get(i).getFor_sale()%>', '<%=properties.get(i).getProvince_id()%>', '<%=properties.get(i).getDistrict_id()%>', '<%=properties.get(i).getProperty_type()%>')" data-bs-toggle="modal" data-bs-target="#editModal" style="width: 100%" class="btn btn-warning">Chỉnh sửa</button>
               </div>
           </div>
       </div>
@@ -208,7 +207,96 @@
                                     </div>
                                 </div>
                         </div>
-                        <button type="submit" class="btn btn-primary" style="width: 100%">Cập nhật</button>
+                        <div class="col-12 row">
+                            <div class="col-3">
+                                <label><%= language.getProperty("add_property_type") %></label>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <input type="radio" id="yes" name="sale" value="true">
+                                        <label for="yes"><%= language.getProperty("add_property_type_sale") %></label>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <input type="radio" id="no" name="sale" value="false">
+                                        <label for="no"><%= language.getProperty("add_property_type_rent") %></label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <label for="update_property_type"><%= language.getProperty("add_property_choose_type") %></label>
+                                <select required class="form-control" name="property_type" id="update_property_type">
+                                    <option value=""><%= language.getProperty("add_property_choose_type") %></option>
+                                    <% ArrayList<MyObject> property_list = (ArrayList<MyObject>) request.getAttribute("property_list");%>
+                                        <% if (lang.equals("kr")) { %>
+                                            <% for (int z = 0; z < property_list.size(); z++) { %>
+                                                <option value="<%=property_list.get(z).getId()%>"><%=property_list.get(z).getName_kr()%></option>
+                                            <% } %>
+                                        <% } else { %>
+                                            <% for (int z = 0; z < property_list.size(); z++) { %>
+                                                <option value="<%=property_list.get(z).getId()%>"><%=property_list.get(z).getName_vn()%></option>
+                                            <% } %>
+                                    <% } %>
+                                </select>
+                            </div>
+                            <div class="col-3">
+                                <label for="update_price">Giá</label>
+                                <input type="text" class="form-control" name="update_price" id="update_price">
+                            </div>
+                            <div class="col-3">
+                                <label for="update_area">Diện tích m²</label>
+                                <input type="text" class="form-control" name="update_area" id="update_area">
+                            </div>
+                        </div>
+                        <div class="col-12 row">
+                            <div class="col-3">
+                                <label for="update_province_id"><%= language.getProperty("add_property_choose_province") %></label>
+                                <select data-placeholder="Chọn thành phố" required class="form-control" name="province_id" id="update_province_id" onchange="change_district(this.value)">
+                                    <option value=""><%= language.getProperty("add_property_choose_province") %></option>
+                                    <c:forEach var="province" items="${provinces_list}">
+                                        <option value="${province.getId()}">${province.getName()}</option>
+                                    </c:forEach>
+                                </select>
+                            </div>
+                            <div class="col-3">
+                                <label for="update_district_id"><option value=""><%= language.getProperty("add_property_choose_district") %></option></label>
+                                <select required class="form-control" name="district_id" id="update_district_id">
+
+                                </select>
+                            </div>
+                            <div class="col-3">
+                                <label for="update_floor_num"><%= language.getProperty("add_property_number_floor") %></label>
+                                <input required type="number" class="form-control" name="floor_numbers" min="1" id="update_floor_num">
+                            </div>
+                            <div class="col-3">
+                                <label for="update_at_floor"><%= language.getProperty("add_property_at_floor") %></label>
+                                <input required type="number" class="form-control" name="at_floor" min="1" id="update_at_floor">
+                            </div>
+                        </div>
+                        <div class="col-12 row">
+                            <div class="col-8">
+                                <label for="update_address"><%= language.getProperty("add_property_address") %></label>
+                                <input required type="text" class="form-control" name="address" id="update_address">
+                            </div>
+                            <div class="col-2">
+                                <label for="update_bathrooms"><%= language.getProperty("add_property_bath_room") %></label>
+                                <input type="number" class="form-control" name="bathrooms" id="update_bathrooms">
+                            </div>
+                            <div class="col-2">
+                                <label for="update_bedrooms"><%= language.getProperty("add_property_bed_room") %></label>
+                                <input type="number" class="form-control" name="bedrooms" id="update_bedrooms">
+                            </div>
+                        </div>
+                        <div class="col-12 row">
+                            <div class="col-6">
+                                <input type="hidden">
+                                <div class="dropdown">
+                                    <div class="form-control" aria-labelledby="amenities" id="amenities" data-bs-toggle="dropdown">choose sth</div>
+                                    <ul class="dropdown-menu col-12">
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="col-6"></div>
+                        </div>
+                        <button type="submit" class="btn btn-primary mt-2" style="width: 100%">Cập nhật</button>
                     </form>
                 </div>
             </div>
@@ -220,6 +308,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.0/axios.min.js" integrity="sha512-WrdC3CE9vf1nBf58JHepuWT4x24uTacky9fuzw2g/3L9JkihgwZ6Cfv+JGTtNyosOhEmttMtEZ6H3qJWfI7gIQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script>
     var addModal = $("#editModal");
+    var district_json  = JSON.parse('[<c:forEach var="district" items="${districts_list}"> {"id":"${district.getId()}", "name":"${district.getName()}", "province_id":"${district.getProvince_id()}"}, </c:forEach>]'.replace(", ]", "]"))
     addModal.on('show.bs.modal', function () {
         $("#navbar").attr("hidden", true)
     })
@@ -232,9 +321,10 @@
         $("#update_form_p_id").val('')
     })
     const contextPath = '${pageContext.request.contextPath}'
-    const width = $("#small_img").width();
+    const width = $("#small_imgs_<%=properties.get(0).getId()%>").width();
     const each_img_width = Math.floor(width/4);
     const small_image_items = $(".small_images").css({"object-fit": "cover", "max-width": (each_img_width-8) + "px"})
+    var all_small_imgs = []
     $(".small_images").attr("hidden", false)
     function changeHidden(p_id) {
         const payload = new FormData();
@@ -292,6 +382,16 @@
         } else {
             $("#form_thumb_nail_" + property_id).attr("hidden", true)
         }
+        all_small_imgs = $("#small_imgs_" + property_id + " img")
+        for (let i = 0; i < all_small_imgs.length; i++) {
+            var temp = $(all_small_imgs[i]).attr("id").split("_")[1]
+            if (temp !== property_thumb_nail_id){
+                $(all_small_imgs[i]).removeClass("border-3 border-warning")
+            }
+        }
+        if (img_id !== property_thumb_nail_id){
+            $("#small_" + img_id).addClass("border-3 border-warning")
+        }
     }
     let detected_language = ''
     let translated_text = ''
@@ -340,11 +440,69 @@
         $("#description_vi").val(translated_text)
         translated_text = ''
     })
-    function addValueModal(name_vn, name_kr, des_vn, des_kr, p_id) {
+    function addValueModal(name_vn, name_kr, des_vn, des_kr, p_id, price, area, floor_num, at_floor, address, bathrooms, bedrooms, for_sale, province_id, district_id, property_type) {
         $("#name_vn").val(name_vn)
         $("#name_kr").val(name_kr)
         $("#description_vi").text(des_vn)
         $("#description_kr").text(des_kr)
         $("#update_form_p_id").val(p_id)
+        $("#update_price").val(price)
+        $("#update_area").val(area)
+        $("#update_floor_num").val(floor_num)
+        $("#update_at_floor").val(at_floor)
+        $("#update_address").val(address)
+        $("#update_bathrooms").val(bathrooms)
+        $("#update_bedrooms").val(bedrooms)
+        if (for_sale === '1'){
+            $("#yes").prop("checked", true)
+        } else {
+            $("#no").prop("checked", true)
+        }
+        $("#update_province_id").val(province_id)
+        change_district(province_id)
+        $("#update_district_id").val(district_id)
+        $("#update_property_type").val(property_type)
+    }
+    function change_district(selectedProvince) {
+        var district_select = document.getElementById("update_district_id")
+        while (district_select.options.length > 0) {
+            district_select.remove(0);
+        }
+        district_select.innerHTML = '<option value="">Chọn quận huyện</option>';
+        if (selectedProvince){
+            for (let i = 0; i < district_json.length; i++) {
+
+                if (district_json[i].province_id === selectedProvince){
+                    var option = document.createElement("option");
+                    option.text = district_json[i].name;
+                    option.value = district_json[i].id;
+                    district_select.appendChild(option);
+                }
+            }
+        }
     }
 </script>
+<%--<script>--%>
+<%--var app = new Vue({--%>
+<%--    el: "#app",--%>
+<%--    data:{--%>
+<%--        near_locations: [],--%>
+<%--        amenities: [],--%>
+<%--    },--%>
+<%--    created(){--%>
+<%--        this.getAllData();--%>
+<%--    },--%>
+<%--    methods:{--%>
+<%--        getAllData(){--%>
+<%--            axios.get('<%=request.getContextPath()%>/api/get-amenities')--%>
+<%--                .then((res)=>{--%>
+<%--                    this.amenities = JSON.parse(res.data.amenities)--%>
+<%--                })--%>
+<%--            axios.get('<%=request.getContextPath()%>/api/get-near-locations')--%>
+<%--                .then((res)=>{--%>
+<%--                    this.near_locations = JSON.parse(res.data.locations)--%>
+<%--                })--%>
+<%--        }--%>
+<%--    }--%>
+<%--})--%>
+<%--</script>--%>

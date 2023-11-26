@@ -1,5 +1,6 @@
 package Init;
 
+import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletContextEvent;
 import jakarta.servlet.ServletContextListener;
 
@@ -12,6 +13,9 @@ public class Listener implements ServletContextListener{
     public HashMap<String, Properties> languages = new HashMap<>();
     @Override
     public void contextInitialized(ServletContextEvent sce) {
+        ServletContext context = sce.getServletContext();
+        Config.contextPath = context.getContextPath();
+        Config.vnp_ReturnUrl = Config.app_url + Config.contextPath + "/user/vnpay-result";
         Config.path = sce.getServletContext().getRealPath("");
         File folder = new File(sce.getServletContext().getRealPath("") + "WEB-INF/lang/");
         File[] files = null;

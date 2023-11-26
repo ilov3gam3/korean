@@ -42,14 +42,14 @@
         <div class="gap-2 col-md-6">
             <a href="${pageContext.request.contextPath}/admin/amenities">
                 <div class="d-grid">
-                    <button class="btn btn-primary"><%= language.getProperty("admin_panel_location") %></button>
+                    <button class="btn btn-primary"><%= language.getProperty("admin_panel_amenity") %></button>
                 </div>
             </a>
         </div>
         <div class="gap-2 col-md-6">
-            <a href="${pageContext.request.contextPath}/admin/near-by-locations">
+            <a href="${pageContext.request.contextPath}/admin/view-all-plans">
                 <div class="d-grid">
-                    <button class="btn btn-primary">sắp ra mắt</button>
+                    <button class="btn btn-primary"><%= language.getProperty("admin_panel_plans") %></button>
                 </div>
             </a>
         </div>

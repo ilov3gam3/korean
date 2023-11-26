@@ -1,17 +1,24 @@
 package Database;
 
+import Init.Config;
+
 import java.lang.reflect.Field;
 import java.sql.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
 public class DB {
-    public static void main(String[] args) throws SQLException {
-        System.out.println(insertGetLastId("insert into provinces(name) values(?)", new String[]{"eragdfgdrtgaegerge"}));
+    public static void main(String[] args) {
+        LocalDateTime currentDateTime = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        String current_date = currentDateTime.format(formatter);
+        System.out.println(current_date);
     }
 
     public static Connection getConnection() {
-        /*try {
+        try {
             Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
             String serverName = Config.config.getProperty("db_server");
             String port = Config.config.getProperty("db_port");
@@ -22,19 +29,19 @@ public class DB {
             return DriverManager.getConnection(url, username, password);
         } catch (ClassNotFoundException | SQLException e) {
             throw new RuntimeException(e);
-        }*/
-        try {
+        }
+        /*try {
             Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-            String serverName = "minh.database.windows.net";
+            String serverName = "192.168.110.2";
             String port = "1433";
             String databaseName = "korean";
             String username = "minh";
-            String password = "Matkhaulagivaytroi1";
+            String password = "Minh1234";
             String url = "jdbc:sqlserver://" + serverName + ":" + port + ";databaseName=" + databaseName + ";trustServerCertificate=true;";
             return DriverManager.getConnection(url, username, password);
         } catch (ClassNotFoundException | SQLException e) {
             throw new RuntimeException(e);
-        }
+        }*/
     }
 
     public static boolean executeUpdate(String sql) {// insert update delete
@@ -131,5 +138,64 @@ public class DB {
         } catch (SQLException | NoSuchFieldException | IllegalAccessException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static boolean dropAllTables(){
+        String sql = "USE korean; -- Replace YourDatabaseName with your actual database name\n" +
+                "\n" +
+                "DECLARE @tableName NVARCHAR(255)\n" +
+                "DECLARE @constraintName NVARCHAR(255)\n" +
+                "DECLARE @sql NVARCHAR(MAX)\n" +
+                "\n" +
+                "-- Disable foreign key constraints\n" +
+                "EXEC sp_MSforeachtable 'ALTER TABLE ? NOCHECK CONSTRAINT ALL'\n" +
+                "\n" +
+                "-- Drop foreign keys\n" +
+                "DECLARE foreignKeyCursor CURSOR FOR\n" +
+                "    SELECT \n" +
+                "        fk.name AS ForeignKeyName,\n" +
+                "        tp.name AS TableName\n" +
+                "    FROM \n" +
+                "        sys.foreign_keys AS fk\n" +
+                "    INNER JOIN \n" +
+                "        sys.tables AS tp ON fk.parent_object_id = tp.object_id\n" +
+                "\n" +
+                "OPEN foreignKeyCursor\n" +
+                "FETCH NEXT FROM foreignKeyCursor INTO @constraintName, @tableName\n" +
+                "\n" +
+                "WHILE @@FETCH_STATUS = 0\n" +
+                "BEGIN\n" +
+                "    SET @sql = 'ALTER TABLE ' + @tableName + ' DROP CONSTRAINT ' + @constraintName\n" +
+                "    EXEC sp_executesql @sql\n" +
+                "\n" +
+                "    FETCH NEXT FROM foreignKeyCursor INTO @constraintName, @tableName\n" +
+                "END\n" +
+                "\n" +
+                "CLOSE foreignKeyCursor\n" +
+                "DEALLOCATE foreignKeyCursor\n" +
+                "\n" +
+                "-- Drop tables\n" +
+                "DECLARE tableCursor CURSOR FOR\n" +
+                "    SELECT \n" +
+                "        name AS TableName\n" +
+                "    FROM \n" +
+                "        sys.tables\n" +
+                "\n" +
+                "OPEN tableCursor\n" +
+                "FETCH NEXT FROM tableCursor INTO @tableName\n" +
+                "\n" +
+                "WHILE @@FETCH_STATUS = 0\n" +
+                "BEGIN\n" +
+                "    SET @sql = 'DROP TABLE ' + @tableName\n" +
+                "    EXEC sp_executesql @sql\n" +
+                "\n" +
+                "    FETCH NEXT FROM tableCursor INTO @tableName\n" +
+                "END\n" +
+                "\n" +
+                "CLOSE tableCursor\n" +
+                "DEALLOCATE tableCursor\n";
+//        String[] vars = new String[]{Config.config.getProperty("db_name")};
+//        return executeUpdate(sql, vars);
+        return executeUpdate(sql);
     }
 }

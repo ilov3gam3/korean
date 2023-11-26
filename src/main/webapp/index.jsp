@@ -1,3 +1,5 @@
+<%@ page import="java.util.ArrayList" %>
+<%@ page import="Database.DB" %>
 <%@page contentType="text/html" pageEncoding="utf-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ include file="views/master/head.jsp" %>
@@ -70,7 +72,29 @@
                     <p>Eirmod sed ipsum dolor sit rebum labore magna erat. Tempor ut dolore lorem kasd vero ipsum sit eirmod sit. Ipsum diam justo sed rebum vero dolor duo.</p>
                 </div>
                 <div class="row g-4">
-                    <div class="col-lg-3 col-sm-6 wow fadeInUp" data-wow-delay="0.1s">
+                    <%ArrayList<MyObject> property_types = DB.getData("select top 8 property_types.*, count(properties.id) as numbers from property_types left join properties on property_types.id = properties.property_type\n" +
+                            "group by property_types.id, property_types.name_vn, property_types.name_kr, property_types.description_vn, property_types.description_kr\n" +
+                            "order by count(properties.id) desc",new String[]{"id", "name_vn","name_kr", "description_vn", "description_kr", "numbers"});%>
+                    <% for (int i = 0; i < property_types.size(); i++) { %>
+                        <div class="col-lg-3 col-sm-6 wow fadeInUp" data-wow-delay="<%=String.format("%.1f", (i%4)*0.2+0.1)%>s">
+                        <a class="cat-item d-block bg-light text-center rounded p-3" href="">
+                            <div class="rounded p-4">
+                                <div class="icon mb-3">
+                                    <img class="img-fluid" src="${pageContext.request.contextPath}/assets/img/icon-apartment.png" alt="Icon">
+                                </div>
+                                <%if (lang.equals("kr")){%>
+                                    <h6><%=property_types.get(i).getName_kr()%></h6>
+                                    <span><%=property_types.get(i).getNumbers()%> 속성</span>
+                                <% } else { %>
+                                    <h6><%=property_types.get(i).getName_vn()%></h6>
+                                    <span><%=property_types.get(i).getNumbers()%> Tài sản</span>
+                                <% } %>
+
+                            </div>
+                        </a>
+                    </div>
+                    <% } %>
+                    <%--<div class="col-lg-3 col-sm-6 wow fadeInUp" data-wow-delay="0.1s">
                         <a class="cat-item d-block bg-light text-center rounded p-3" href="">
                             <div class="rounded p-4">
                                 <div class="icon mb-3">
@@ -157,7 +181,7 @@
                                 <span>123 Properties</span>
                             </div>
                         </a>
-                    </div>
+                    </div>--%>
                 </div>
             </div>
         </div>
