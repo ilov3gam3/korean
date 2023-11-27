@@ -8,7 +8,7 @@
             <form action="" method="post">
                 <div class="form-group">
                     <label for="province_name"><%= language.getProperty("location_province_label") %></label>
-                    <input class="form-control" type="text" name="province_name" id="province_name">
+                    <input required class="form-control" type="text" name="province_name" id="province_name">
                 </div>
                 <div class="col-md-12 d-grid gap-2 mt-2">
                     <button class="btn btn-primary"><%= language.getProperty("location_add_button") %></button>
@@ -18,14 +18,14 @@
             <form action="${pageContext.request.contextPath}/admin/add-districts" method="post">
                 <div class="form-group">
                     <label for="district_name"><%= language.getProperty("location_district_label") %></label>
-                    <input class="form-control" type="text" name="district_name" id="district_name">
+                    <input required class="form-control" type="text" name="district_name" id="district_name">
                 </div>
                 <div class="form-group">
                     <label for="province_id"><%= language.getProperty("location_choose_province") %></label>
                     <select class="form-control" name="province_id" id="province_id">
                         <option value="" selected disabled><%= language.getProperty("location_choose_province") %></option>
                         <c:forEach var="item" items="${provinces_list}">
-                            <option value="${item.getId()}">${item.getName()}</option>
+                            <option ${previous_province == item.getId() ? "selected" : ""} value="${item.getId()}">${item.getName()}</option>
                         </c:forEach>
                     </select>
                 </div>
@@ -85,7 +85,7 @@
                             <div class="col-6">
                                 <div class="form-group">
                                     <label for="update_province_name"><%= language.getProperty("location_update_province") %></label>
-                                    <input type="text" class="form-control input-group-lg" id="update_province_name" name="update_province_name">
+                                    <input required type="text" class="form-control input-group-lg" id="update_province_name" name="update_province_name">
                                 </div>
                             </div>
                             <div class="col-6">
@@ -117,10 +117,10 @@
 <script>
     var editModal = $("#editModal");
     editModal.on('show.bs.modal', function () {
-        $("#navbar").attr("hidden", true)
+        // $("#navbar").attr("hidden", true)
     })
     editModal.on('hidden.bs.modal', function () {
-        $("#navbar").attr("hidden", false)
+        // $("#navbar").attr("hidden", false)
     })
     function showEditModal(province_id, province_name, districts) {
         $("#update_province_id").val(province_id)
@@ -133,12 +133,12 @@
         var context = '<%=request.getContextPath()%>'
         for (let i = 0; i < districts.length; i++) {
             html += "<form method='post' action='"+context+"/admin/update-district'>" +
-                "<input type='hidden' name='update_district_id' value='"+districts[i].district_id+"'>" +
+                "<input required type='hidden' name='update_district_id' value='"+districts[i].district_id+"'>" +
                 "<div class='col-12 row'>" +
                 "<div class='col-6'>" +
                 "<div class='form-group'>" +
                 "<label for='update_district_name'>"+label+"</label>" +
-                "<input type='text' class='form-control input-group-sm' id='update_district_name' name='update_district_name' value='"+districts[i].name+"'>" +
+                "<input required type='text' class='form-control input-group-sm' id='update_district_name' name='update_district_name' value='"+districts[i].name+"'>" +
                 "</div>" +
                 "</div>" +
                 "<div class='col-6'>" +

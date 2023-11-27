@@ -333,7 +333,7 @@
             <div class="container-fluid d-flex justify-content-center m-2">
                 <img src="<%= user.avatar.startsWith("http") ? user.avatar : request.getContextPath() + user.avatar %>" alt="user avatar" id="previewImage" style="max-width: 100%">
             </div>
-            <form class="mb-3 mt-3" action="/update-cards" method="post" enctype="multipart/form-data">
+            <form class="mb-3 mt-3" action="<%=request.getContextPath()%>/user/update-cards" method="post" enctype="multipart/form-data">
                 <input type="hidden" value="front" name="side">
                 <div class="row">
                     <div class="col-4">
@@ -355,7 +355,7 @@
                 </div>
                 <% } else { %>
                     <div class="container-fluid d-flex justify-content-center m-2">
-                        <img src="<%= user.front_id_card %>" alt="user avatar" id="previewImageFront"
+                        <img src="<%=request.getContextPath()%>/<%= user.front_id_card %>" alt="user avatar" id="previewImageFront"
                              style="max-width: 100%">
                     </div>
                 <% } %>
@@ -382,7 +382,7 @@
                 </div>
                 <% } else { %>
                     <div class="container-fluid d-flex justify-content-center m-2">
-                        <img src="<%= user.back_id_card %>" alt="user avatar" id="previewImageBack" style="max-width: 100%">
+                        <img src="<%=request.getContextPath()%>/<%= user.back_id_card %>" alt="user avatar" id="previewImageBack" style="max-width: 100%">
                     </div>
                 <% } %>
 

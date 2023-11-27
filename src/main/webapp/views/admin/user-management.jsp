@@ -70,7 +70,7 @@
                     </div>
                     <div class="col-md-12 text-center">
                         <button class="btn btn-${item.getCards_verified() == 1 ? 'primary' : 'danger'}"
-                                onclick="show_cards('${item.getFront_id_card()}', '${item.getBack_id_card()}', '${item.getNational_id()}', '${item.getCards_verified()}')"
+                                onclick="show_cards('<%=request.getContextPath()%>/${item.getFront_id_card()}', '<%=request.getContextPath()%>/${item.getBack_id_card()}', '${item.getNational_id()}', '${item.getCards_verified()}')"
                                 style="width: 100%;"><%=language.getProperty("admin.view_cards")%>
                         </button>
                         <button onclick="showEditModal('${item.getId()}', '${item.getName()}', '${item.getEmail()}', '${item.getPhone()}', '${item.getNationality()}', '${item.getDob()}')" class="btn btn-warning mt-2" style="width: 100%;" type="button" data-bs-toggle="modal" data-bs-target="#editModal">
@@ -457,10 +457,10 @@
     });
     var editModal = $("#editModal")
     editModal.on('show.bs.modal', function () {
-        $("#navbar").attr("hidden", true)
+        // $("#navbar").attr("hidden", true)
     })
     editModal.on('hidden.bs.modal', function () {
-        $("#navbar").attr("hidden", false)
+        // $("#navbar").attr("hidden", false)
     })
     function showEditModal(id, name, email, phone, nationality, dob) {
         $("#update_name").val(name)

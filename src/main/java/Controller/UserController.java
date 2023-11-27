@@ -118,7 +118,7 @@ public class UserController {
                     }
                 });
                 executorService.shutdown();
-                String[] vars = new String[]{name, email, password,req.getContextPath() + "/files/default-avatar.webp" ,phone, dob, national_id, uuid, nationality};
+                String[] vars = new String[]{name, email, password, "/files/default-avatar.webp" ,phone, dob, national_id, uuid, nationality};
                 boolean status = DB.executeUpdate(sql, vars);
                 if (status) {
                     req.getSession().setAttribute("mess", "success|" + language.getProperty("create_account_success"));
@@ -466,7 +466,7 @@ public class UserController {
                 String sql = "";
                 if (req.getParameter("side").equals("front")){
                     sql = "update users set front_id_card = ? where id = ?";
-                    boolean check = DB.executeUpdate(sql, new String[]{req.getContextPath() + "/files/" + newFileName, user.id});
+                    boolean check = DB.executeUpdate(sql, new String[]{"/files/" + newFileName, user.id});
                     if (check){
                         user.front_id_card = "/files/" + newFileName;
                         req.getSession().setAttribute("mess", "success|" + language.getProperty("update_avatar_success"));

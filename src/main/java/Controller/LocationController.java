@@ -33,6 +33,9 @@ public class LocationController {
             }
             req.setAttribute("provinces_list", provinces_list);
             req.setAttribute("districts_list", districts_list);
+            if (req.getSession().getAttribute("previous_province") !=null){
+                req.setAttribute("previous_province", req.getSession().getAttribute("previous_province"));
+            }
             req.getRequestDispatcher("/views/admin/location-management.jsp").forward(req, resp);
         }
 
@@ -64,6 +67,7 @@ public class LocationController {
             } else {
                 req.getSession().setAttribute("mess", "error|"+language.getProperty("add_fail"));
             }
+            req.getSession().setAttribute("previous_province", province_id);
             resp.sendRedirect(req.getContextPath() + "/admin/location-management");
         }
 

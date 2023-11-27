@@ -53,7 +53,7 @@
                             <label for="name_vn"><%= language.getProperty("property_type_vn_name") %></label>
                             <div class="row">
                                 <div class="col-md-9">
-                                    <input class="form-control" type="text" name="name_vn" id="name_vn">
+                                    <input required class="form-control" type="text" name="name_vn" id="name_vn">
                                 </div>
                                 <div class="col-md-3">
                                     <button class="btn btn-primary" type="button" id="trans_to_kr" style="width: 100%;">
@@ -65,7 +65,7 @@
                             <label for="name_kr"><%= language.getProperty("property_type_kr_name") %></label>
                             <div class="row">
                                 <div class="col-md-9">
-                                    <input class="form-control" type="text" name="name_kr" id="name_kr">
+                                    <input required class="form-control" type="text" name="name_kr" id="name_kr">
                                 </div>
                                 <div class="col-md-3">
                                     <button class="btn btn-primary" type="button" id="trans_to_vn" style="width: 100%;">
@@ -98,7 +98,7 @@
                             <label for="name_vn"><%= language.getProperty("property_type_vn_name") %></label>
                             <div class="row">
                                 <div class="col-md-9">
-                                    <input class="form-control" type="text" name="update_name_vn" id="update_name_vn">
+                                    <input required class="form-control" type="text" name="update_name_vn" id="update_name_vn">
                                 </div>
                                 <div class="col-md-3">
                                     <button class="btn btn-primary" type="button" id="update_trans_to_kr" style="width: 100%;">
@@ -110,7 +110,7 @@
                             <label for="name_kr"><%= language.getProperty("property_type_kr_name") %></label>
                             <div class="row">
                                 <div class="col-md-9">
-                                    <input class="form-control" type="text" name="update_name_kr" id="update_name_kr">
+                                    <input required class="form-control" type="text" name="update_name_kr" id="update_name_kr">
                                 </div>
                                 <div class="col-md-3">
                                     <button class="btn btn-primary" type="button" id="update_trans_to_vn" style="width: 100%;">
@@ -138,17 +138,17 @@
     }
     var addModal = $("#addModal");
     addModal.on('show.bs.modal', function () {
-        $("#navbar").attr("hidden", true)
+        // $("#navbar").attr("hidden", true)
     })
     addModal.on('hidden.bs.modal', function () {
-        $("#navbar").attr("hidden", false)
+        // $("#navbar").attr("hidden", false)
     })
     var editModal = $("#editModal");
     editModal.on('show.bs.modal', function () {
-        $("#navbar").attr("hidden", true)
+        // $("#navbar").attr("hidden", true)
     })
     editModal.on('hidden.bs.modal', function () {
-        $("#navbar").attr("hidden", false)
+        // $("#navbar").attr("hidden", false)
     })
     let detected_language = ''
     let translated_text = ''

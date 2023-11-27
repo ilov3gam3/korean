@@ -78,4 +78,6 @@ public class MyObject {
     public String vnp_BankTranNo;
     public String create_order_at;
     public String paid_at;
+    public String username;
+    public String thumbnail;
 }

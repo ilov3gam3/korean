@@ -24,6 +24,7 @@ import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Properties;
 
 public class PropertyController {
@@ -123,24 +124,29 @@ public class PropertyController {
             String[] vars = new String[]{user.getId()};
             String[] fields = new String[]{"id", "name_vn", "name_kr", "property_type_name_vn", "property_type_name_kr", "description_vn", "description_kr", "price", "floor_numbers", "at_floor", "district_id", "address", "bedrooms", "bathrooms", "area", "hidden", "for_sale", "sold", "created_at", "district_name", "province_name", "province_id", "property_type"};
             ArrayList<MyObject> properties = DB.getData(sql, vars, fields);
-            ArrayList<MyObject> property_near_location = DB.getData("select property_near_location.*, nearby_locations.name_vn as nearby_location_name_vn, nearby_locations.name_kr as nearby_location_name_kr from nearby_locations inner join property_near_location on nearby_locations.id = property_near_location.near_location_id inner join properties on property_near_location.property_id = properties.id where properties.user_id = ?", new String[]{user.id}, new String[]{"id", "property_id", "near_location_id", "nearby_location_name_vn", "nearby_location_name_kr"});
-            ArrayList<MyObject> images = DB.getData("select property_images.* from property_images inner join properties on property_images.property_id = properties.id where user_id = ?", vars, new String[]{"id", "property_id", "path", "is_thumb_nail"});
-            ArrayList<MyObject> property_amenities = DB.getData("select property_amenities.*, amenities.name_kr as amenity_name_kr, amenities.name_vn as amenity_name_vn from property_amenities inner join properties on property_amenities.property_id = properties.id inner join amenities on property_amenities.amenity_id = amenities.id where properties.user_id = ?", new String[]{user.id}, new String[]{"id", "property_id", "amenity_id", "amenity_name_kr", "amenity_name_vn"});
-            ArrayList<MyObject> property_list = DB.getData("select * from property_types", new String[]{"id", "name_vn","name_kr", "description_vn", "description_kr"});
-            ArrayList<MyObject> provinces_list = DB.getData("select * from provinces;", new String[]{"id", "name"});
-            ArrayList<MyObject> districts_list = DB.getData("select * from districts;", new String[]{"id", "name", "province_id"});
+            if (properties.size() == 0){
+
+            } else {
+                ArrayList<MyObject> property_near_location = DB.getData("select property_near_location.*, nearby_locations.name_vn as nearby_location_name_vn, nearby_locations.name_kr as nearby_location_name_kr from nearby_locations inner join property_near_location on nearby_locations.id = property_near_location.near_location_id inner join properties on property_near_location.property_id = properties.id where properties.user_id = ?", new String[]{user.id}, new String[]{"id", "property_id", "near_location_id", "nearby_location_name_vn", "nearby_location_name_kr"});
+                ArrayList<MyObject> images = DB.getData("select property_images.* from property_images inner join properties on property_images.property_id = properties.id where user_id = ?", vars, new String[]{"id", "property_id", "path", "is_thumb_nail"});
+                ArrayList<MyObject> property_amenities = DB.getData("select property_amenities.*, amenities.name_kr as amenity_name_kr, amenities.name_vn as amenity_name_vn from property_amenities inner join properties on property_amenities.property_id = properties.id inner join amenities on property_amenities.amenity_id = amenities.id where properties.user_id = ?", new String[]{user.id}, new String[]{"id", "property_id", "amenity_id", "amenity_name_kr", "amenity_name_vn"});
+                ArrayList<MyObject> property_list = DB.getData("select * from property_types", new String[]{"id", "name_vn","name_kr", "description_vn", "description_kr"});
+                ArrayList<MyObject> provinces_list = DB.getData("select * from provinces;", new String[]{"id", "name"});
+                ArrayList<MyObject> districts_list = DB.getData("select * from districts;", new String[]{"id", "name", "province_id"});
             /*ArrayList<MyObject> amenities = DB.getData("select * from amenities", new String[]{"id", "name_vn", "name_kr"});
             ArrayList<MyObject> locations = DB.getData("select * from nearby_locations;", new String[]{"id", "name_vn", "name_kr"});*/
-            req.setAttribute("property_near_location", property_near_location);
-            req.setAttribute("property_amenities", property_amenities);
-            req.setAttribute("properties", properties);
-            req.setAttribute("images", images);
+                req.setAttribute("property_near_location", property_near_location);
+                req.setAttribute("property_amenities", property_amenities);
+                req.setAttribute("properties", properties);
+                req.setAttribute("images", images);
             /*req.setAttribute("locations", locations);
             req.setAttribute("amenities", amenities);*/
-            //thực ra là type list, đặt lộn tên
-            req.setAttribute("property_list", property_list);
-            req.setAttribute("provinces_list", provinces_list);
-            req.setAttribute("districts_list", districts_list);
+                //thực ra là type list, đặt lộn tên
+                req.setAttribute("property_list", property_list);
+                req.setAttribute("provinces_list", provinces_list);
+                req.setAttribute("districts_list", districts_list);
+            }
+
             req.getRequestDispatcher("/views/user/view-properties.jsp").forward(req, resp);
         }
     }
@@ -219,6 +225,7 @@ public class PropertyController {
     public static class UpdateProperty extends HttpServlet{
         @Override
         protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            Properties language = (Properties) req.getAttribute("language");
             String name_vn = req.getParameter("name_vn");
             String name_kr = req.getParameter("name_kr");
             String description_vi = req.getParameter("description_vi");
@@ -237,7 +244,22 @@ public class PropertyController {
             String sql = "update properties set name_vn = ?, name_kr = ?, description_vn = ?, description_kr = ?, property_type = ?, district_id = ?, address = ?, floor_numbers = ?, at_floor = ?, bedrooms = ?, bathrooms = ?, area = ?, for_sale = ?, price = ? where id = ?";
             String[] vars = new String[]{name_vn, name_kr, description_vi, description_kr, property_type, district_id, address, floor_numbers, at_floor, bedrooms, bathrooms, update_area, sale, update_price, p_id};
             boolean check = DB.executeUpdate(sql, vars);
-            Properties language = (Properties) req.getAttribute("language");
+            String nearby_location_id = req.getParameter("nearby_location_id");
+            nearby_location_id = nearby_location_id.substring(0, nearby_location_id.length()-1);
+            String[] nearby_location_ids = nearby_location_id.split("\\|");
+            String sql_update_near_locations = "delete from property_near_location where property_id = "+p_id+";";
+            for (int i = 0; i < nearby_location_ids.length; i++) {
+                sql_update_near_locations += "insert into property_near_location(property_id, near_location_id) values ('"+p_id+"', '"+nearby_location_ids[i]+"')";
+            }
+            String amenity_id = req.getParameter("amenity_id");
+            amenity_id = amenity_id.substring(0, amenity_id.length()-1);
+            String[] amenity_ids = amenity_id.split("\\|");
+            String sql_update_amenities = "delete from property_amenities where property_id = "+p_id+";";
+            for (int i = 0; i < amenity_ids.length; i++) {
+                sql_update_amenities += "insert into property_amenities(property_id, amenity_id) values ('"+p_id+"', '"+amenity_ids[i]+"')";
+            }
+            check = DB.executeUpdate(sql_update_near_locations);
+            check = DB.executeUpdate(sql_update_amenities);
             if (check){
                 req.getSession().setAttribute("mess", "success|" + language.getProperty("update_id_card_success"));
             } else {
@@ -309,6 +331,121 @@ public class PropertyController {
             String json_string2 = objectMapper.writeValueAsString(districts_list);
             job.addProperty("provinces_list", json_string1);
             job.addProperty("districts_list", json_string2);
+            Gson gson = new Gson();
+            resp.getWriter().write(gson.toJson(job));
+        }
+    }
+
+    @WebServlet("/search")
+    @MultipartConfig(
+            fileSizeThreshold = 1024 * 1024, // 1 MB
+            maxFileSize = 1024 * 1024 * 50,      // 10 MB
+            maxRequestSize = 1024 * 1024 * 50  // 10 MB
+    )
+    public static class SearchProperty extends HttpServlet{
+        @Override
+        protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            req.getRequestDispatcher("/views/user/search.jsp").forward(req, resp);
+        }
+
+        @Override
+        protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            String property_type_id = req.getParameter("property_type_id");
+            String province_id = req.getParameter("province_id");
+            String district_id = req.getParameter("district_id");
+            String keyword = req.getParameter("keyword");
+            String amenities = req.getParameter("amenities");
+            String near_locations = req.getParameter("near_locations");
+            String for_sale = req.getParameter("for_sale");
+            ArrayList<String> vars = new ArrayList<>();
+            String sql = "select distinct properties.id, properties.name_vn, properties.name_kr, property_type, properties.description_vn, properties.description_kr, price, floor_numbers, at_floor, district_id, address, bathrooms, bedrooms, area, user_id, hidden, for_sale, sold, created_at, users.name as username, property_types.name_vn as property_type_name_vn, property_types.name_kr as property_type_name_kr, province_id, province_id, property_images.path as thumbnail \n" +
+                    "from properties\n" +
+                    "         inner join users on properties.user_id = users.id\n" +
+                    "         inner join property_types on properties.property_type = property_types.id\n" +
+                    "         inner join districts on properties.district_id = districts.id\n" +
+                    "         inner join property_amenities on properties.id = property_amenities.property_id\n" +
+                    "         inner join property_near_location on properties.id = property_near_location.property_id\n" +
+                    "         inner join property_images on properties.id = property_images.property_id\n" +
+                    "where hidden = 'false' and property_images.is_thumb_nail = 'true' ";
+            if (for_sale.equals("1")){
+                sql += "and for_sale = ? ";
+                vars.add("true");
+            }
+            if (for_sale.equals("0")){
+                sql += "and for_sale = ? ";
+                vars.add("false");
+            }
+            if (!property_type_id.equals("0")){
+                sql += "and property_type = ? ";
+                vars.add(property_type_id);
+            }
+            if (!province_id.equals("0")){
+                sql += "and districts.province_id = ? ";
+                vars.add(province_id);
+            }
+            if (!district_id.equals("0")){
+                sql += "and district_id = ? ";
+                vars.add(district_id);
+            }
+            if (!keyword.equals("")){
+                sql += "and (properties.name_vn like ? or properties.name_kr like ? or properties.description_kr like ? or properties.description_vn like ?) ";
+                vars.add("%" + keyword + "%");
+                vars.add("%" + keyword + "%");
+                vars.add("%" + keyword + "%");
+                vars.add("%" + keyword + "%");
+            }
+            if (!amenities.equals("")){
+                String[] amenities_arr = amenities.split(",");
+                sql += "and (";
+                for (int i = 0; i < amenities_arr.length; i++) {
+                    if (i == amenities_arr.length -1){
+                        sql += " property_amenities.amenity_id = ?";
+                    } else {
+                        sql += " property_amenities.amenity_id = ? or ";
+                    }
+                    vars.add(amenities_arr[i]);
+                }
+                sql += ") ";
+            }
+            if (!near_locations.equals("")){
+                String[] near_locations_arr = near_locations.split(",");
+                sql += "and (";
+                for (int i = 0; i < near_locations_arr.length; i++) {
+                    if (i == near_locations_arr.length -1) {
+                        sql += " property_near_location.near_location_id = ? ";
+                    } else {
+                        sql += " property_near_location.near_location_id = ? or ";
+                    }
+                    vars.add(near_locations_arr[i]);
+                }
+                sql += ") ";
+            }
+            String[] vars_arr = new String[vars.size()];
+            for (int i = 0; i < vars.size(); i++) {
+                vars_arr[i] = vars.get(i);
+            }
+            String[] fields = new String[]{"id", "name_vn", "name_kr", "property_type", "description_vn", "description_kr", "price", "floor_numbers", "at_floor", "district_id", "address", "bathrooms", "bedrooms", "area", "user_id", "for_sale", "sold", "created_at", "username", "property_type_name_vn", "property_type_name_kr", "province_id", "thumbnail"};
+            ArrayList<MyObject> properties = DB.getData(sql, vars_arr, fields);
+            /*String img_id = "(";
+            for (int i = 0; i < properties.size(); i++) {
+                if (i == properties.size()-1){
+                    img_id += properties.get(i).getId();
+                } else {
+                    img_id += properties.get(i).getId() + ",";
+                }
+            }
+            img_id += ")";
+            sql = "select * from property_images where property_id in " + img_id + " and is_thumb_nail = 'true';";
+            fields = new String[]{"id", "property_id", "path", "is_thumb_nail"};
+            ArrayList<MyObject> images = DB.getData(sql, fields);*/
+            com.google.gson.JsonObject job = new JsonObject();
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+            objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+            String json_string = objectMapper.writeValueAsString(properties);
+//            String json_string2 = objectMapper.writeValueAsString(images);
+            job.addProperty("properties", json_string);
+//            job.addProperty("images", json_string2);
             Gson gson = new Gson();
             resp.getWriter().write(gson.toJson(job));
         }

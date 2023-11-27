@@ -188,17 +188,17 @@
 <script>
     var addModal = $("#addModal");
     addModal.on('show.bs.modal', function () {
-        $("#navbar").attr("hidden", true)
+        // $("#navbar").attr("hidden", true)
     })
     addModal.on('hidden.bs.modal', function () {
-        $("#navbar").attr("hidden", false)
+        // $("#navbar").attr("hidden", false)
     })
     var editModal = $("#editModal");
     editModal.on('show.bs.modal', function () {
-        $("#navbar").attr("hidden", true)
+        // $("#navbar").attr("hidden", true)
     })
     editModal.on('hidden.bs.modal', function () {
-        $("#navbar").attr("hidden", false)
+        // $("#navbar").attr("hidden", false)
     })
     let detected_language = ''
     let translated_text = ''

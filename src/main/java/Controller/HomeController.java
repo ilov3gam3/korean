@@ -331,9 +331,9 @@ public class HomeController {
                     "    number_of_words_per_cmt int,\n" +
                     "    hidden bit\n" +
                     ")\n" +
-                    "insert into subscribe_plans(name_vn, name_kr, number_of_property, price_per_month, number_of_comments, number_of_words_per_cmt) values (N'Bạc', N'은', 5, 100000, 20, 20)\n" +
-                    "insert into subscribe_plans(name_vn, name_kr, number_of_property, price_per_month, number_of_comments, number_of_words_per_cmt) values (N'Vàng', N'노란색', 10, 200000, 30, 30)\n" +
-                    "insert into subscribe_plans(name_vn, name_kr, number_of_property, price_per_month, number_of_comments, number_of_words_per_cmt) values (N'Kim cương', N'다이아몬드', 15, 300000, 40, 40)\n" +
+                    "insert into subscribe_plans(name_vn, name_kr, number_of_property, price_per_month, number_of_comments, number_of_words_per_cmt, hidden) values (N'Bạc', N'은', 5, 100000, 20, 20, 'false')\n" +
+                    "insert into subscribe_plans(name_vn, name_kr, number_of_property, price_per_month, number_of_comments, number_of_words_per_cmt, hidden) values (N'Vàng', N'노란색', 10, 200000, 30, 30, 'false')\n" +
+                    "insert into subscribe_plans(name_vn, name_kr, number_of_property, price_per_month, number_of_comments, number_of_words_per_cmt, hidden) values (N'Kim cương', N'다이아몬드', 15, 300000, 40, 40, 'false')\n" +
                     "create table subscriptions\n" +
                     "(\n" +
                     "    id                 int identity primary key,\n" +

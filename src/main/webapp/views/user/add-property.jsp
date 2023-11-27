@@ -173,7 +173,8 @@
                     <div class="row">
                         <div class="col-5">
                             <label ><%= language.getProperty("add_property_choose_amenities") %></label>
-                            <input type="hidden" name="amenity_id" :value="user_choose_amenity_str">
+                            <input type="hidden" name="amenity_id" v-model="user_choose_amenity_str">
+<%--                            <input type="hidden" name="amenity_id" :value="user_choose_amenity_str">--%>
                             <%--<select required data-placeholder="<%= language.getProperty("add_property_choose_amenities") %>" class="chosen-select form-control" multiple name="amenity_id" id="amenity">
                                 <% ArrayList<MyObject> amenities = (ArrayList<MyObject>) request.getAttribute("amenities");%>
                                     <% if (lang.equals("kr")) { %>
@@ -273,7 +274,7 @@
     var img_ids = []
     var is_thumb_nail = 0
     addModal.on('show.bs.modal', function () {
-        $("#navbar").attr("hidden", true)
+        // $("#navbar").attr("hidden", true)
     })
     addModal.on('hidden.bs.modal', function () {
         $("#navbar").attr("hidden", false)
@@ -487,7 +488,8 @@ var app = new Vue({
             }
         },
         remove_amenity(id){
-            this.user_choose_amenity_str.replace(id + "|", "")
+            this.user_choose_amenity_str = this.user_choose_amenity_str.replace(id + "|", "")
+            console.log("after remove " + this.user_choose_amenity_str)
             for (let i = 0; i < this.user_choose_amenity.length; i++) {
                 if (this.user_choose_amenity[i].id === id){
                     this.amenities.push(this.user_choose_amenity[i])
@@ -505,7 +507,8 @@ var app = new Vue({
             }
         },
         remove_near_location(id){
-            this.user_choose_near_locations_str.replace(id + "|", "")
+            this.user_choose_near_locations_str = this.user_choose_near_locations_str.replace(id + "|", "")
+            console.log("after remove " + this.user_choose_near_locations_str)
             for (let i = 0; i < this.user_choose_near_locations.length; i++) {
                 if (this.user_choose_near_locations[i].id === id){
                     this.near_locations.push(this.user_choose_near_locations[i])

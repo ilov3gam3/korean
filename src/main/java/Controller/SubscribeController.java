@@ -78,7 +78,7 @@ public class SubscribeController {
             LocalDateTime currentDateTime = LocalDateTime.now();
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
             String current_date = currentDateTime.format(formatter);
-            sql = "select * from subscriptions where user_id = ? and from_date < ? and to_date > ?";
+            sql = "select * from subscriptions where user_id = ? and from_date < ? and to_date > ? and vnp_TransactionStatus = '00'";
             MyObject user = (MyObject) req.getSession().getAttribute("login");
             String[] vars = new String[]{user.id, current_date, current_date};
             fields = new String[]{"id", "from_date", "to_date"};
@@ -92,7 +92,7 @@ public class SubscribeController {
             LocalDateTime currentDateTime = LocalDateTime.now();
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
             String current_date = currentDateTime.format(formatter);
-            String sql = "select * from subscriptions where user_id = ? and from_date < ? and to_date > ?";
+            String sql = "select * from subscriptions where user_id = ? and from_date < ? and to_date > ? and vnp_TransactionStatus = '00'";
             String[] vars = new String[]{user_id, current_date, current_date};
             String[] fields = new String[]{"id", "from_date", "to_date"};
             return DB.getData(sql, vars, fields).size() == 0;

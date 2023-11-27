@@ -30,7 +30,7 @@
                 <%=language.getProperty("amenities_edit")%>
               </button>
               <form onsubmit="deleteAction(event, ${amenitie.getNumbers()})" action="${pageContext.request.contextPath}/admin/update-amenity" method="get">
-                <input type="hidden" name="a_id" value="${amenitie.getId()}">
+                <input required type="hidden" name="a_id" value="${amenitie.getId()}">
                 <button style="width: 100%;" class="btn btn-danger mt-1" type="submit"><%=language.getProperty("amenities_delete")%></button>
               </form>
             </th>
@@ -55,7 +55,7 @@
               <label for="name_vn"><%= language.getProperty("property_type_vn_name") %></label>
               <div class="row">
                 <div class="col-md-9">
-                  <input class="form-control" type="text" name="name_vn" id="name_vn">
+                  <input required class="form-control" type="text" name="name_vn" id="name_vn">
                 </div>
                 <div class="col-md-3">
                   <button class="btn btn-primary" type="button" id="trans_to_kr" style="width: 100%;">
@@ -67,7 +67,7 @@
               <label for="name_kr"><%= language.getProperty("property_type_kr_name") %></label>
               <div class="row">
                 <div class="col-md-9">
-                  <input class="form-control" type="text" name="name_kr" id="name_kr">
+                  <input required class="form-control" type="text" name="name_kr" id="name_kr">
                 </div>
                 <div class="col-md-3">
                   <button class="btn btn-primary" type="button" id="trans_to_vn" style="width: 100%;">
@@ -95,12 +95,12 @@
       <div class="modal-body">
         <div class="col-md-12">
           <form action="${pageContext.request.contextPath}/admin/update-amenity" method="post">
-            <input type="hidden" id="a_id">
+            <input type="hidden" id="a_id" name="a_id">
             <div class="form-group m-1">
               <label for="update_name_vn"><%= language.getProperty("property_type_vn_name") %></label>
               <div class="row">
                 <div class="col-md-9">
-                  <input class="form-control" type="text" name="update_name_vn" id="update_name_vn">
+                  <input required class="form-control" type="text" name="update_name_vn" id="update_name_vn">
                 </div>
                 <div class="col-md-3">
                   <button class="btn btn-primary" type="button" id="update_trans_to_kr" style="width: 100%;">
@@ -112,7 +112,7 @@
               <label for="update_name_kr"><%= language.getProperty("property_type_kr_name") %></label>
               <div class="row">
                 <div class="col-md-9">
-                  <input class="form-control" type="text" name="update_name_kr" id="update_name_kr">
+                  <input required class="form-control" type="text" name="update_name_kr" id="update_name_kr">
                 </div>
                 <div class="col-md-3">
                   <button class="btn btn-primary" type="button" id="update_trans_to_vn" style="width: 100%;">
@@ -134,17 +134,17 @@
 <script>
   var addModal = $("#addModal");
   addModal.on('show.bs.modal', function () {
-    $("#navbar").attr("hidden", true)
+    // $("#navbar").attr("hidden", true)
   })
   addModal.on('hidden.bs.modal', function () {
-    $("#navbar").attr("hidden", false)
+    // $("#navbar").attr("hidden", false)
   })
   var editModal = $("#editModal");
   editModal.on('show.bs.modal', function () {
-    $("#navbar").attr("hidden", true)
+    // $("#navbar").attr("hidden", true)
   })
   editModal.on('hidden.bs.modal', function () {
-    $("#navbar").attr("hidden", false)
+    // $("#navbar").attr("hidden", false)
   })
   let detected_language = ''
   let translated_text = ''
