@@ -2,6 +2,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page import="java.util.Properties" %>
 <%@ page import="Database.MyObject" %>
+<%@ page import="Init.Config" %>
 <% Properties language = (Properties) request.getAttribute("language"); %>
 <% String lang = language.get("lang").toString(); %>
 <% MyObject user = (MyObject) session.getAttribute("login"); %>
@@ -45,6 +46,9 @@
           crossorigin="anonymous" referrerpolicy="no-referrer"/>
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.css"/>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/chosen.css"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.7.10/vue.min.js" integrity="sha512-H8u5mlZT1FD7MRlnUsODppkKyk+VEiCmncej8yZW1k/wUT90OQon0F9DSf/2Qh+7L/5UHd+xTLrMszjHEZc2BA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.0/axios.min.js" integrity="sha512-WrdC3CE9vf1nBf58JHepuWT4x24uTacky9fuzw2g/3L9JkihgwZ6Cfv+JGTtNyosOhEmttMtEZ6H3qJWfI7gIQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
     <style>
         .search-choice-close{
             color: red;
@@ -66,9 +70,12 @@
         div.scrollmenu a:hover {
             background-color: #777;
         }
-        .dropdown-menu {
-            max-height:250px !important;
-            overflow-y: scroll;
+        .chosen-results {
+            max-height: 300px;
+            overflow-y: auto;
+            /* Add any additional styles you want for the chosen-results class */
+            border: 1px solid #ccc; /* Optional: Add a border for better visibility */
+            padding: 5px; /* Optional: Add padding for better appearance */
         }
     </style>
 </head>
@@ -94,17 +101,16 @@
                              alt="Icon"
                              style="width: 30px; height: 30px;">
                     </div>
-                    <h1 class="m-0 text-primary">Makaan</h1>
+                    <h1 class="m-0 text-primary"><%=Config.config.getProperty("app_name")%></h1>
                 </a>
                 <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarCollapse">
-                    <div class="navbar-nav ms-auto">
+                    <div id="choose_location_head" class="navbar-nav ms-auto">
                         <a href="${pageContext.request.contextPath}/"
                            class="nav-item nav-link active"><%= language.getProperty("head.home") %>
                         </a>
-
                         <div class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle"
                                data-bs-toggle="dropdown"><%= language.getProperty("head.language") %>
@@ -118,27 +124,71 @@
                                 </a>
                             </div>
                         </div>
-
-                        <a href="about.html" class="nav-item nav-link">About</a>
-                        <div class="nav-item dropdown">
-                            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Property</a>
-                            <div class="dropdown-menu rounded-0 m-0">
-                                <a href="property-list.html" class="dropdown-item">Property List</a>
-                                <a href="property-type.html" class="dropdown-item">Property Type</a>
-                                <a href="property-agent.html" class="dropdown-item">Property Agent</a>
-                            </div>
-                        </div>
-                        <div class="nav-item dropdown">
-                            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Pages</a>
-                            <div class="dropdown-menu rounded-0 m-0">
-                                <a href="testimonial.html" class="dropdown-item">Testimonial</a>
-                                <a href="404.html" class="dropdown-item">404 Error</a>
-                            </div>
-                        </div>
                         <a href="contact.html" class="nav-item nav-link"><%= language.getProperty("head.contact") %>
 
                         </a>
+                        <a href="#" class="nav-item nav-link" v-on:click="choose_location()">
+                            <span v-if="location == null">Chưa chọn thành phố</span>
+                            <span v-if="location != null"><%=language.getProperty("head.you_are_at")%>: {{location.name}}</span>
+                        </a>
                     </div>
+                    <script>
+                        var choose_location_head = new Vue({
+                            el: "#choose_location_head",
+                            data:{
+                                location: null,
+                                provinces: []
+                            },
+                            created(){
+                                axios.get('<%=request.getContextPath()%>/api/get-locations')
+                                    .then((res)=>{
+                                        this.provinces = JSON.parse(res.data.provinces_list)
+                                    })
+                                this.location = this.getCookie("location") == '' ? null : this.getCookie("location")
+                                if (this.location == null){
+                                    setTimeout(function() {
+                                        this.show_modal()
+                                    }, 1000);
+                                } else {
+                                    this.updateCookie()
+                                }
+                            },
+                            methods:{
+                                getCookie(cookieName){
+                                    const name = cookieName + "=";
+                                    const decodedCookie = decodeURIComponent(document.cookie);
+                                    const cookieArray = decodedCookie.split(';');
+
+                                    for (let i = 0; i < cookieArray.length; i++) {
+                                        let cookie = cookieArray[i].trim();
+                                        if (cookie.indexOf(name) === 0) {
+                                            return cookie.substring(name.length, cookie.length);
+                                        }
+                                    }
+                                    return null;
+                                },
+                                updateCookie(){
+                                    this.location = JSON.parse(this.getCookie("location"))
+                                },
+                                setCookie(cname, cvalue, exdays) {
+                                    const d = new Date();
+                                    d.setTime(d.getTime() + (exdays*24*60*60*1000));
+                                    let expires = "expires="+ d.toUTCString();
+                                    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+                                },
+                                check(){
+                                    this.setCookie('location', this.location, 100);
+                                    this.updateCookie()
+                                },
+                                show_modal(){
+                                    choose_location_foot.show_modal(this.provinces)
+                                },
+                                choose_location(){
+                                    choose_location_foot.show_modal(this.provinces)
+                                }
+                            }
+                        })
+                    </script>
                     <% if (user != null) { %>
                         <% if (user.getIs_admin().equals("1")) { %>
                         <a href="${pageContext.request.contextPath}/admin" class="btn btn-primary"
@@ -160,36 +210,36 @@
                         </button>
                     </a>
                     <%} else {%>
-                    <div class="d-flex align-items-center ml-1">
-                        <img src="<%=user.avatar.startsWith("http") ? user.avatar : request.getContextPath() + user.avatar%>" alt="user avatar"
-                             style="width: 40px; height: 40px; object-fit: cover; border-radius: 50%">
-                    </div>
-                    <div class="nav-item dropdown">
-                        <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><%=user.name%>
-                        </a>
-                        <div class="dropdown-menu rounded-0 m-0">
-                            <a href="${pageContext.request.contextPath}/user/profile"
-                               class="dropdown-item"><%= language.getProperty("head.profile") %>
-                            </a>
-
-
-                            <% if (user.getIs_admin().equals("0")) { %>
-                            <a href="${pageContext.request.contextPath}/user/your-property"
-                               class="dropdown-item"><%= language.getProperty("head.your_property") %>
-                            </a>
-                            <a href="${pageContext.request.contextPath}/user/upgrade-account"
-                               class="dropdown-item"><%= language.getProperty("head.subscribe") %>
-                            </a>
-                            <%} else {%>
-
-                            <%} %>
-                            <a href="${pageContext.request.contextPath}/user/logout"
-                               class="dropdown-item"><%= language.getProperty("head.logout") %>
-                            </a>
+                        <div class="d-flex align-items-center ml-1">
+                            <img src="<%=user.avatar.startsWith("http") ? user.avatar : request.getContextPath() + user.avatar%>" alt="user avatar"
+                                 style="width: 40px; height: 40px; object-fit: cover; border-radius: 50%">
                         </div>
-                    </div>
-                    <%}%>
+                        <div class="nav-item dropdown">
+                            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><%=user.name%>
+                            </a>
+                            <div class="dropdown-menu rounded-0 m-0">
+                                <a href="${pageContext.request.contextPath}/user/profile"
+                                   class="dropdown-item"><%= language.getProperty("head.profile") %>
+                                </a>
+                                <% if (user.getIs_admin().equals("0")) { %>
+                                <a href="${pageContext.request.contextPath}/user/your-property"
+                                   class="dropdown-item"><%= language.getProperty("head.your_property") %>
+                                </a>
+                                <a href="${pageContext.request.contextPath}/user/upgrade-account"
+                                   class="dropdown-item"><%= language.getProperty("head.subscribe") %>
+                                </a>
+                                <a href="${pageContext.request.contextPath}/user/transaction"
+                                   class="dropdown-item"><%= language.getProperty("head.transaction") %>
+                                </a>
+                                <%} else {%>
 
+                                <%} %>
+                                <a href="${pageContext.request.contextPath}/user/logout"
+                                   class="dropdown-item"><%= language.getProperty("head.logout") %>
+                                </a>
+                            </div>
+                        </div>
+                    <%}%>
                 </div>
             </nav>
         </div>

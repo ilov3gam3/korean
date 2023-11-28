@@ -46,11 +46,8 @@ public class AmenityController {
         @Override
         protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
             String id = req.getParameter("a_id");
-            String name_kr = req.getParameter("update_name_vn");
-            String name_vn = req.getParameter("update_name_kr");
-            System.out.println(id);
-            System.out.println(name_kr);
-            System.out.println(name_vn);
+            String name_vn = req.getParameter("update_name_vn");
+            String name_kr = req.getParameter("update_name_kr");
             String sql = "update amenities set name_vn = ?, name_kr = ? where id = ?";
             boolean check = DB.executeUpdate(sql, new String[]{name_vn, name_kr, id});
             Properties language = (Properties) req.getAttribute("language");

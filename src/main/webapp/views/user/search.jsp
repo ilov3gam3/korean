@@ -112,13 +112,13 @@
               <div class="col-lg-4 col-md-6 wow fadeInUp">
                 <div class="property-item rounded overflow-hidden">
                   <div class="position-relative overflow-hidden">
-                    <a href=""><img class="img-fluid" :src="context + value.thumbnail" alt=""></a>
+                    <a href=""><img class="img-fluid" style="width: 100%; height: 100%" :src="context + value.thumbnail" alt=""></a>
                     <div class="bg-primary rounded text-white position-absolute start-0 top-0 m-4 py-1 px-3">{{value.for_sale == '1' ? '<%=language.getProperty("search_sale")%>' : '<%=language.getProperty("search_rent")%>'}}</div>
                     <div class="bg-white rounded-top text-primary position-absolute start-0 bottom-0 mx-4 pt-1 px-3">{{lang == 'vn' ? value.property_type_name_vn : value.property_type_name_kr}}</div>
                   </div>
                   <div class="p-4 pb-0">
                     <h5 class="text-primary mb-3">{{Number(value.price).toLocaleString()}}₫</h5>
-                    <a class="d-block h5 mb-2" href="">{{lang == 'vn' ? value.name_vn : value.name_kr}}</a>
+                    <a class="d-block h5 mb-2" :href="context + '/view-property?id=' + value.id">{{lang == 'vn' ? value.name_vn : value.name_kr}}</a>
                     <p><i class="fa fa-map-marker-alt text-primary me-2"></i>{{value.address}}, {{getDistrictName(value.district_id)}}, {{getProvinceName(value.province_id)}}</p>
                   </div>
                   <div class="d-flex border-top">

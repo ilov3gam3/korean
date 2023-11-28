@@ -80,4 +80,9 @@ public class MyObject {
     public String paid_at;
     public String username;
     public String thumbnail;
+    public String subscribe_plans_name_vn;
+    public String subscribe_plans_name_kr;
+    public String hidden_count;
+    public String not_hidden_count;
+    public String gg_map_api;
 }

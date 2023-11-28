@@ -24,7 +24,6 @@ import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Properties;
 
 public class PropertyController {
@@ -37,9 +36,22 @@ public class PropertyController {
     public static class AddProperty extends HttpServlet{
         @Override
         protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-            ArrayList<MyObject> districts_list = DB.getData("select * from districts;", new String[]{"id", "name", "province_id"});
-            req.setAttribute("districts_list", districts_list);
-            req.getRequestDispatcher("/views/user/add-property.jsp").forward(req, resp);
+            MyObject user = (MyObject) req.getSession().getAttribute("login");
+            String sql = "select * from subscriptions where user_id = ? and from_date < ? and to_date > ? and vnp_TransactionStatus = '00'";
+            LocalDateTime currentDateTime = LocalDateTime.now();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            String current_date = currentDateTime.format(formatter);
+            String[] vars = new String[]{user.id, current_date, current_date};
+            String[] fields = new String[]{"id", "from_date", "to_date", "number_of_property"};
+            ArrayList<MyObject> subs = DB.getData(sql, vars, fields);
+            if (subs.size()==1){
+                ArrayList<MyObject> districts_list = DB.getData("select * from districts;", new String[]{"id", "name", "province_id"});
+                req.setAttribute("districts_list", districts_list);
+                req.setAttribute("subs", subs.get(0));
+                req.getRequestDispatcher("/views/user/add-property.jsp").forward(req, resp);
+            } else {
+                req.getRequestDispatcher("/views/user/make_subs.jsp").forward(req, resp);
+            }
         }
         @Override
         protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -83,7 +95,6 @@ public class PropertyController {
                     }
                     sql_img += "insert into property_images(property_id, path, is_thumb_nail) values ("+property_id+", '/files/"+newFileName+"', '"+ (p.getName().endsWith("thumb") ? "true" : "false") +"'); ";
                 }
-
             }
             DB.executeUpdate(sql_img);
             String sql_insert_property_amenities = "";
@@ -125,7 +136,7 @@ public class PropertyController {
             String[] fields = new String[]{"id", "name_vn", "name_kr", "property_type_name_vn", "property_type_name_kr", "description_vn", "description_kr", "price", "floor_numbers", "at_floor", "district_id", "address", "bedrooms", "bathrooms", "area", "hidden", "for_sale", "sold", "created_at", "district_name", "province_name", "province_id", "property_type"};
             ArrayList<MyObject> properties = DB.getData(sql, vars, fields);
             if (properties.size() == 0){
-
+                req.getRequestDispatcher("/views/user/no-property.jsp").forward(req, resp);
             } else {
                 ArrayList<MyObject> property_near_location = DB.getData("select property_near_location.*, nearby_locations.name_vn as nearby_location_name_vn, nearby_locations.name_kr as nearby_location_name_kr from nearby_locations inner join property_near_location on nearby_locations.id = property_near_location.near_location_id inner join properties on property_near_location.property_id = properties.id where properties.user_id = ?", new String[]{user.id}, new String[]{"id", "property_id", "near_location_id", "nearby_location_name_vn", "nearby_location_name_kr"});
                 ArrayList<MyObject> images = DB.getData("select property_images.* from property_images inner join properties on property_images.property_id = properties.id where user_id = ?", vars, new String[]{"id", "property_id", "path", "is_thumb_nail"});
@@ -145,9 +156,8 @@ public class PropertyController {
                 req.setAttribute("property_list", property_list);
                 req.setAttribute("provinces_list", provinces_list);
                 req.setAttribute("districts_list", districts_list);
+                req.getRequestDispatcher("/views/user/view-properties.jsp").forward(req, resp);
             }
-
-            req.getRequestDispatcher("/views/user/view-properties.jsp").forward(req, resp);
         }
     }
 
@@ -448,6 +458,80 @@ public class PropertyController {
 //            job.addProperty("images", json_string2);
             Gson gson = new Gson();
             resp.getWriter().write(gson.toJson(job));
+        }
+    }
+
+    @WebServlet("/user/update-property-image")
+    @MultipartConfig(
+            fileSizeThreshold = 1024 * 1024, // 1 MB
+            maxFileSize = 1024 * 1024 * 50,      // 10 MB
+            maxRequestSize = 1024 * 1024 * 50  // 10 MB
+    )
+    public static class UpdatePropertyImage extends HttpServlet{
+        @Override
+        protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            String p_id = req.getParameter("p_id");
+            String remove = "(" + req.getParameter("remove") + ")";
+            System.out.println(remove);
+            if (!remove.equals("()")){
+                String sql = "delete from property_images where id in " + remove;
+                boolean check = DB.executeUpdate(sql);
+            }
+            String uploadDir = req.getServletContext().getRealPath("/") + "files";
+            String sql_img = "";
+            for(Part p : req.getParts())
+            {
+                if (p.getContentType() != null && p.getName().startsWith("images")){
+                    String fileName = UserController.ChangeAvatar.getFileName(p);
+                    assert fileName != null;
+                    String newFileName = UserController.ChangeAvatar.generateUniqueFileName(fileName);
+                    if (newFileName.split("\\.").length != 1){
+                        Path filePath = Paths.get(uploadDir, newFileName);
+                        try (InputStream fileContent = p.getInputStream()) {
+                            Files.copy(fileContent, filePath, StandardCopyOption.REPLACE_EXISTING);
+                        }
+                        sql_img += "insert into property_images(property_id, path, is_thumb_nail) values ("+p_id+", '/files/"+newFileName+"', '"+ (p.getName().endsWith("thumb") ? "true" : "false") +"'); ";
+                    }
+                }
+            }
+            if (!sql_img.equals("")){
+                boolean check = DB.executeUpdate(sql_img);
+            }
+            resp.sendRedirect(req.getContextPath() + "/user/your-property");
+        }
+    }
+
+    @WebServlet("/view-property")
+    public static class ViewProperty extends HttpServlet{
+        @Override
+        protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            Properties language = (Properties) req.getAttribute("language");
+            String id = req.getParameter("id");
+            String sql = "select properties.*, property_types.name_vn as property_type_name_vn, property_types.name_kr as property_type_name_kr, districts.name as district_name, provinces.name as province_name, provinces.id as province_id, users.phone, users.email from properties inner join property_types on properties.property_type = property_types.id inner join districts on properties.district_id = districts.id inner join provinces on districts.province_id = provinces.id inner join users on properties.user_id = users.id where properties.id = ? and hidden = 'false'";
+            String[] vars = new String[]{id};
+            String[] fields = new String[]{"id", "name_vn", "name_kr", "property_type_name_vn", "property_type_name_kr", "description_vn", "description_kr", "price", "floor_numbers", "at_floor", "district_id", "address", "bedrooms", "bathrooms", "area", "hidden", "for_sale", "sold", "created_at", "district_name", "province_name", "province_id", "property_type", "phone", "email"};
+            ArrayList<MyObject> properties = DB.getData(sql, vars, fields);
+            if (properties.size() == 0){
+                req.getSession().setAttribute("mess", "warning|" + language.getProperty("no_property"));
+            } else {
+                sql = "select * from property_images where property_id = ?";
+                fields = new String[]{"id", "property_id", "path", "is_thumb_nail"};
+                ArrayList<MyObject> images = DB.getData(sql, vars, fields);
+
+                sql = "select property_amenities.*, amenities.*  from property_amenities inner join amenities on property_amenities.amenity_id = amenities.id where property_id = ?";
+                fields = new String[]{"id", "amenity_id", "name_vn", "name_kr"};
+                ArrayList<MyObject> amenities = DB.getData(sql,vars, fields);
+
+                sql = "select property_near_location.*, nearby_locations.name_vn, nearby_locations.name_kr from property_near_location inner join nearby_locations on property_near_location.near_location_id = nearby_locations.id where property_id = ?";
+                fields = new String[]{"id", "property_id", "near_location_id", "name_vn", "name_kr"};
+                ArrayList<MyObject> near_locations = DB.getData(sql,vars, fields);
+
+                req.setAttribute("property", properties.get(0));
+                req.setAttribute("images", images);
+                req.setAttribute("amenities", amenities);
+                req.setAttribute("near_locations", near_locations);
+                req.getRequestDispatcher("/views/view-property.jsp").forward(req, resp);
+            }
         }
     }
 }

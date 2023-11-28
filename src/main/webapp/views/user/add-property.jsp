@@ -1,10 +1,16 @@
+<%@ page import="java.util.ArrayList" %>
+<%@ page import="Database.DB" %>
 <%@page contentType="text/html" pageEncoding="utf-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ include file="../master/head.jsp" %>
+<%ArrayList<MyObject> counts = DB.getData("SELECT SUM(CASE WHEN hidden = 1 THEN 1 ELSE 0 END) AS hidden_count, SUM(CASE WHEN hidden = 0 THEN 1 ELSE 0 END) AS not_hidden_count FROM properties where user_id = ?", new String[]{user.id}, new String[]{"hidden_count", "not_hidden_count"}); %>
+<% MyObject subs = (MyObject) request.getAttribute("subs");%>
 <div class="col-12 mb-3  d-flex justify-content-center">
     <div class="row col-11  d-flex justify-content-center">
         <h2><%= language.getProperty("add_property_title") %>
         </h2>
+        <h4>Tổng số chỗ nghỉ: <%=Integer.parseInt(counts.get(0).getHidden_count()) + Integer.parseInt(counts.get(0).getNot_hidden_count())%>, bị ẩn: <%=counts.get(0).getHidden_count()%>, đang hiển thị: <%=counts.get(0).getNot_hidden_count()%></h4>
+        <h4>Bạn còn thêm được <%=Integer.parseInt(subs.getNumber_of_property()) - Integer.parseInt(counts.get(0).getNot_hidden_count())%> nhà ở nữa.</h4>
         <form onsubmit="handle_form_submit(event)" id="my_form">
             <div class="col-12">
                 <div class="row">
@@ -267,6 +273,13 @@
 </div>
 <%@ include file="../master/foot.jsp" %>
 <script>
+    <% if (Integer.parseInt(subs.getNumber_of_property()) <= Integer.parseInt(counts.get(0).getNot_hidden_count())) { %>
+        var form = document.getElementById("my_form");
+        var elements = form.elements;
+        for (var i = 0; i < elements.length; i++) {
+            elements[i].disabled = true;
+        }
+    <% } %>
     $("#amenity").chosen();
     $("#nearby_location_id").chosen();
     var addModal = $("#addModal");

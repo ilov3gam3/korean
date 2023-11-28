@@ -288,4 +288,30 @@ public class SubscribeController {
             resp.sendRedirect(req.getContextPath() + "/admin/view-all-plans");
         }
     }
+
+    @WebServlet("/admin/view-all-subscriptions")
+    public static class ViewAllSubs extends HttpServlet{
+        @Override
+        protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            String sql = "select subscriptions.*, subscribe_plans.name_vn as subscribe_plans_name_vn, subscribe_plans.name_kr as subscribe_plans_name_kr, users.name as username from subscriptions inner join subscribe_plans on subscriptions.subscribe_plans_id = subscribe_plans.id inner join users on subscriptions.user_id = users.id";
+            String[] fields = new String[]{"id", "user_id", "subscribe_plans_id", "from_date", "to_date", "number_of_property", "price_per_month", "number_of_comments", "number_of_words_per_cmt", "discount", "price_to_pay", "vnp_BankCode", "vnp_TransactionNo", "vnp_TransactionStatus", "vnp_OrderInfo", "vnp_TxnRef", "vnp_CardType", "vnp_BankTranNo", "create_order_at", "paid_at", "subscribe_plans_name_vn", "subscribe_plans_name_kr", "username"};
+            ArrayList<MyObject> subs = DB.getData(sql, fields);
+            req.setAttribute("subs", subs);
+            req.getRequestDispatcher("/views/admin/view-subs.jsp").forward(req, resp);
+        }
+    }
+
+    @WebServlet("/user/transaction")
+    public static class UserTransaction extends HttpServlet{
+        @Override
+        protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            MyObject user = (MyObject)req.getSession().getAttribute("login");
+            String sql = "select subscriptions.*, subscribe_plans.name_vn as subscribe_plans_name_vn, subscribe_plans.name_kr as subscribe_plans_name_kr, users.name as username from subscriptions inner join subscribe_plans on subscriptions.subscribe_plans_id = subscribe_plans.id inner join users on subscriptions.user_id = users.id where user_id = ?";
+            String[] vars = new String[]{user.id};
+            String[] fields = new String[]{"id", "user_id", "subscribe_plans_id", "from_date", "to_date", "number_of_property", "price_per_month", "number_of_comments", "number_of_words_per_cmt", "discount", "price_to_pay", "vnp_BankCode", "vnp_TransactionNo", "vnp_TransactionStatus", "vnp_OrderInfo", "vnp_TxnRef", "vnp_CardType", "vnp_BankTranNo", "create_order_at", "paid_at", "subscribe_plans_name_vn", "subscribe_plans_name_kr", "username"};
+            ArrayList<MyObject> subs = DB.getData(sql,vars, fields);
+            req.setAttribute("subs", subs);
+            req.getRequestDispatcher("/views/user/view-subs.jsp").forward(req, resp);
+        }
+    }
 }

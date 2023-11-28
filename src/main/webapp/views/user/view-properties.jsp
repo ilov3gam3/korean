@@ -25,12 +25,18 @@
                             <% } %>
                         </div>
                         <div class="row" id="small_imgs_<%=properties.get(i).getId()%>">
+                            <% String img_json = "["; %>
                             <% for (int j = 0; j < images.size(); j++) { %>
-                            <% if (images.get(j).getProperty_id().equals(properties.get(i).getId())){%>
-                            <img id="small_<%=images.get(j).getId()%>" onclick="changePreview('<%=thumb_nail_id%>', '<%=images.get(j).getId()%>', '<%=images.get(j).getPath()%>', '<%=properties.get(i).getId()%>')" hidden="hidden" class="small_images m-1 p-0 img-thumbnail <%=images.get(j).getIs_thumb_nail().equals("1") ? "border-3 border-primary" : ""%>" src="${pageContext.request.contextPath}<%=images.get(j).getPath()%>" alt="">
-                            <% }%>
+                                <% if (images.get(j).getProperty_id().equals(properties.get(i).getId())){%>
+                                <% img_json += "{'id': '"+images.get(j).getId()+"', 'path': '"+images.get(j).getPath()+"', 'is_thumbnail' : '"+images.get(j).getIs_thumb_nail()+"'},"; %>
+                                <img id="small_<%=images.get(j).getId()%>" onclick="changePreview('<%=thumb_nail_id%>', '<%=images.get(j).getId()%>', '<%=images.get(j).getPath()%>', '<%=properties.get(i).getId()%>')" hidden="hidden" class="small_images m-1 p-0 img-thumbnail <%=images.get(j).getIs_thumb_nail().equals("1") ? "border-3 border-primary" : ""%>" src="${pageContext.request.contextPath}<%=images.get(j).getPath()%>" alt="">
+                                <% }%>
                             <% } %>
+                            <% img_json += "]";%>
                         </div>
+                        <form>
+                            <button type="button" data-bs-toggle="modal" data-bs-target="#editImageModal" v-on:click="change_img(<%=img_json%>, <%=properties.get(i).getId()%>)" class="btn btn-primary mb-1" style="width: 100%"><%=language.getProperty("view_properties_update_img")%></button>
+                        </form>
                         <form id="form_thumb_nail_<%=properties.get(i).getId()%>" hidden="hidden" action="${pageContext.request.contextPath}/user/change-thumb-nail" method="post" >
                             <input type="hidden" name="p_id" value="<%=properties.get(i).getId()%>">
                             <input hidden="hidden" type="text" id="make_thumb_nail_id_<%=properties.get(i).getId()%>" name="img_id">
@@ -351,6 +357,49 @@
             </div>
         </div>
     </div>
+<div class="modal fade" id="editImageModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xl ">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><%= language.getProperty("property_type_add_new") %></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="col-md-12">
+                        <div class="row">
+                            <template v-for="(value, key) in change_img_json">
+                                <div class="col-4">
+                                    <button v-on:click="remove_img(value.id)" type="button" class="btn-close" aria-label="Close"></button>
+                                    <img v-on:click="make_thumb_nail(key)" :class="{'border-4 border-primary': value.is_thumbnail == '1'}" style="width: 100%; max-height: 300px; object-fit: cover" class="m-1 img-thumbnail" :id="value.id" :src="contextPath + value.path" alt="">
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="col-md-12">
+                        <div class="row">
+                            <template v-for="(value, key) in preview_images">
+                                <div class="col-4">
+                                    <img style="width: 100%; max-height: 300px; object-fit: cover" :src="value" alt="">
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-body">
+                    <form action="${pageContext.request.contextPath}/user/update-property-image" method="post" enctype="multipart/form-data">
+                        <input type="hidden" name="p_id" v-model="p_id">
+                        <input type="hidden" name="remove" :value="to_remove_img_id.join(',')">
+                        <label class="btn btn-secondary float-start" for="addImg"><%=language.getProperty("add_property_add_img")%></label>
+                        <input id="addImg" hidden="hidden" name="images" type="file" accept="image/*" multiple v-on:change="inputFile($event)">
+                        <button type="submit" class="btn btn-primary float-end"><%=language.getProperty("amenities_edit")%></button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 <%@ include file="../master/foot.jsp" %>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.0/axios.min.js" integrity="sha512-WrdC3CE9vf1nBf58JHepuWT4x24uTacky9fuzw2g/3L9JkihgwZ6Cfv+JGTtNyosOhEmttMtEZ6H3qJWfI7gIQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -545,6 +594,12 @@ var app = new Vue({
         user_choose_amenity_str: [],
         user_choose_near_locations: [],
         user_choose_near_locations_str: [],
+        change_img_json : [],
+        contextPath: '<%=request.getContextPath()%>',
+        to_remove_img_id: [],
+        files : [],
+        preview_images: [],
+        p_id: 0
     },
     created(){
         this.getAllData();
@@ -623,6 +678,38 @@ var app = new Vue({
             for (let i = 0; i < near_locations_arr.length; i++) {
                 this.choose_near_location(near_locations_arr[i])
             }
+        },
+        change_img(img_json, p_id){
+            this.p_id = p_id
+            this.change_img_json = img_json
+            this.to_remove_img_id = []
+        },
+        remove_img(id){
+            this.to_remove_img_id.push(id)
+            for (let i = 0; i < this.change_img_json.length; i++) {
+                if (this.change_img_json[i].id === id){
+                    this.change_img_json.splice(i,1);
+                }
+            }
+        },
+        inputFile(e){
+            this.files = e.target.files
+            for (let i = 0; i < this.files.length; i++) {
+                const file = this.files[i]
+                if (file.type.startsWith("image/")){
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        this.preview_images.push(e.target.result);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            }
+        },
+        make_thumb_nail(key){
+            for (let i = 0; i < this.change_img_json.length; i++) {
+                this.change_img_json[i].is_thumbnail = '0'
+            }
+            this.change_img_json[key].is_thumbnail = '1'
         }
     }
 })
