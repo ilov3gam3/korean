@@ -272,7 +272,8 @@ public class HomeController {
                     "    hidden         bit,\n" +
                     "    for_sale       bit,\n" +
                     "    sold           bit,\n" +
-                    "    created_at     datetime\n" +
+                    "    created_at     datetime,\n" +
+                    "    gg_map_api nvarchar(1000),\n" +
                     ")\n" +
                     "INSERT INTO korean.dbo.properties (name_vn, name_kr, property_type, description_vn, description_kr, price, floor_numbers, at_floor, district_id, address, bedrooms, bathrooms, area, user_id, hidden, for_sale, sold, created_at) VALUES (N'căn hộ cao cấp', N'럭셔리 아파트먼트 (Luxury Apartments)', 9, N'Khu căn hộ cao cấp tại Đà Nẵng · Regal Complex: Dự án căn hộ tại Đà Nẵng · Căn hộ Felicia Oceanview Apart – Hotel Đà Nẵng · Căn hộ Asiana Luxury Residences Đà Nẵng.', N'다낭의 고급 아파트 · Regal Complex : 다낭의 아파트 프로젝트 · 아파트 펠리시아 오션뷰 아파트 – 호텔 다낭 · 아시아나 럭셔리 레지던스 다낭.', 28000000, 30, 10, 3, N'Đào Duy Tùng, Ngũ Hành Sơn, Đà Nẵng', 3, 1, 150, 2, 0, 0, 0, N'2023-11-24 11:14:52.000');\n" +
                     "INSERT INTO korean.dbo.properties (name_vn, name_kr, property_type, description_vn, description_kr, price, floor_numbers, at_floor, district_id, address, bedrooms, bathrooms, area, user_id, hidden, for_sale, sold, created_at) VALUES (N'Biệt thự ABC', N'ABC 빌라', 3, N'con chó', N'개', 10000000000, 3, 1, 7, N'Hoà Xuân', 5, 3, 200, 2, 0, 1, 0, N'2023-11-24 14:52:51.000');\n" +
@@ -356,7 +357,7 @@ public class HomeController {
                     "    vnp_BankTranNo        varchar(50),\n" +
                     "    create_order_at       datetime,\n" +
                     "    paid_at               datetime,\n" +
-                    ")";
+                    ")\n";
             boolean check = DB.executeUpdate(String.valueOf(sqlContent));
             Properties language = (Properties) req.getAttribute("language");
             if (check){

@@ -263,6 +263,14 @@
                         </div>
                     </div>
                 </div>
+                <div class="col-12">
+                    <div class="row">
+                        <div class="form-group">
+                            <label for="gg_map_api"><%=language.getProperty("gg_map_api")%> <a target="_blank" href="https://www.google.com/search?q=h%C6%B0%E1%BB%9Bng+d%E1%BA%ABn+l%E1%BA%A5y+link+google+map&oq=h%C6%B0%E1%BB%9Bng+d%E1%BA%ABn+l%E1%BA%A5y+link+google+map&gs_lcrp=EgZjaHJvbWUyBggAEEUYOTIICAEQABgWGB4yCAgCEAAYFhge0gEJMTE2MDdqMGoxqAIAsAIA&sourceid=chrome&ie=UTF-8"><%=language.getProperty("gg_map_api_tut")%></a></label>
+                            <input id="gg_map_api" name="gg_map_api" type="text" class="form-control">
+                        </div>
+                    </div>
+                </div>
                 <div class="col-12 mt-1">
                     <div class="row" id="preview_images">
                     </div>

@@ -120,6 +120,9 @@
         </div>
       </div>
     </div>
+    <div class="col-12 row">
+      <%=property.getGg_map_api()%>
+    </div>
   </div>
 </div>
 <%@ include file="/views/master/foot.jsp" %>

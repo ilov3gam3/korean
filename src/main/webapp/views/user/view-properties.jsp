@@ -1,16 +1,26 @@
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.text.DecimalFormat" %>
 <%@ page import="java.text.NumberFormat" %>
+<%@ page import="Database.DB" %>
 <%@page contentType="text/html" pageEncoding="utf-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ include file="../master/head.jsp" %>
+<%ArrayList<MyObject> counts = DB.getData("SELECT SUM(CASE WHEN hidden = 1 THEN 1 ELSE 0 END) AS hidden_count, SUM(CASE WHEN hidden = 0 THEN 1 ELSE 0 END) AS not_hidden_count FROM properties where user_id = ?", new String[]{user.id}, new String[]{"hidden_count", "not_hidden_count"}); %>
 <% ArrayList<MyObject> properties = (ArrayList<MyObject>) request.getAttribute("properties");%>
 <% ArrayList<MyObject> images = (ArrayList<MyObject>) request.getAttribute("images");%>
 <% ArrayList<MyObject> property_near_location = (ArrayList<MyObject>) request.getAttribute("property_near_location");%>
 <% ArrayList<MyObject> property_amenities = (ArrayList<MyObject>) request.getAttribute("property_amenities");%>
+<% ArrayList<MyObject> number_of_property = (ArrayList<MyObject>) request.getAttribute("number_of_property");%>
+<% MyObject subs = (MyObject) request.getAttribute("subs");%>
 <div id="app">
+    <div class="container mt-2">
+        <h4>Bạn có thể hiển thị tối đa được <%=subs.getNumber_of_property()%> nhà ở</h4>
+        <h4>Tổng số nhà ở: <%=Integer.parseInt(counts.get(0).getHidden_count()) + Integer.parseInt(counts.get(0).getNot_hidden_count())%></h4>
+        <h4 id="hidden_prop"></h4>
+        <h4 id="not_hidden_prop"></h4>
+    </div>
 <% for (int i = 0; i < properties.size(); i++) { %>
-    <div class="p-5 mb-4 bg-body-tertiary rounded-3">
+    <div class="p-2 mb-4 bg-body-tertiary rounded-3">
         <div class="container-fluid py-5">
             <div class="col-12 row">
                 <div class="col-4">
@@ -422,6 +432,11 @@
     const each_img_width = Math.floor(width/4);
     const small_image_items = $(".small_images").css({"object-fit": "cover", "max-width": (each_img_width-8) + "px"})
     var all_small_imgs = []
+    var count_hidden = <%=counts.get(0).getHidden_count()%>
+    var count_not_hidden = <%=counts.get(0).getNot_hidden_count()%>
+    var number_of_property = <%=number_of_property.get(0).getNumber_of_property()%>
+    $("#hidden_prop").text("Bị ẩn: " + count_hidden)
+    $("#not_hidden_prop").text("Đang hiển thị: " + count_not_hidden)
     $(".small_images").attr("hidden", false)
     function changeHidden(p_id) {
         const payload = new FormData();
@@ -433,17 +448,23 @@
         })
             .then((res)=>{
                 if (res.data.status){
-                    toastr.success("Thay đổi thành công.")
+                    toastr.success(res.data.message)
                     var hidden_btn = $("#hidden_btn_id_" + p_id)
                     if (hidden_btn.attr("class") === "btn btn-success"){
+                        count_not_hidden--
+                        count_hidden++
                         $("#hidden_btn_id_" + p_id).attr("class", "btn btn-danger")
                         $("#hidden_btn_id_" + p_id).text("Đang bị ẩn")
                     } else {
+                        count_not_hidden++
+                        count_hidden--
                         $("#hidden_btn_id_" + p_id).attr("class", "btn btn-success")
                         $("#hidden_btn_id_" + p_id).text("Đang hiển thị")
                     }
+                    $("#hidden_prop").text("Bị ẩn: " + count_hidden)
+                    $("#not_hidden_prop").text("Đang hiển thị: " + count_not_hidden)
                 } else {
-                    toastr.error("Thay đổi không thành công.")
+                    toastr.error(res.data.message)
                 }
             })
     }
@@ -599,7 +620,8 @@ var app = new Vue({
         to_remove_img_id: [],
         files : [],
         preview_images: [],
-        p_id: 0
+        p_id: 0,
+
     },
     created(){
         this.getAllData();

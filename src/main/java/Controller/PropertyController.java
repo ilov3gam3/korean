@@ -4,7 +4,6 @@ import Database.DB;
 import Database.MyObject;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import jakarta.servlet.ServletException;
@@ -72,13 +71,14 @@ public class PropertyController {
             String price = req.getParameter("price");
             String amenity_id = req.getParameter("amenity_id");
             String nearby_location_id = req.getParameter("nearby_location_id");
+            String gg_map_api = req.getParameter("gg_map_api");
             amenity_id = amenity_id.substring(0, amenity_id.length() - 1);
             nearby_location_id = nearby_location_id.substring(0, nearby_location_id.length() - 1);
             LocalDateTime currentTime = LocalDateTime.now();
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
             String formattedTime = currentTime.format(formatter);
-            String sql_insert_property = "insert into properties(name_vn, name_kr, property_type, description_vn, description_kr, price, floor_numbers, at_floor, district_id, address, bedrooms, bathrooms, area, user_id, hidden, for_sale, sold, created_at) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'false', ?, 'false', ?)";
-            String[] insert_property_paras =        new String[]{name_vn, name_kr, property_type, description_vi, description_kr, price, floor_numbers, at_floor, district_id, address, bedrooms, bathrooms, area, user.id, sale, formattedTime};
+            String sql_insert_property = "insert into properties(name_vn, name_kr, property_type, description_vn, description_kr, price, floor_numbers, at_floor, district_id, address, bedrooms, bathrooms, area, user_id, hidden, for_sale, sold, created_at, gg_map_api) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'false', ?, 'false', ?, ?)";
+            String[] insert_property_paras = new String[]{name_vn, name_kr, property_type, description_vi, description_kr, price, floor_numbers, at_floor, district_id, address, bedrooms, bathrooms, area, user.id, sale, formattedTime, gg_map_api};
             int property_id = DB.insertGetLastId(sql_insert_property, insert_property_paras);
 
             String uploadDir = req.getServletContext().getRealPath("/") + "files";
@@ -133,7 +133,7 @@ public class PropertyController {
             String sql = "select properties.*, property_types.name_vn as property_type_name_vn, property_types.name_kr as property_type_name_kr, districts.name as district_name, provinces.name as province_name, provinces.id as province_id from properties inner join property_types on properties.property_type = property_types.id inner join districts on properties.district_id = districts.id inner join provinces on districts.province_id = provinces.id where user_id = ? order by properties.id desc;";
             MyObject user = (MyObject) req.getSession().getAttribute("login");
             String[] vars = new String[]{user.getId()};
-            String[] fields = new String[]{"id", "name_vn", "name_kr", "property_type_name_vn", "property_type_name_kr", "description_vn", "description_kr", "price", "floor_numbers", "at_floor", "district_id", "address", "bedrooms", "bathrooms", "area", "hidden", "for_sale", "sold", "created_at", "district_name", "province_name", "province_id", "property_type"};
+            String[] fields = new String[]{"id", "name_vn", "name_kr", "property_type_name_vn", "property_type_name_kr", "description_vn", "description_kr", "price", "floor_numbers", "at_floor", "district_id", "address", "bedrooms", "bathrooms", "area", "hidden", "for_sale", "sold", "created_at", "district_name", "province_name", "province_id", "property_type", "gg_map_api"};
             ArrayList<MyObject> properties = DB.getData(sql, vars, fields);
             if (properties.size() == 0){
                 req.getRequestDispatcher("/views/user/no-property.jsp").forward(req, resp);
@@ -144,14 +144,17 @@ public class PropertyController {
                 ArrayList<MyObject> property_list = DB.getData("select * from property_types", new String[]{"id", "name_vn","name_kr", "description_vn", "description_kr"});
                 ArrayList<MyObject> provinces_list = DB.getData("select * from provinces;", new String[]{"id", "name"});
                 ArrayList<MyObject> districts_list = DB.getData("select * from districts;", new String[]{"id", "name", "province_id"});
-            /*ArrayList<MyObject> amenities = DB.getData("select * from amenities", new String[]{"id", "name_vn", "name_kr"});
-            ArrayList<MyObject> locations = DB.getData("select * from nearby_locations;", new String[]{"id", "name_vn", "name_kr"});*/
+                LocalDateTime currentDateTime = LocalDateTime.now();
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                String current_date = currentDateTime.format(formatter);
+                ArrayList<MyObject> number_of_property = DB.getData("select number_of_property from subscriptions where user_id = ?  and from_date < ? and to_date > ?",new String[]{user.id, current_date, current_date}, new String[]{"number_of_property"});
+                ArrayList<MyObject> subs = DB.getData("select * from subscriptions where user_id = ? and from_date < ? and to_date > ? and vnp_TransactionStatus = '00'", new String[]{user.id, current_date, current_date}, new String[]{"id", "from_date", "to_date", "number_of_property"});
+                req.setAttribute("subs", subs.get(0));
+                req.setAttribute("number_of_property", number_of_property);
                 req.setAttribute("property_near_location", property_near_location);
                 req.setAttribute("property_amenities", property_amenities);
                 req.setAttribute("properties", properties);
                 req.setAttribute("images", images);
-            /*req.setAttribute("locations", locations);
-            req.setAttribute("amenities", amenities);*/
                 //thực ra là type list, đặt lộn tên
                 req.setAttribute("property_list", property_list);
                 req.setAttribute("provinces_list", provinces_list);
@@ -170,16 +173,59 @@ public class PropertyController {
     public static class ChangeHidden extends HttpServlet{
         @Override
         protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-            String p_id = req.getParameter("p_id");
-            String sql = "update properties set hidden = ~hidden where id = ? and user_id = ?";
             MyObject user = (MyObject) req.getSession().getAttribute("login");
-            String[] vars = new String[]{p_id, user.getId()};
-            boolean status = DB.executeUpdate(sql, vars);
+            Properties language = (Properties) req.getAttribute("language");
+            String p_id = req.getParameter("p_id");
+            ArrayList<MyObject> property = DB.getData("select * from properties where id = ? and user_id = ?", new String[]{p_id, user.id}, new String[]{"hidden"});
             JsonObject job = new JsonObject();
-            if (status){
-                job.addProperty("status", true);
-            } else {
+            if (property.size() != 1){
                 job.addProperty("status", false);
+                job.addProperty("message", language.getProperty("no_property"));
+            } else {
+                if (property.get(0).getHidden().equals("1")){// phai check them
+                    LocalDateTime currentDateTime = LocalDateTime.now();
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                    String current_date = currentDateTime.format(formatter);
+                    String sql = "declare @not_hidden_count int;\n" +
+                            "\n" +
+                            "SELECT @not_hidden_count = SUM(CASE WHEN hidden = 0 THEN 1 ELSE 0 END)\n" +
+                            "FROM properties\n" +
+                            "where user_id = ?\n" +
+                            "\n" +
+                            "declare @number_of_property int;\n" +
+                            "select @number_of_property = number_of_property from subscriptions where user_id = ? and from_date < ? and to_date > ?\n" +
+                            "\n" +
+                            "select IIF(@not_hidden_count < @number_of_property, 'true', 'false') as is_verified";
+                    String[] vars = new String[]{user.id, user.id, current_date, current_date};
+                    String[] fields = new String[]{"is_verified"};
+                    if (DB.getData(sql, vars, fields).get(0).getIs_verified().equals("true")){
+                        sql = "update properties set hidden = ~hidden where id = ? and user_id = ?";
+                        vars = new String[]{p_id, user.getId()};
+                        boolean status = DB.executeUpdate(sql, vars);
+                        if (status){
+                            job.addProperty("status", true);
+                            job.addProperty("message", language.getProperty("update_id_card_success"));
+                        } else {
+                            job.addProperty("status", false);
+                            job.addProperty("message", language.getProperty("update_id_card_fail"));
+                        }
+                    } else { // het slot
+                        job.addProperty("status", false);
+                        job.addProperty("message", language.getProperty("no_more_not_hidden_prop"));
+                    }
+                } else { // chuyen sang hidden k can check them
+                    String sql = "update properties set hidden = ~hidden where id = ? and user_id = ?";
+                    String[] vars = new String[]{p_id, user.getId()};
+                    boolean status = DB.executeUpdate(sql, vars);
+                    if (status){
+                        job.addProperty("status", true);
+                        job.addProperty("message", language.getProperty("update_id_card_success"));
+                    } else {
+                        job.addProperty("status", false);
+                        job.addProperty("message", language.getProperty("update_id_card_fail"));
+                    }
+
+                }
             }
             Gson gson = new Gson();
             resp.getWriter().write(gson.toJson(job));
@@ -368,7 +414,7 @@ public class PropertyController {
             String near_locations = req.getParameter("near_locations");
             String for_sale = req.getParameter("for_sale");
             ArrayList<String> vars = new ArrayList<>();
-            String sql = "select distinct properties.id, properties.name_vn, properties.name_kr, property_type, properties.description_vn, properties.description_kr, price, floor_numbers, at_floor, district_id, address, bathrooms, bedrooms, area, user_id, hidden, for_sale, sold, created_at, users.name as username, property_types.name_vn as property_type_name_vn, property_types.name_kr as property_type_name_kr, province_id, province_id, property_images.path as thumbnail \n" +
+            String sql = "select distinct properties.id, properties.name_vn, properties.name_kr, property_type, properties.description_vn, properties.description_kr, price, floor_numbers, at_floor, district_id, address, bathrooms, bedrooms, area, properties.user_id, hidden, for_sale, sold, created_at, gg_map_api, users.name as username, property_types.name_vn as property_type_name_vn, property_types.name_kr as property_type_name_kr, province_id, province_id, property_images.path as thumbnail \n" +
                     "from properties\n" +
                     "         inner join users on properties.user_id = users.id\n" +
                     "         inner join property_types on properties.property_type = property_types.id\n" +
@@ -376,7 +422,13 @@ public class PropertyController {
                     "         inner join property_amenities on properties.id = property_amenities.property_id\n" +
                     "         inner join property_near_location on properties.id = property_near_location.property_id\n" +
                     "         inner join property_images on properties.id = property_images.property_id\n" +
-                    "where hidden = 'false' and property_images.is_thumb_nail = 'true' ";
+                    "         inner join subscriptions on users.id = subscriptions.user_id\n" +
+                    "where hidden = 'false' and from_date < ? and to_date > ? and vnp_TransactionStatus = '00' and property_images.is_thumb_nail = 'true' ";
+            LocalDateTime currentDateTime = LocalDateTime.now();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            String current_date = currentDateTime.format(formatter);
+            vars.add(current_date);
+            vars.add(current_date);
             if (for_sale.equals("1")){
                 sql += "and for_sale = ? ";
                 vars.add("true");
@@ -434,7 +486,7 @@ public class PropertyController {
             for (int i = 0; i < vars.size(); i++) {
                 vars_arr[i] = vars.get(i);
             }
-            String[] fields = new String[]{"id", "name_vn", "name_kr", "property_type", "description_vn", "description_kr", "price", "floor_numbers", "at_floor", "district_id", "address", "bathrooms", "bedrooms", "area", "user_id", "for_sale", "sold", "created_at", "username", "property_type_name_vn", "property_type_name_kr", "province_id", "thumbnail"};
+            String[] fields = new String[]{"id", "name_vn", "name_kr", "property_type", "description_vn", "description_kr", "price", "floor_numbers", "at_floor", "district_id", "address", "bathrooms", "bedrooms", "area", "user_id", "for_sale", "sold", "created_at", "username", "property_type_name_vn", "property_type_name_kr", "province_id", "thumbnail", "gg_map_api"};
             ArrayList<MyObject> properties = DB.getData(sql, vars_arr, fields);
             /*String img_id = "(";
             for (int i = 0; i < properties.size(); i++) {
@@ -507,13 +559,33 @@ public class PropertyController {
         protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
             Properties language = (Properties) req.getAttribute("language");
             String id = req.getParameter("id");
-            String sql = "select properties.*, property_types.name_vn as property_type_name_vn, property_types.name_kr as property_type_name_kr, districts.name as district_name, provinces.name as province_name, provinces.id as province_id, users.phone, users.email from properties inner join property_types on properties.property_type = property_types.id inner join districts on properties.district_id = districts.id inner join provinces on districts.province_id = provinces.id inner join users on properties.user_id = users.id where properties.id = ? and hidden = 'false'";
-            String[] vars = new String[]{id};
-            String[] fields = new String[]{"id", "name_vn", "name_kr", "property_type_name_vn", "property_type_name_kr", "description_vn", "description_kr", "price", "floor_numbers", "at_floor", "district_id", "address", "bedrooms", "bathrooms", "area", "hidden", "for_sale", "sold", "created_at", "district_name", "province_name", "province_id", "property_type", "phone", "email"};
+            String sql = "select properties.*,\n" +
+                    "       property_types.name_vn as property_type_name_vn,\n" +
+                    "       property_types.name_kr as property_type_name_kr,\n" +
+                    "       districts.name         as district_name,\n" +
+                    "       provinces.name         as province_name,\n" +
+                    "       provinces.id           as province_id,\n" +
+                    "       users.phone,\n" +
+                    "       users.email\n" +
+                    "from properties\n" +
+                    "         inner join property_types on properties.property_type = property_types.id\n" +
+                    "         inner join districts on properties.district_id = districts.id\n" +
+                    "         inner join provinces on districts.province_id = provinces.id\n" +
+                    "         inner join users on properties.user_id = users.id\n" +
+                    "         inner join subscriptions on users.id = subscriptions.user_id\n" +
+                    "where properties.id = ?\n" +
+                    "  and hidden = 'false' and from_date < ? and to_date > ? and vnp_TransactionStatus = '00'";
+            LocalDateTime currentDateTime = LocalDateTime.now();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            String current_date = currentDateTime.format(formatter);
+            String[] vars = new String[]{id, current_date, current_date};
+            String[] fields = new String[]{"id", "name_vn", "name_kr", "property_type_name_vn", "property_type_name_kr", "description_vn", "description_kr", "price", "floor_numbers", "at_floor", "district_id", "address", "bedrooms", "bathrooms", "area", "hidden", "for_sale", "sold", "created_at", "district_name", "province_name", "province_id", "property_type", "phone", "email", "gg_map_api"};
             ArrayList<MyObject> properties = DB.getData(sql, vars, fields);
             if (properties.size() == 0){
                 req.getSession().setAttribute("mess", "warning|" + language.getProperty("no_property"));
+                resp.sendRedirect(req.getContextPath() + "/");
             } else {
+                vars = new String[]{id};
                 sql = "select * from property_images where property_id = ?";
                 fields = new String[]{"id", "property_id", "path", "is_thumb_nail"};
                 ArrayList<MyObject> images = DB.getData(sql, vars, fields);

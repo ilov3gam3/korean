@@ -36,7 +36,7 @@
                             <td><%=subs.get(i).getDiscount()%></td>
                             <td><%=subs.get(i).getPrice_to_pay()%></td>
                             <td><%=subs.get(i).getCreate_order_at()%></td>
-                            <td><%=subs.get(i).getPaid_at()%></td>
+                            <td><%=subs.get(i).getPaid_at() == null ? language.getProperty("no_paid") : subs.get(i).getPaid_at()%></td>
                             <td><%=subs.get(i).getVnp_TransactionStatus().equals("00") ? "<button class='btn btn-success'>"+language.getProperty("view_subs_status_success")+"</button>" : "<span class='btn btn-danger'>"+language.getProperty("view_subs_status_fail")+"</span>"%></td>
                         </tr>
                     <% } %>
