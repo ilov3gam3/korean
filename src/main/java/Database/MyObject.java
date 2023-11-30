@@ -85,4 +85,9 @@ public class MyObject {
     public String hidden_count;
     public String not_hidden_count;
     public String gg_map_api;
+    public String title;
+    public String content;
+    public String like_id;
+    public String count_like;
+    public String count_comment;
 }

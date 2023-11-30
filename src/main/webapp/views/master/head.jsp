@@ -127,6 +127,9 @@
                         <a href="contact.html" class="nav-item nav-link"><%= language.getProperty("head.contact") %>
 
                         </a>
+                        <a href="${pageContext.request.contextPath}/posts" class="nav-item nav-link"><%= language.getProperty("head.view_post") %>
+
+                        </a>
                         <a href="#" class="nav-item nav-link" v-on:click="choose_location()">
                             <span v-if="location == null">Chưa chọn thành phố</span>
                             <span v-if="location != null"><%=language.getProperty("head.you_are_at")%>: {{location.name}}</span>
@@ -195,6 +198,8 @@
                            style="margin-right: 15px;"><%= language.getProperty("head.admin") %>
                         </a>
                         <%} else {%>
+                        <a href="${pageContext.request.contextPath}/user/add-post" class="btn btn-primary"
+                           style="margin-right: 15px;">Add Post</a>
                         <a href="${pageContext.request.contextPath}/user/add-property" class="btn btn-primary"
                            style="margin-right: 15px;">Add Property</a>
                         <%} %>
@@ -230,6 +235,9 @@
                                 </a>
                                 <a href="${pageContext.request.contextPath}/user/transaction"
                                    class="dropdown-item"><%= language.getProperty("head.transaction") %>
+                                </a>
+                                <a href="${pageContext.request.contextPath}/user/your-posts"
+                                   class="dropdown-item"><%= language.getProperty("head.posts") %>
                                 </a>
                                 <%} else {%>
 

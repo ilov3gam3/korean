@@ -8,13 +8,15 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 public class DB {
-    public static void main(String[] args) {
-        LocalDateTime currentDateTime = LocalDateTime.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        String current_date = currentDateTime.format(formatter);
-        System.out.println(current_date);
+    public static void main(String[] args) {// -10, -19, -28
+        for (int i = 0; i < 10 && i >= 0; i++) {
+            i += 1000;
+            System.out.println(i);
+            i -= 1000;
+        }
     }
 
     public static Connection getConnection() {

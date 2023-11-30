@@ -73,4 +73,22 @@
         </div>
     </div>
 </div>
+<div class="col-12 mb-3 d-flex justify-content-center">
+    <div class="row col-8">
+        <div class="gap-2 col-md-6">
+            <a href="${pageContext.request.contextPath}/admin/view-posts">
+                <div class="d-grid">
+                    <button class="btn btn-primary"><%= language.getProperty("admin_panel_posts") %></button>
+                </div>
+            </a>
+        </div>
+        <div class="gap-2 col-md-6">
+            <a href="${pageContext.request.contextPath}/admin/property-management">
+                <div class="d-grid">
+                    <button class="btn btn-primary"><%= language.getProperty("admin_panel_property_mana") %></button>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
 <%@ include file="../master/foot.jsp" %>

@@ -16,7 +16,7 @@ import java.util.*;
 public class Config {
     public static String path = "D:\\code\\java\\web\\Korean\\src\\main\\webapp\\";
     public static Properties config;
-    public static String app_url = "http://localhost:8081";
+    public static String app_url = "http://find-church.gl.at.ply.gg:19895/korean";
     public static String vnp_PayUrl = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
     public static String contextPath = "";
     public static String vnp_ReturnUrl = app_url + contextPath + "/user/vnpay-result";

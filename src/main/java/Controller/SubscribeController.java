@@ -3,6 +3,8 @@ package Controller;
 import Database.DB;
 import Database.MyObject;
 import Init.Config;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import jakarta.servlet.ServletException;
@@ -312,6 +314,25 @@ public class SubscribeController {
             ArrayList<MyObject> subs = DB.getData(sql,vars, fields);
             req.setAttribute("subs", subs);
             req.getRequestDispatcher("/views/user/view-subs.jsp").forward(req, resp);
+        }
+    }
+
+    @WebServlet("/user/get-subs")
+    public static class UserGetSubs extends HttpServlet{
+        @Override
+        protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            LocalDateTime currentDateTime = LocalDateTime.now();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            String current_date = currentDateTime.format(formatter);
+            MyObject user = (MyObject)req.getSession().getAttribute("login");
+            String sql = "select subscriptions.*, users.name as username from subscriptions inner join users on subscriptions.user_id = users.id where user_id = ? and from_date < ? and to_date > ?";
+            String[] vars = new String[]{user.id, current_date, current_date};
+            ArrayList<MyObject> subs = DB.getData(sql, vars, new String[]{"number_of_comments", "number_of_words_per_cmt"});
+            com.google.gson.JsonObject job = new JsonObject();
+            job.addProperty("number_of_comments", subs.get(0).getNumber_of_comments());
+            job.addProperty("number_of_words_per_cmt", subs.get(0).getNumber_of_words_per_cmt());
+            Gson gson = new Gson();
+            resp.getWriter().write(gson.toJson(job));
         }
     }
 }

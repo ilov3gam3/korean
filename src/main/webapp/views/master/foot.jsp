@@ -92,14 +92,24 @@
             </div>
             <div class="modal-body">
                 <div class="col-md-12">
-                    <div class="form-group" id="asd">
-                        <label for="province"><%=language.getProperty("location_choose_province")%></label>
-                        <select v-on:change="check()" v-model="location" class="form-control" name="province" id="province">
-                            <option value="0"><%=language.getProperty("location_choose_province")%></option>
-                            <template v-for="(value, key) in provinces">
-                                <option :value='"{\"id\": \""+value.id+"\", \"name\": \""+value.name+"\"}"'>{{value.name}}</option>
-                            </template>
-                        </select>
+                    <div class="container">
+                        <div class="form-group" id="asd">
+                            <label for="province"><%=language.getProperty("location_choose_province")%></label>
+                            <select v-on:change="check()" v-model="location" class="form-control" name="province" id="province">
+                                <option value="0"><%=language.getProperty("location_choose_province")%></option>
+                                <template v-for="(value, key) in provinces">
+                                    <option :value='"{\"id\": \""+value.id+"\", \"name\": \""+value.name+"\"}"'>{{value.name}}</option>
+                                </template>
+                            </select>
+                            <div class="col-12 row">
+                                <div class="col-6">
+                                    <button class="btn btn-success mt-2" data-bs-dismiss="modal">Xác nhận</button>
+                                </div>
+                           <%--     <div class="col-6">
+                                    <button v-on:click="" class="btn btn-danger" data-bs-dismiss="modal">Hủy</button>
+                                </div>--%>
+                            </div>
+                    </div>
                     </div>
                 </div>
             </div>
@@ -193,7 +203,7 @@
             show_modal(provinces) {
                 this.provinces = provinces
                 $("#trigger_modal").click()
-            }
+            },
         }
     })
 </script>
