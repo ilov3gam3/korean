@@ -329,8 +329,14 @@ public class SubscribeController {
             String[] vars = new String[]{user.id, current_date, current_date};
             ArrayList<MyObject> subs = DB.getData(sql, vars, new String[]{"number_of_comments", "number_of_words_per_cmt"});
             com.google.gson.JsonObject job = new JsonObject();
-            job.addProperty("number_of_comments", subs.get(0).getNumber_of_comments());
-            job.addProperty("number_of_words_per_cmt", subs.get(0).getNumber_of_words_per_cmt());
+            if (subs.size() == 0){
+                job.addProperty("number_of_comments", "0");
+                job.addProperty("number_of_words_per_cmt", "0");
+            } else {
+                job.addProperty("number_of_comments", subs.get(0).getNumber_of_comments());
+                job.addProperty("number_of_words_per_cmt", subs.get(0).getNumber_of_words_per_cmt());
+            }
+
             Gson gson = new Gson();
             resp.getWriter().write(gson.toJson(job));
         }

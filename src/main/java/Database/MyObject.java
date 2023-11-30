@@ -90,4 +90,5 @@ public class MyObject {
     public String like_id;
     public String count_like;
     public String count_comment;
+    public String post_id;
 }

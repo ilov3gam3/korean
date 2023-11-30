@@ -13,7 +13,7 @@
                                      :src="value.avatar.startsWith('http') ? value.avatar : '${pageContext.request.contextPath}' + value.avatar"
                                      alt="">
                                 {{value.username}}
-                                ({{value.created_at}})
+                                ({{value.created_at}})<br>
                             </div>
                         </div>
                     </div>
@@ -35,8 +35,6 @@
                                 <input v-if="logged_in" type="text" class="form-control"
                                        placeholder="<%=language.getProperty("post_comment")%>" v-model="value.comment_input" aria-describedby="basic-addon2">
                                 <div class="input-group-append">
-<%--                                    <span class="input-group-text">{{value.comment_input !== '' ? value.comment_input.length + '/' + number_of_words_per_cmt}}</span>--%>
-<%--                                    <span v-if="!logged_in" class="input-group-text" disabled="">0</span>--%>
                                     <span v-if="logged_in" class="input-group-text">{{value.comment_input !== '' ? (value.comment_input.length + '/' + number_of_words_per_cmt) : '0/' + number_of_words_per_cmt}}</span>
                                 </div>
                                 <div class="input-group-append">
@@ -45,7 +43,7 @@
                                     </button>
                                 </div>
                                 <div class="input-group-append">
-                                    <button class="btn btn-primary"
+                                    <button data-bs-toggle="modal" data-bs-target="#exampleModal" v-on:click="view_comments(value.id, key)" class="btn btn-primary"
                                             type="button"><%=language.getProperty("post_view_comment")%>
                                         ({{value.count_comment}})
                                     </button>
@@ -60,6 +58,40 @@
     <div class="container">
         <button style="width: 100%;" class="btn btn-primary" v-if="show_load_more" v-on:click="get_posts()">Get more post</button>
     </div>
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content" style="height: 50vh; overflow-y: scroll">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel"><%=language.getProperty("post_comment")%></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div v-if="viewing_comments_of !== -1" >
+                    <div v-if="posts[viewing_comments_of].comments !== -1">
+                        <div v-if="posts[viewing_comments_of].comments.length === 0">
+                            <p class="text-center col-12">không có bình luận</p>
+                        </div>
+                        <div v-else>
+                            <template v-for="(value, key) in posts[viewing_comments_of].comments">
+                                <div class="col-12">
+                                    <img style="width: 40px; height: 40px; object-fit: cover; border-radius: 50%"
+                                         :src="value.avatar.startsWith('http') ? value.avatar : '${pageContext.request.contextPath}' + value.avatar"
+                                         alt="">
+                                    {{value.username}}
+                                    ({{value.created_at}})<br>
+                                    <h6 style="text-indent: 50px; font-weight: bold">{{value.content}}</h6>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 </div>
 <%@ include file="/views/master/foot.jsp" %>
 <script>
@@ -73,7 +105,7 @@
             show_load_more: true,
             number_of_comments: 0,
             number_of_words_per_cmt: 0,
-
+            viewing_comments_of : -1
         },
         created() {
             this.get_posts()
@@ -86,10 +118,9 @@
                 axios.get("${pageContext.request.contextPath}/get-posts?last_id=" + this.last_id)
                     .then((res) => {
                         const temp = JSON.parse(res.data.posts)
-                        console.log(temp)
                         for (let i = 0; i < temp.length; i++) {
                             temp[i].comment_input = ''
-                            temp[i].comments = []
+                            temp[i].comments = -1
                             this.posts.push(temp[i])
                         }
                         this.last_id = this.posts[this.posts.length - 1].id
@@ -114,17 +145,6 @@
                         .then((res) => {
                             if (res.data.status) {
                                 toastr.success(res.data.message)
-                                /*for (let i = 0; i < this.posts.length; i++) {
-                                    if (this.posts[i].id === id){
-                                        if (this.posts[i].like_id === '0'){
-                                            this.posts[i].like_id = '-1'
-                                            this.posts[i].count_like++
-                                        } else {
-                                            this.posts[i].like_id = '0'
-                                            this.posts[i].count_like--
-                                        }
-                                    }
-                                }*/
                                 this.update_posts(id)
                             } else {
                                 toastr.error(res.data.message)
@@ -168,7 +188,6 @@
                                 .then((res)=>{
                                     if (res.data.status){
                                         this.posts[key].comment_input = ''
-                                        console.log(res.data)
                                         toastr.success(res.data.message)
                                         this.update_posts(id)
                                     } else {
@@ -179,15 +198,18 @@
                     }
                 }
             },
-            get_comments(id){
-                axios.get("${pageContext.request.contextPath}/user/comment?post_id=" + id)
-                    .then((res)=>{
-                        for (let i = 0; i < this.posts.length; i++) {
-                            if (this.posts[i].id === id){
-                                this.posts.comments = res.data.comments
+            view_comments(id, key){
+                this.viewing_comments_of = key
+                    axios.get("${pageContext.request.contextPath}/get-comments?post_id=" + id)
+                        .then((res)=>{
+                            console.log(res.data)
+                            for (let i = 0; i < this.posts.length; i++) {
+                                if (this.posts[i].id === id){
+                                    this.posts[i].comments = JSON.parse(res.data.comments)
+                                    this.update_posts(id)
+                                }
                             }
-                        }
-                    })
+                        })
             }
         }
     })

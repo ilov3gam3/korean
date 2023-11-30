@@ -430,9 +430,9 @@ public class PostController {
         @Override
         protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
             String post_id = req.getParameter("post_id");
-            String sql = "select comments.*, users.name as username from comments inner join users on comments.user_id = users.id where post_id = ?";
+            String sql = "select comments.*, users.name as username, users.avatar as avatar from comments inner join users on comments.user_id = users.id where post_id = ? order by id desc";
             String[] vars = new String[]{post_id};
-            String[] fields = new String[]{"id", ""};
+            String[] fields = new String[]{"id", "user_id", "post_id", "content", "created_at", "username", "avatar"};
             ArrayList<MyObject> comments = DB.getData(sql, vars, fields);
             com.google.gson.JsonObject job = new JsonObject();
             ObjectMapper objectMapper = new ObjectMapper();
