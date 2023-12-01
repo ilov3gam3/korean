@@ -44,7 +44,7 @@
                                 </div>
                                 <div class="input-group-append">
                                     <button data-bs-toggle="modal" data-bs-target="#exampleModal" v-on:click="view_comments(value.id, key)" class="btn btn-primary"
-                                            type="button"><%=language.getProperty("post_view_comment")%>
+                                            type="button"><%=language.getProperty("post_view_interact")%>
                                         ({{value.count_comment}})
                                     </button>
                                 </div>
@@ -60,28 +60,67 @@
     </div>
 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-xl">
-        <div class="modal-content" style="height: 50vh; overflow-y: scroll">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel"><%=language.getProperty("post_comment")%></h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <div class="modal-content" style="max-height: 70vh; overflow-y: scroll">
+            <div class="col-lg-12 text-start text-lg-center wow slideInRight" data-wow-delay="0.1s">
+                <ul class="nav nav-pills d-inline-flex justify-content-end mb-1 mt-3">
+                    <li class="nav-item me-2">
+                        <a class="btn btn-outline-primary active" data-bs-toggle="pill" href="#comments">Featured</a>
+                    </li>
+                    <li class="nav-item me-2">
+                        <a class="btn btn-outline-primary" v-on:click="get_likes()" data-bs-toggle="pill" href="#likes">Featured</a>
+                    </li>
+                </ul>
             </div>
-            <div class="modal-body">
-                <div v-if="viewing_comments_of !== -1" >
-                    <div v-if="posts[viewing_comments_of].comments !== -1">
-                        <div v-if="posts[viewing_comments_of].comments.length === 0">
-                            <p class="text-center col-12">không có bình luận</p>
-                        </div>
-                        <div v-else>
-                            <template v-for="(value, key) in posts[viewing_comments_of].comments">
-                                <div class="col-12">
-                                    <img style="width: 40px; height: 40px; object-fit: cover; border-radius: 50%"
-                                         :src="value.avatar.startsWith('http') ? value.avatar : '${pageContext.request.contextPath}' + value.avatar"
-                                         alt="">
-                                    {{value.username}}
-                                    ({{value.created_at}})<br>
-                                    <h6 style="text-indent: 50px; font-weight: bold">{{value.content}}</h6>
+            <div class="tab-content">
+                <div id="comments" class="tab-pane fade show p-0 active">
+                    <div class="modal-header">
+                        <h5 class="modal-title" ><%=language.getProperty("post_comment")%></h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div v-if="viewing_comments_of !== -1" >
+                            <div v-if="posts[viewing_comments_of].comments !== -1">
+                                <div v-if="posts[viewing_comments_of].comments.length === 0">
+                                    <p class="text-center col-12">không có bình luận</p>
                                 </div>
-                            </template>
+                                <div v-else>
+                                    <template v-for="(value, key) in posts[viewing_comments_of].comments">
+                                        <div class="col-12">
+                                            <img style="width: 40px; height: 40px; object-fit: cover; border-radius: 50%"
+                                                 :src="value.avatar.startsWith('http') ? value.avatar : '${pageContext.request.contextPath}' + value.avatar"
+                                                 alt="">
+                                            {{value.username}}
+                                            ({{value.created_at}})<br>
+                                            <h6 style="text-indent: 50px; font-weight: bold">{{value.content}}</h6>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="likes" class="tab-pane fade show p-0">
+                    <div class="modal-header">
+                        <h5 class="modal-title" ><%=language.getProperty("post_like")%></h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div v-if="viewing_comments_of !== -1" >
+                            <div v-if="posts[viewing_comments_of].likes !== -1">
+                                <div v-if="posts[viewing_comments_of].comments.likes === 0">
+                                    <p class="text-center col-12">không có lượt thích</p>
+                                </div>
+                                <div v-else>
+                                    <template v-for="(value, key) in posts[viewing_comments_of].likes">
+                                        <div class="col-12 m-1">
+                                            <img style="width: 40px; height: 40px; object-fit: cover; border-radius: 50%"
+                                                 :src="value.avatar.startsWith('http') ? value.avatar : '${pageContext.request.contextPath}' + value.avatar"
+                                                 alt="">
+                                            {{value.username}}
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -121,6 +160,7 @@
                         for (let i = 0; i < temp.length; i++) {
                             temp[i].comment_input = ''
                             temp[i].comments = -1
+                            temp[i].likes = -1
                             this.posts.push(temp[i])
                         }
                         this.last_id = this.posts[this.posts.length - 1].id
@@ -202,14 +242,19 @@
                 this.viewing_comments_of = key
                     axios.get("${pageContext.request.contextPath}/get-comments?post_id=" + id)
                         .then((res)=>{
-                            console.log(res.data)
-                            for (let i = 0; i < this.posts.length; i++) {
-                                if (this.posts[i].id === id){
-                                    this.posts[i].comments = JSON.parse(res.data.comments)
-                                    this.update_posts(id)
-                                }
-                            }
+                            this.posts[key].comments = JSON.parse(res.data.comments)
                         })
+            },
+            get_likes(){
+                axios.get("${pageContext.request.contextPath}/get-likes?post_id=" + this.posts[this.viewing_comments_of].id)
+                    .then((res)=>{
+                        this.posts[this.viewing_comments_of].likes = JSON.parse(res.data.likes)
+                        // for (let i = 0; i < this.posts.length; i++) {
+                        //     if (this.posts[i].id === this.posts[this.viewing_comments_of].id){
+                        //         this.posts[i].likes = JSON.parse(res.data.comments)
+                        //     }
+                        // }
+                    })
             }
         }
     })

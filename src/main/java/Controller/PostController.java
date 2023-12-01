@@ -444,4 +444,24 @@ public class PostController {
             resp.getWriter().write(gson.toJson(job));
         }
     }
+
+    @WebServlet("/get-likes")
+    public static class GetLikes extends HttpServlet{
+        @Override
+        protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            String post_id = req.getParameter("post_id");
+            String sql = "select likes.*, users.name as username, users.avatar as avatar from likes inner join users on likes.user_id = users.id where post_id = ?";
+            String[] vars = new String[]{post_id};
+            String[] fields = new String[]{"id", "user_id", "post_id", "username", "avatar"};
+            ArrayList<MyObject> likes = DB.getData(sql, vars, fields);
+            com.google.gson.JsonObject job = new JsonObject();
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+            objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+            String json_string = objectMapper.writeValueAsString(likes);
+            job.addProperty("likes", json_string);
+            Gson gson = new Gson();
+            resp.getWriter().write(gson.toJson(job));
+        }
+    }
 }
