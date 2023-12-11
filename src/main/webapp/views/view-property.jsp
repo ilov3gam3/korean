@@ -32,10 +32,10 @@
         </div>
       </div>
       <div class="col-7">
-        <h3>tên tiếng việt:  <%=property.getName_vn()%></h3>
-        <h3>tên tiếng hàn:  <%=property.getName_kr()%></h3>
-        <p>mô tả tiếng việt: <%=property.getDescription_vn()%></p>
-        <p>mô tả tiếng hàn: <%=property.getDescription_kr()%></p>
+        <h3><%=language.getProperty("amenities_name_vn")%>:  <%=property.getName_vn()%></h3>
+        <h3><%=language.getProperty("amenities_name_kr")%>:  <%=property.getName_kr()%></h3>
+        <p><%=language.getProperty("property_type_vn_des")%>: <%=property.getDescription_vn()%></p>
+        <p><%=language.getProperty("property_type_kr_des")%>: <%=property.getDescription_kr()%></p>
         <div class="col-12 row">
           <div class="col-3">
             Loại nhà ở:
@@ -64,37 +64,37 @@
         </div>
         <div class="col-12 row">
           <div class="col-3">
-            Số tầng: <%=property.getFloor_numbers()%>
+            <%=language.getProperty("add_property_number_floor")%>: <%=property.getFloor_numbers()%>
           </div>
           <div class="col-3">
-            Ở tầng: <%=property.getAt_floor()%>
+            <%=language.getProperty("add_property_at_floor")%>: <%=property.getAt_floor()%>
           </div>
           <div class="col-3">
-            Số phòng tắm: <%=property.getBathrooms()%>
+            <%=language.getProperty("add_property_bath_room")%>: <%=property.getBathrooms()%>
           </div>
           <div class="col-3">
-            Số phòng ngủ: <%=property.getBedrooms()%>
+            <%=language.getProperty("add_property_bed_room")%>: <%=property.getBedrooms()%>
           </div>
         </div>
         <div class="col-12 row">
           <div class="col-9">
-            <p style="margin-top: 4px">Địa chỉ: <%=property.getAddress()%>, <%=property.getDistrict_name()%>, <%=property.getProvince_name()%></p>
+            <p style="margin-top: 4px"><%=language.getProperty("add_property_address")%>: <%=property.getAddress()%>, <%=property.getDistrict_name()%>, <%=property.getProvince_name()%></p>
           </div>
           <div class="col-3">
             <% if (property.getFor_sale().equals("1")){%>
               <% if (property.getSold().equals("1")){ %>
-                <button class="btn btn-success" style="width: 100%">Đã bán</button>
+                <button class="btn btn-success" style="width: 100%"><%=language.getProperty("view_sold")%></button>
               <% } else { %>
-                <button class="btn btn-warning" style="width: 100%">Chưa bán</button>
+                <button class="btn btn-warning" style="width: 100%"><%=language.getProperty("view_not_sold")%></button>
               <% } %>
             <%} else { %>
-            <button class="btn btn-primary" style="width: 100%">Cho thuê</button>
+            <button class="btn btn-primary" style="width: 100%"><%=language.getProperty("add_property_type_rent")%></button>
             <% } %>
           </div>
         </div>
         <div class="col-12 row">
           <div class="col-9">
-            <p>Tiện ích:
+            <p><%=language.getProperty("admin_panel_amenity")%>:
               <% for (int j = 0; j < amenities.size(); j++) {%>
                   <%if (lang.equals("kr")){ %>
                     <%=amenities.get(j).getName_kr()%>,
@@ -103,7 +103,7 @@
                   <% } %>
               <% } %>
             </p>
-            <p>Ở gần:
+            <p><%=language.getProperty("add_property_choose_nearby")%>:
               <% for (int j = 0; j < near_locations.size(); j++) {%>
                   <%if (lang.equals("kr")){ %>
                     <%=near_locations.get(j).getName_kr()%>,
@@ -115,8 +115,8 @@
           </div>
         </div>
         <div class="col-12 row">
-          <p>Số điện thoại: <%=property.getPhone()%></p>
-          <p>Email: <%=property.getEmail()%></p>
+          <p><%=language.getProperty("phone")%>: <%=property.getPhone()%></p>
+          <p><%=language.getProperty("email")%>>: <%=property.getEmail()%></p>
         </div>
       </div>
     </div>

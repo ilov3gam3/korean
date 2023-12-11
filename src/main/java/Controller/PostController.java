@@ -65,7 +65,7 @@ public class PostController {
     public static class AdminViewPosts extends HttpServlet{
         @Override
         protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-            String sql = "select posts.*, users.name as username from posts inner join users on posts.user_id = users.id";
+            String sql = "select posts.*, users.name as username from posts inner join users on posts.user_id = users.id order by id desc";
             String[] fields = new String[]{"id", "user_id", "title", "content", "is_verified", "created_at", "username"};
             ArrayList<MyObject> posts = DB.getData(sql, fields);
             req.setAttribute("posts", posts);

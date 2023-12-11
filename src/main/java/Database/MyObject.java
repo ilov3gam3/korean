@@ -91,4 +91,6 @@ public class MyObject {
     public String count_like;
     public String count_comment;
     public String post_id;
+    public String priority;
+    public String price_per_property;
 }

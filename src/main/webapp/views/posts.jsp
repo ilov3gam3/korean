@@ -2,6 +2,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ include file="/views/master/head.jsp" %>
 <div class="container col-12" id="app">
+    <h3><%=language.getProperty("post_number_of_comments")%>: {{number_of_comments}}, <%=language.getProperty("post_commented")%> {{commented}} <%=language.getProperty("post_time")%></h3>
     <template v-for="(value, key) in posts">
         <div class="p-2 mb-4 bg-body-tertiary rounded-3">
             <div class="container-fluid">
@@ -30,10 +31,14 @@
                                             type="button">{{value.count_like}}👍
                                     </button>
                                 </div>
+
                                 <input v-if="!logged_in" type="text" class="form-control"
                                        placeholder="<%=language.getProperty("post_comment")%>" v-on:click="like(0)" readonly aria-describedby="basic-addon2">
-                                <input v-if="logged_in" type="text" class="form-control"
+                                <input v-if="logged_in && commented < number_of_comments" type="text" class="form-control"
                                        placeholder="<%=language.getProperty("post_comment")%>" v-model="value.comment_input" aria-describedby="basic-addon2">
+                                <input v-if="logged_in && commented >= number_of_comments" type="text" class="form-control"
+                                       placeholder="<%=language.getProperty("post_comment")%>" v-on:click="no_more_cmt()" readonly aria-describedby="basic-addon2">
+
                                 <div class="input-group-append">
                                     <span v-if="logged_in" class="input-group-text">{{value.comment_input !== '' ? (value.comment_input.length + '/' + number_of_words_per_cmt) : '0/' + number_of_words_per_cmt}}</span>
                                 </div>
@@ -56,7 +61,7 @@
         </div>
     </template>
     <div class="container">
-        <button style="width: 100%;" class="btn btn-primary" v-if="show_load_more" v-on:click="get_posts()">Get more post</button>
+        <button style="width: 100%;" class="btn btn-primary" v-if="show_load_more" v-on:click="get_posts()"><%=language.getProperty("post_get_more_post")%></button>
     </div>
 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-xl">
@@ -64,10 +69,10 @@
             <div class="col-lg-12 text-start text-lg-center wow slideInRight" data-wow-delay="0.1s">
                 <ul class="nav nav-pills d-inline-flex justify-content-end mb-1 mt-3">
                     <li class="nav-item me-2">
-                        <a class="btn btn-outline-primary active" data-bs-toggle="pill" href="#comments">Featured</a>
+                        <a class="btn btn-outline-primary active" data-bs-toggle="pill" href="#comments"><%=language.getProperty("post_comment")%></a>
                     </li>
                     <li class="nav-item me-2">
-                        <a class="btn btn-outline-primary" v-on:click="get_likes()" data-bs-toggle="pill" href="#likes">Featured</a>
+                        <a class="btn btn-outline-primary" v-on:click="get_likes()" data-bs-toggle="pill" href="#likes"><%=language.getProperty("post_like")%></a>
                     </li>
                 </ul>
             </div>
@@ -81,7 +86,7 @@
                         <div v-if="viewing_comments_of !== -1" >
                             <div v-if="posts[viewing_comments_of].comments !== -1">
                                 <div v-if="posts[viewing_comments_of].comments.length === 0">
-                                    <p class="text-center col-12">không có bình luận</p>
+                                    <p class="text-center col-12"><%=language.getProperty("post_no_cmt")%></p>
                                 </div>
                                 <div v-else>
                                     <template v-for="(value, key) in posts[viewing_comments_of].comments">
@@ -108,7 +113,7 @@
                         <div v-if="viewing_comments_of !== -1" >
                             <div v-if="posts[viewing_comments_of].likes !== -1">
                                 <div v-if="posts[viewing_comments_of].comments.likes === 0">
-                                    <p class="text-center col-12">không có lượt thích</p>
+                                    <p class="text-center col-12"><%=language.getProperty("post_no_like")%></p>
                                 </div>
                                 <div v-else>
                                     <template v-for="(value, key) in posts[viewing_comments_of].likes">
@@ -126,7 +131,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-warning" data-bs-dismiss="modal"><%=language.getProperty("post_close")%></button>
             </div>
         </div>
     </div>
@@ -144,12 +149,13 @@
             show_load_more: true,
             number_of_comments: 0,
             number_of_words_per_cmt: 0,
-            viewing_comments_of : -1
+            viewing_comments_of : -1,
+            commented: 0
         },
         created() {
             this.get_posts()
             if (this.logged_in){
-                this.get_word_count()
+                this.get_word_count();
             }
         },
         methods: {
@@ -175,6 +181,8 @@
                     .then((res)=>{
                         this.number_of_comments = res.data.number_of_comments
                         this.number_of_words_per_cmt = res.data.number_of_words_per_cmt
+                        this.commented = res.data.commented
+                        console.log(this.commented)
                     })
             },
             like(id) {
@@ -186,6 +194,7 @@
                             if (res.data.status) {
                                 toastr.success(res.data.message)
                                 this.update_posts(id)
+                                this.get_word_count()
                             } else {
                                 toastr.error(res.data.message)
                             }
@@ -212,10 +221,10 @@
                     toastr.warning("<%=language.getProperty("post_pls_login")%>")
                 } else {
                     if (this.posts[key].comment_input === ''){
-                        toastr.warning("Vui lòng nhập bình luận.")
+                        toastr.warning("<%=language.getProperty("post_pls_input_cmt")%>")
                     } else {
                         if (this.posts[key].comment_input.length > this.number_of_words_per_cmt){
-                            toastr.warning("Không được nhập quá " + this.number_of_words_per_cmt + " từ.")
+                            toastr.warning("<%=language.getProperty("post_pls_input_cmt")%>".replace("123", this.number_of_words_per_cmt))
                         } else {
                             var form = new FormData()
                             form.append('comment', this.posts[key].comment_input)
@@ -230,6 +239,7 @@
                                         this.posts[key].comment_input = ''
                                         toastr.success(res.data.message)
                                         this.update_posts(id)
+                                        this.get_word_count()
                                     } else {
                                         toastr.error(res.data.message)
                                     }
@@ -249,12 +259,10 @@
                 axios.get("${pageContext.request.contextPath}/get-likes?post_id=" + this.posts[this.viewing_comments_of].id)
                     .then((res)=>{
                         this.posts[this.viewing_comments_of].likes = JSON.parse(res.data.likes)
-                        // for (let i = 0; i < this.posts.length; i++) {
-                        //     if (this.posts[i].id === this.posts[this.viewing_comments_of].id){
-                        //         this.posts[i].likes = JSON.parse(res.data.comments)
-                        //     }
-                        // }
                     })
+            },
+            no_more_cmt(){
+                toastr.warning("<%=language.getProperty("post_no_more_cmt")%>")
             }
         }
     })

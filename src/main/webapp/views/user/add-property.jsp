@@ -4,13 +4,13 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ include file="../master/head.jsp" %>
 <%ArrayList<MyObject> counts = DB.getData("SELECT SUM(CASE WHEN hidden = 1 THEN 1 ELSE 0 END) AS hidden_count, SUM(CASE WHEN hidden = 0 THEN 1 ELSE 0 END) AS not_hidden_count FROM properties where user_id = ?", new String[]{user.id}, new String[]{"hidden_count", "not_hidden_count"}); %>
-<% MyObject subs = (MyObject) request.getAttribute("subs");%>
+<% ArrayList<MyObject> subs = (ArrayList<MyObject>) request.getAttribute("subs");%>
 <div class="col-12 mb-3  d-flex justify-content-center">
     <div class="row col-11  d-flex justify-content-center">
         <h2><%= language.getProperty("add_property_title") %>
         </h2>
-        <h4>Tổng số chỗ nghỉ: <%=Integer.parseInt(counts.get(0).getHidden_count()) + Integer.parseInt(counts.get(0).getNot_hidden_count())%>, bị ẩn: <%=counts.get(0).getHidden_count()%>, đang hiển thị: <%=counts.get(0).getNot_hidden_count()%></h4>
-        <h4>Bạn còn thêm được <%=Integer.parseInt(subs.getNumber_of_property()) - Integer.parseInt(counts.get(0).getNot_hidden_count())%> nhà ở nữa.</h4>
+            <h4><%=language.getProperty("add_property_number_of_property")%>: <%=Integer.parseInt(counts.get(0).getHidden_count()) + Integer.parseInt(counts.get(0).getNot_hidden_count())%>, <%=language.getProperty("plans_hidden_true")%>: <%=counts.get(0).getHidden_count()%>, <%=language.getProperty("add_property_showing")%>: <%=counts.get(0).getNot_hidden_count()%></h4>
+            <h4><%=language.getProperty("add_property_can_add").replace("123", String.valueOf(Integer.parseInt(subs.get(0).getNumber_of_property()) - Integer.parseInt(counts.get(0).getNot_hidden_count())))%></h4>
         <form onsubmit="handle_form_submit(event)" id="my_form">
             <div class="col-12">
                 <div class="row">
@@ -103,7 +103,7 @@
                         </div>
                         <div class="col-md-4">
                             <label for="province_id"><%= language.getProperty("add_property_choose_province") %></label>
-                            <select data-placeholder="Chọn thành phố" required class="form-control" name="province_id" id="province_id" onchange="change_district(this.value)">
+                            <select data-placeholder="<%=language.getProperty("add_property_choose_province")%>" required class="form-control" name="province_id" id="province_id" onchange="change_district(this.value)">
                                 <option value=""><%= language.getProperty("add_property_choose_province") %></option>
                                 <%--                            <c:forEach var="province" items="${provinces_list}">--%>
                                 <%--                                <option value="${province.getId()}">${province.getName()}</option>--%>
@@ -281,13 +281,23 @@
 </div>
 <%@ include file="../master/foot.jsp" %>
 <script>
-    <% if (Integer.parseInt(subs.getNumber_of_property()) <= Integer.parseInt(counts.get(0).getNot_hidden_count())) { %>
+    <%if (subs.size()!=0){ %>
+        <% if (Integer.parseInt(subs.get(0).getNumber_of_property()) <= Integer.parseInt(counts.get(0).getNot_hidden_count())) { %>
+            var form = document.getElementById("my_form");
+            var elements = form.elements;
+            for (var i = 0; i < elements.length; i++) {
+                elements[i].disabled = true;
+            }
+        <% } %>
+    <% } %>
+    <% if (subs.size() == 0) { %>
         var form = document.getElementById("my_form");
         var elements = form.elements;
         for (var i = 0; i < elements.length; i++) {
             elements[i].disabled = true;
         }
     <% } %>
+
     $("#amenity").chosen();
     $("#nearby_location_id").chosen();
     var addModal = $("#addModal");
@@ -353,7 +363,7 @@
         while (district_select.options.length > 0) {
             district_select.remove(0);
         }
-        district_select.innerHTML = '<option value="">Chọn quận huyện</option>';
+        district_select.innerHTML = '<option value=""><%=language.getProperty("add_property_choose_district")%></option>';
         if (selectedProvince){
             for (let i = 0; i < district_json.length; i++) {
 
@@ -510,7 +520,6 @@ var app = new Vue({
         },
         remove_amenity(id){
             this.user_choose_amenity_str = this.user_choose_amenity_str.replace(id + "|", "")
-            console.log("after remove " + this.user_choose_amenity_str)
             for (let i = 0; i < this.user_choose_amenity.length; i++) {
                 if (this.user_choose_amenity[i].id === id){
                     this.amenities.push(this.user_choose_amenity[i])
@@ -529,7 +538,6 @@ var app = new Vue({
         },
         remove_near_location(id){
             this.user_choose_near_locations_str = this.user_choose_near_locations_str.replace(id + "|", "")
-            console.log("after remove " + this.user_choose_near_locations_str)
             for (let i = 0; i < this.user_choose_near_locations.length; i++) {
                 if (this.user_choose_near_locations[i].id === id){
                     this.near_locations.push(this.user_choose_near_locations[i])

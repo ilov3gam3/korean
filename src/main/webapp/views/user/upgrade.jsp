@@ -4,6 +4,7 @@
 <%@ include file="../master/head.jsp" %>
 <%ArrayList<MyObject> plans = (ArrayList<MyObject>) request.getAttribute("plans");%>
 <%ArrayList<MyObject> subs = (ArrayList<MyObject>) request.getAttribute("subs");%>
+<%ArrayList<MyObject> priority_plans = (ArrayList<MyObject>) request.getAttribute("priority_plans");%>
 <div id="app" class="container-fluid col-12 mb-3 d-flex justify-content-center">
   <div class="row col-11 ">
     <div class="col-md-12">
@@ -28,7 +29,9 @@
         </h3>
         <div class="col-6">
           <% for (int i = 0; i < plans.size(); i++) { %>
-          <button v-on:click="change_choose(<%=plans.get(i).getId()%>, <%=plans.get(i).getPrice_per_month()%>)" type="button" style="width: 100%" class="m-1 btn btn-outline-success btn-lg" :class="{'m-1 btn btn-outline-success btn-lg' : choosing !== <%=plans.get(i).getId()%>, 'm-1 btn btn-success btn-lg' : choosing === <%=plans.get(i).getId()%>}">
+          <button v-on:click="change_choose(<%=plans.get(i).getId()%>, <%=plans.get(i).getPrice_per_month()%>, <%=plans.get(i).getNumber_of_property()%>)" type="button"
+                  style="width: 100%" class="m-1 btn btn-outline-success btn-lg"
+                  :class="{'m-1 btn btn-outline-success btn-lg' : choosing !== <%=plans.get(i).getId()%>, 'm-1 btn btn-success btn-lg' : choosing === <%=plans.get(i).getId()%>}">
             <span class="text-dark">
               <% if (lang.equals("vn")) { %>
               <%=plans.get(i).getName_vn().toUpperCase(java.util.Locale.ROOT)%>
@@ -42,6 +45,14 @@
             </span>
           </button>
           <% } %>
+          <%=language.getProperty("upgrade_choose_priority")%>>
+          <% for (int i = 0; i < priority_plans.size(); i++) { %>
+          <button v-on:click="change_choose_priority(<%=priority_plans.get(i).getId()%>, <%=priority_plans.get(i).getPrice_per_property()%>)" type="button" style="width: 100%" class="m-1 btn btn-outline-success btn-lg"
+                  :class="{'m-1 btn btn-outline-success btn-lg' : choosing_priority !== <%=priority_plans.get(i).getId()%>, 'm-1 btn btn-success btn-lg' : choosing_priority === <%=priority_plans.get(i).getId()%>}"
+          >
+            <span class="text-dark"><%=language.getProperty("upgrade_priority")%><%=priority_plans.get(i).getPriority()%>, giá <%=priority_plans.get(i).getPrice_per_property()%>đ/1 <%=language.getProperty("upgrade_property")%></span>
+          </button>
+          <% } %>
         </div>
         <div class="col-6">
             <div class="form-group">
@@ -49,7 +60,7 @@
               <input type="number" class="form-control input-group-lg" min="1" max="12" id="month" v-model="months">
             </div>
             <div v-if="choosing != 0 && price != 0" class="form-group mt-3">
-              <%=language.getProperty("upgrade_amount_have_to_pay")%>: {{price}} x {{months}} (-{{discount}}%) = {{price * months * (1-discount/100)}}
+              <%=language.getProperty("upgrade_amount_have_to_pay")%>: {{price}} x {{months}} + {{price_priority}} x {{number_of_property}} (-{{discount}}%) = {{(price * months + price_priority * number_of_property) * (1-discount/100)}}
               <form v-on:submit="form_submit(event)" action="${pageContext.request.contextPath}/user/upgrade-account" method="post">
                 <input type="hidden" v-model="months" name="months">
                 <input type="hidden" v-model="choosing" name="plan_id">
@@ -70,28 +81,38 @@
       choosing: 0,
       months : 1,
       amount_to_pay: 0,
+      price : 0,
+      number_of_property: 0,
       discount: 0,
-      price : 0
+
+      choosing_priority: 0,
+      price_priority: 0,
+
     },
     created(){
     },
     methods:{
-      change_choose(id, price){
+      change_choose(id, price, x){
         this.choosing = id
         this.price = price
+        this.number_of_property = x
+      },
+      change_choose_priority(id, price){
+        this.choosing_priority = id;
+        this.price_priority = price
       },
       form_submit(e){
         e.preventDefault();
-      const data = new FormData();
-      data.append("months", this.months)
+        const data = new FormData();
+        data.append("months", this.months)
         data.append("plan_id", this.choosing)
+        data.append("choosing_priority", this.choosing_priority)
         axios.post("${pageContext.request.contextPath}/user/upgrade-account", data,{
             headers: {
                 'Content-Type': 'multipart/form-data'
             }
         })
                 .then((res)=>{
-                  console.log(res)
                   if (res.data.code === '00'){
                       if (window.vnpay) {
                           vnpay.open({width: 768, height: 600, url: res.data.data});
@@ -102,7 +123,7 @@
                       toastr.warning(res.data.data)
                   }
                 })
-      }
+      },
     },
     watch: {
       months: function(newValue, oldValue) {
@@ -114,6 +135,17 @@
           this.discount = 10
         } else if(newValue == 10 || newValue == 11 || newValue == 12){
           this.discount = 15
+        }
+      },
+      months_priority: function(newValue, oldValue) {
+        if (newValue == 1 || newValue == 2 || newValue == 3){
+          this.discount_priority = 0
+        } else if (newValue == 4 || newValue == 5 || newValue == 6){
+          this.discount_priority = 5
+        } else if (newValue == 7 || newValue == 8 || newValue == 9){
+          this.discount_priority = 10
+        } else if(newValue == 10 || newValue == 11 || newValue == 12){
+          this.discount_priority = 15
         }
       }
     }

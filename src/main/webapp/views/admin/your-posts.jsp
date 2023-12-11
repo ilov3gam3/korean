@@ -11,7 +11,7 @@
       <th><%= language.getProperty("view_subs_name") %></th>
       <th><%= language.getProperty("make_post_title") %></th>
       <th><%= language.getProperty("make_post_content") %></th>
-      <th><%= language.getProperty("view_subs_status") %></th>
+      <th class="col-1"><%= language.getProperty("view_subs_status") %></th>
       <th><%= language.getProperty("view_subs_create_at") %></th>
     </tr>
     </thead>
@@ -22,7 +22,7 @@
       <td><%=posts.get(i).getUsername()%></td>
       <td><%=posts.get(i).getTitle()%></td>
       <td><%=posts.get(i).getContent()%></td>
-      <td>
+      <td class="col-1">
         <form action="${pageContext.request.contextPath}/admin/view-posts" method="post">
         <input type="hidden" name="id" value="<%=posts.get(i).getId()%>">
         <%=posts.get(i).getIs_verified().equals("1") ? "<button class=\"btn btn-primary\">"+language.getProperty("make_post_verified")+"</button>" : "<button class=\"btn btn-danger\">"+language.getProperty("make_post_not_verified")+"</button>"%>

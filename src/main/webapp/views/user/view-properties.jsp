@@ -11,13 +11,19 @@
 <% ArrayList<MyObject> property_near_location = (ArrayList<MyObject>) request.getAttribute("property_near_location");%>
 <% ArrayList<MyObject> property_amenities = (ArrayList<MyObject>) request.getAttribute("property_amenities");%>
 <% ArrayList<MyObject> number_of_property = (ArrayList<MyObject>) request.getAttribute("number_of_property");%>
-<% MyObject subs = (MyObject) request.getAttribute("subs");%>
+<% ArrayList<MyObject> subs = (ArrayList<MyObject>) request.getAttribute("subs");%>
 <div id="app">
     <div class="container mt-2">
-        <h4>Bạn có thể hiển thị tối đa được <%=subs.getNumber_of_property()%> nhà ở</h4>
-        <h4>Tổng số nhà ở: <%=Integer.parseInt(counts.get(0).getHidden_count()) + Integer.parseInt(counts.get(0).getNot_hidden_count())%></h4>
-        <h4 id="hidden_prop"></h4>
-        <h4 id="not_hidden_prop"></h4>
+        <%if(subs.size() != 0){ %>
+            <h4><%=language.getProperty("view_properties_max_property").replace("123", subs.get(0).getNumber_of_property())%></h4>
+            <h4><%=language.getProperty("view_properties_total_property")%>: <%=Integer.parseInt(counts.get(0).getHidden_count()) + Integer.parseInt(counts.get(0).getNot_hidden_count())%></h4>
+            <h4 id="hidden_prop"></h4>
+            <h4 id="not_hidden_prop"></h4>
+        <% } else { %>
+            <h4><%=language.getProperty("view_properties_total_property")%>: <%=Integer.parseInt(counts.get(0).getHidden_count()) + Integer.parseInt(counts.get(0).getNot_hidden_count())%></h4>
+            <h4 id="hidden_prop"></h4>
+            <h4 id="not_hidden_prop"></h4>
+        <% } %>
     </div>
 <% for (int i = 0; i < properties.size(); i++) { %>
     <div class="p-2 mb-4 bg-body-tertiary rounded-3">
@@ -27,11 +33,11 @@
                     <div class="row col-12">
                         <div class="row">
                             <%String thumb_nail_id = "";%>
-                            <% for (int j = 0; j < images.size(); j++) { %>
-                            <% if (images.get(j).getProperty_id().equals(properties.get(i).getId()) && images.get(j).getIs_thumb_nail().equals("1")){%>
-                            <img id="thumb_nail_<%=properties.get(i).getId()%>" class="p-0 img-thumbnail border-4 border-dark" src="${pageContext.request.contextPath}<%=images.get(j).getPath()%>" alt="" style="max-width: 100%; object-fit: cover">
-                            <%thumb_nail_id = images.get(j).getId();%>
-                            <% } %>
+                                <% for (int j = 0; j < images.size(); j++) { %>
+                                <% if (images.get(j).getProperty_id().equals(properties.get(i).getId()) && images.get(j).getIs_thumb_nail().equals("1")){%>
+                                <img id="thumb_nail_<%=properties.get(i).getId()%>" class="p-0 img-thumbnail border-4 border-dark" src="${pageContext.request.contextPath}<%=images.get(j).getPath()%>" alt="" style="max-width: 100%; object-fit: cover">
+                                <%thumb_nail_id = images.get(j).getId();%>
+                                <% } %>
                             <% } %>
                         </div>
                         <div class="row" id="small_imgs_<%=properties.get(i).getId()%>">
@@ -50,7 +56,7 @@
                         <form id="form_thumb_nail_<%=properties.get(i).getId()%>" hidden="hidden" action="${pageContext.request.contextPath}/user/change-thumb-nail" method="post" >
                             <input type="hidden" name="p_id" value="<%=properties.get(i).getId()%>">
                             <input hidden="hidden" type="text" id="make_thumb_nail_id_<%=properties.get(i).getId()%>" name="img_id">
-                            <button type="submit" style="width: 100%" class="btn btn-primary">Đặt làm ảnh chính</button>
+                            <button type="submit" style="width: 100%" class="btn btn-primary"><%=language.getProperty("view_properties_set_default_img")%></button>
                         </form>
                     </div>
                 </div>
@@ -150,9 +156,10 @@
                                 <% } %>
                                 <% } %>
                             </p>
+                            <button v-on:click="view_map('<%=properties.get(i).gg_map_api.replace("\"", "`")%>')" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#viewMapModel">Xem bản đồ</button>
                         </div>
                         <div class="col-3">
-                            <button v-on:click="addValueModalVue('<%=temp_amenities%>', '<%=temp_near_locations%>')" onclick="addValueModal('<%=properties.get(i).getName_vn()%>', '<%=properties.get(i).getName_kr()%>', '<%=properties.get(i).getDescription_vn()%>', '<%=properties.get(i).getDescription_kr()%>', '<%=properties.get(i).getId()%>', '<%=formatter.format(Double.parseDouble(properties.get(i).getPrice()))%>', '<%=properties.get(i).getArea()%>', '<%=properties.get(i).getFloor_numbers()%>', '<%=properties.get(i).getAt_floor()%>', '<%=properties.get(i).getAddress()%>', '<%=properties.get(i).getBathrooms()%>', '<%=properties.get(i).getBedrooms()%>','<%=properties.get(i).getFor_sale()%>', '<%=properties.get(i).getProvince_id()%>', '<%=properties.get(i).getDistrict_id()%>', '<%=properties.get(i).getProperty_type()%>')" data-bs-toggle="modal" data-bs-target="#editModal" style="width: 100%" class="btn btn-warning">Chỉnh sửa</button>
+                            <button v-on:click="addValueModalVue('<%=temp_amenities%>', '<%=temp_near_locations%>')" onclick="addValueModal('<%=properties.get(i).getName_vn()%>', '<%=properties.get(i).getName_kr()%>', '<%=properties.get(i).getDescription_vn()%>', '<%=properties.get(i).getDescription_kr()%>', '<%=properties.get(i).getId()%>', '<%=formatter.format(Double.parseDouble(properties.get(i).getPrice()))%>', '<%=properties.get(i).getArea()%>', '<%=properties.get(i).getFloor_numbers()%>', '<%=properties.get(i).getAt_floor()%>', '<%=properties.get(i).getAddress()%>', '<%=properties.get(i).getBathrooms()%>', '<%=properties.get(i).getBedrooms()%>','<%=properties.get(i).getFor_sale()%>', '<%=properties.get(i).getProvince_id()%>', '<%=properties.get(i).getDistrict_id()%>', '<%=properties.get(i).getProperty_type()%>', '<%=properties.get(i).getGg_map_api().replace("\"", "`")%>')" data-bs-toggle="modal" data-bs-target="#editModal" style="width: 100%" class="btn btn-warning">Chỉnh sửa</button>
                         </div>
                     </div>
                 </div>
@@ -360,6 +367,12 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="col-12 row">
+                                <div class="form-group">
+                                    <label for="gg_map_api"><%=language.getProperty("gg_map_api")%> <a target="_blank" href="https://www.google.com/search?q=h%C6%B0%E1%BB%9Bng+d%E1%BA%ABn+l%E1%BA%A5y+link+google+map&oq=h%C6%B0%E1%BB%9Bng+d%E1%BA%ABn+l%E1%BA%A5y+link+google+map&gs_lcrp=EgZjaHJvbWUyBggAEEUYOTIICAEQABgWGB4yCAgCEAAYFhge0gEJMTE2MDdqMGoxqAIAsAIA&sourceid=chrome&ie=UTF-8"><%=language.getProperty("gg_map_api_tut")%></a></label>
+                                    <input id="gg_map_api" name="gg_map_api" type="text" class="form-control">
+                                </div>
+                            </div>
                             <button type="submit" class="btn btn-primary mt-2" style="width: 100%">Cập nhật</button>
                         </form>
                     </div>
@@ -406,6 +419,19 @@
                         <input id="addImg" hidden="hidden" name="images" type="file" accept="image/*" multiple v-on:change="inputFile($event)">
                         <button type="submit" class="btn btn-primary float-end"><%=language.getProperty("amenities_edit")%></button>
                     </form>
+                </div>
+            </div>
+        </div>
+    </div>
+<div class="modal fade" id="viewMapModel" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xl ">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><%= language.getProperty("property_type_add_new") %></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body col-12 row" id="view_map">
+
                 </div>
             </div>
         </div>
@@ -558,7 +584,7 @@
         $("#description_vi").val(translated_text)
         translated_text = ''
     })
-    function addValueModal(name_vn, name_kr, des_vn, des_kr, p_id, price, area, floor_num, at_floor, address, bathrooms, bedrooms, for_sale, province_id, district_id, property_type) {
+    function addValueModal(name_vn, name_kr, des_vn, des_kr, p_id, price, area, floor_num, at_floor, address, bathrooms, bedrooms, for_sale, province_id, district_id, property_type, map) {
         $("#name_vn").val(name_vn)
         $("#name_kr").val(name_kr)
         $("#description_vi").text(des_vn)
@@ -580,6 +606,7 @@
         change_district(province_id)
         $("#update_district_id").val(district_id)
         $("#update_property_type").val(property_type)
+        $("#gg_map_api").val(map.replaceAll("`", "\""))
     }
     function change_district(selectedProvince) {
         var district_select = document.getElementById("update_district_id")
@@ -621,7 +648,7 @@ var app = new Vue({
         files : [],
         preview_images: [],
         p_id: 0,
-
+        gg_map_api: ''
     },
     created(){
         this.getAllData();
@@ -732,6 +759,9 @@ var app = new Vue({
                 this.change_img_json[i].is_thumbnail = '0'
             }
             this.change_img_json[key].is_thumbnail = '1'
+        },
+        view_map(link){
+            $("#view_map").html(link.replaceAll("`", "\""))
         }
     }
 })

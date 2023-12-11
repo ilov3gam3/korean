@@ -83,10 +83,12 @@ public class SubscribeController {
             sql = "select * from subscriptions where user_id = ? and from_date < ? and to_date > ? and vnp_TransactionStatus = '00'";
             MyObject user = (MyObject) req.getSession().getAttribute("login");
             String[] vars = new String[]{user.id, current_date, current_date};
-            fields = new String[]{"id", "from_date", "to_date"};
+            fields = new String[]{"id", "from_date", "to_date", "number_of_property"};
             ArrayList<MyObject> subs = DB.getData(sql, vars, fields);
+            ArrayList<MyObject> priority_plans = DB.getData("select * from priority_plans where hidden = 'false'", new String[]{"id", "priority", "price_per_property"});
             req.setAttribute("plans",plans);
             req.setAttribute("subs",subs);
+            req.setAttribute("priority_plans",priority_plans);
             req.getRequestDispatcher("/views/user/upgrade.jsp").forward(req, resp);
         }
         static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -107,118 +109,241 @@ public class SubscribeController {
             MyObject user = (MyObject) req.getSession().getAttribute("login");
             com.google.gson.JsonObject job = new JsonObject();
             if (checkSubs(user.id)){
-                String plan_id = req.getParameter("plan_id");
-                int months = Integer.parseInt(req.getParameter("months"));
-                String sql = "select * from subscribe_plans where id = ?";
-                String[] vars = new String[]{plan_id};
-                String[] fields = new String[]{"id", "name_vn", "name_kr", "number_of_property", "price_per_month", "number_of_comments", "number_of_words_per_cmt"};
-                ArrayList<MyObject> plans  = DB.getData(sql, vars, fields);
-                int price = Integer.parseInt(plans.get(0).getPrice_per_month());
-                int discount = 0;
-                if (months == 1 || months == 2 || months == 3){
-                    discount = 0;
-                } else if (months == 4 || months == 5 || months == 6){
-                    discount = 5;
-                } else if (months == 7 || months == 8 || months == 9){
-                    discount = 10;
-                } else if(months == 10 || months == 11 || months == 12){
-                    discount = 15;
-                }
-                //==================
-                String vnp_Version = "2.1.0";
-                String vnp_Command = "pay";
-                String orderType = "other";
-                long amount = (long) (price * months * (1 - (float)(discount) / 100));
-                String bankCode = req.getParameter("bankCode");
-                String vnp_TxnRef = Config.getRandomNumber(8);
-                String vnp_IpAddr = Config.getIpAddress(req);
-                String vnp_TmnCode = Config.vnp_TmnCode;
-                Map<String, String> vnp_Params = new HashMap<>();
-                vnp_Params.put("vnp_Version", vnp_Version);
-                vnp_Params.put("vnp_Command", vnp_Command);
-                vnp_Params.put("vnp_TmnCode", vnp_TmnCode);
-                vnp_Params.put("vnp_Amount", amount + "00");
-                vnp_Params.put("vnp_CurrCode", "VND");
+                String choosing_priority = req.getParameter("choosing_priority");
+                if (choosing_priority.equals("0")){
+                    String plan_id = req.getParameter("plan_id");
+                    int months = Integer.parseInt(req.getParameter("months"));
+                    String sql = "select * from subscribe_plans where id = ?";
+                    String[] vars = new String[]{plan_id};
+                    String[] fields = new String[]{"id", "name_vn", "name_kr", "number_of_property", "price_per_month", "number_of_comments", "number_of_words_per_cmt"};
+                    ArrayList<MyObject> plans  = DB.getData(sql, vars, fields);
+                    int price = Integer.parseInt(plans.get(0).getPrice_per_month());
+                    int discount = 0;
+                    if (months == 1 || months == 2 || months == 3){
+                        discount = 0;
+                    } else if (months == 4 || months == 5 || months == 6){
+                        discount = 5;
+                    } else if (months == 7 || months == 8 || months == 9){
+                        discount = 10;
+                    } else if(months == 10 || months == 11 || months == 12){
+                        discount = 15;
+                    }
+                    //==================
+                    String vnp_Version = "2.1.0";
+                    String vnp_Command = "pay";
+                    String orderType = "other";
+                    long amount = (long) (price * months * (1 - (float)(discount) / 100));
+                    String bankCode = req.getParameter("bankCode");
+                    String vnp_TxnRef = Config.getRandomNumber(8);
+                    String vnp_IpAddr = Config.getIpAddress(req);
+                    String vnp_TmnCode = Config.vnp_TmnCode;
+                    Map<String, String> vnp_Params = new HashMap<>();
+                    vnp_Params.put("vnp_Version", vnp_Version);
+                    vnp_Params.put("vnp_Command", vnp_Command);
+                    vnp_Params.put("vnp_TmnCode", vnp_TmnCode);
+                    vnp_Params.put("vnp_Amount", amount + "00");
+                    vnp_Params.put("vnp_CurrCode", "VND");
 
-                if (bankCode != null && !bankCode.isEmpty()) {
-                    vnp_Params.put("vnp_BankCode", bankCode);
-                }
-                vnp_Params.put("vnp_TxnRef", vnp_TxnRef);
-                String vnp_OrderInfo = String.valueOf(UUID.randomUUID());
-                vnp_OrderInfo += "|" + System.currentTimeMillis();
-                vnp_Params.put("vnp_OrderInfo", vnp_OrderInfo);
-                vnp_Params.put("vnp_OrderType", orderType);
+                    if (bankCode != null && !bankCode.isEmpty()) {
+                        vnp_Params.put("vnp_BankCode", bankCode);
+                    }
+                    vnp_Params.put("vnp_TxnRef", vnp_TxnRef);
+                    String vnp_OrderInfo = String.valueOf(UUID.randomUUID());
+                    vnp_OrderInfo += "|" + System.currentTimeMillis();
+                    vnp_Params.put("vnp_OrderInfo", vnp_OrderInfo);
+                    vnp_Params.put("vnp_OrderType", orderType);
 
-                String locate = req.getParameter("language");
-                if (locate != null && !locate.isEmpty()) {
-                    vnp_Params.put("vnp_Locale", locate);
-                } else {
-                    vnp_Params.put("vnp_Locale", "vn");
-                }
-                vnp_Params.put("vnp_ReturnUrl", Config.vnp_ReturnUrl);
-                vnp_Params.put("vnp_IpAddr", vnp_IpAddr);
+                    String locate = req.getParameter("language");
+                    if (locate != null && !locate.isEmpty()) {
+                        vnp_Params.put("vnp_Locale", locate);
+                    } else {
+                        vnp_Params.put("vnp_Locale", "vn");
+                    }
+                    vnp_Params.put("vnp_ReturnUrl", Config.vnp_ReturnUrl);
+                    vnp_Params.put("vnp_IpAddr", vnp_IpAddr);
 
-                Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
-                SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
-                SimpleDateFormat sqlFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                String vnp_CreateDate = formatter.format(cld.getTime());
-                vnp_Params.put("vnp_CreateDate", vnp_CreateDate);
+                    Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
+                    SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
+                    SimpleDateFormat sqlFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                    String vnp_CreateDate = formatter.format(cld.getTime());
+                    vnp_Params.put("vnp_CreateDate", vnp_CreateDate);
 
-                cld.add(Calendar.MINUTE, 15);
-                String vnp_ExpireDate = formatter.format(cld.getTime());
-                vnp_Params.put("vnp_ExpireDate", vnp_ExpireDate);
+                    cld.add(Calendar.MINUTE, 15);
+                    String vnp_ExpireDate = formatter.format(cld.getTime());
+                    vnp_Params.put("vnp_ExpireDate", vnp_ExpireDate);
 
-                List fieldNames = new ArrayList(vnp_Params.keySet());
-                Collections.sort(fieldNames);
-                StringBuilder hashData = new StringBuilder();
-                StringBuilder query = new StringBuilder();
-                Iterator itr = fieldNames.iterator();
-                //========================================
-                sql = "insert into subscriptions(user_id, subscribe_plans_id, from_date, to_date, number_of_property, price_per_month, number_of_comments, number_of_words_per_cmt, discount, price_to_pay, vnp_TxnRef, vnp_OrderInfo, create_order_at, vnp_TransactionStatus) values (?, ?, ?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?, 0)";
-                Date[] dates = calculateDatesAfterXMonths(months);
-                try {
-                    vars = new String[]{user.id, plan_id,dateFormat.format(dates[0]), dateFormat.format(dates[1]), plans.get(0).getNumber_of_property(), plans.get(0).getPrice_per_month(), plans.get(0).getNumber_of_comments(), plans.get(0).getNumber_of_words_per_cmt(), String.valueOf(discount),String.valueOf(amount), vnp_TxnRef, vnp_OrderInfo,  sqlFormatter.format(formatter.parse(vnp_CreateDate))};
-                } catch (ParseException e) {
-                    throw new RuntimeException(e);
-                }
-                //========================================
-                DB.executeUpdate(sql, vars);
-                while (itr.hasNext()) {
-                    String fieldName = (String) itr.next();
-                    String fieldValue = (String) vnp_Params.get(fieldName);
-                    if ((fieldValue != null) && (fieldValue.length() > 0)) {
-                        //Build hash data
-                        hashData.append(fieldName);
-                        hashData.append('=');
-                        hashData.append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII.toString()));
-                        //Build query
-                        query.append(URLEncoder.encode(fieldName, StandardCharsets.US_ASCII.toString()));
-                        query.append('=');
-                        query.append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII.toString()));
-                        if (itr.hasNext()) {
-                            query.append('&');
-                            hashData.append('&');
+                    List fieldNames = new ArrayList(vnp_Params.keySet());
+                    Collections.sort(fieldNames);
+                    StringBuilder hashData = new StringBuilder();
+                    StringBuilder query = new StringBuilder();
+                    Iterator itr = fieldNames.iterator();
+                    //========================================
+                    sql = "insert into subscriptions(user_id, subscribe_plans_id, from_date, to_date, number_of_property, price_per_month, number_of_comments, number_of_words_per_cmt, discount, price_to_pay, vnp_TxnRef, vnp_OrderInfo, create_order_at, vnp_TransactionStatus) values (?, ?, ?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?, 0)";
+                    Date[] dates = calculateDatesAfterXMonths(months);
+                    try {
+                        vars = new String[]{user.id, plan_id,dateFormat.format(dates[0]), dateFormat.format(dates[1]), plans.get(0).getNumber_of_property(), plans.get(0).getPrice_per_month(), plans.get(0).getNumber_of_comments(), plans.get(0).getNumber_of_words_per_cmt(), String.valueOf(discount),String.valueOf(amount), vnp_TxnRef, vnp_OrderInfo,  sqlFormatter.format(formatter.parse(vnp_CreateDate))};
+                    } catch (ParseException e) {
+                        throw new RuntimeException(e);
+                    }
+                    //========================================
+                    DB.executeUpdate(sql, vars);
+                    while (itr.hasNext()) {
+                        String fieldName = (String) itr.next();
+                        String fieldValue = (String) vnp_Params.get(fieldName);
+                        if ((fieldValue != null) && (fieldValue.length() > 0)) {
+                            //Build hash data
+                            hashData.append(fieldName);
+                            hashData.append('=');
+                            hashData.append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII.toString()));
+                            //Build query
+                            query.append(URLEncoder.encode(fieldName, StandardCharsets.US_ASCII.toString()));
+                            query.append('=');
+                            query.append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII.toString()));
+                            if (itr.hasNext()) {
+                                query.append('&');
+                                hashData.append('&');
+                            }
                         }
                     }
+                    String queryUrl = query.toString();
+                    String vnp_SecureHash = Config.hmacSHA512(Config.secretKey, hashData.toString());
+                    queryUrl += "&vnp_SecureHash=" + vnp_SecureHash;
+                    String paymentUrl = Config.vnp_PayUrl + "?" + queryUrl;
+                    job.addProperty("code", "00");
+                    job.addProperty("message", "success");
+                    job.addProperty("data", paymentUrl);
                 }
-                String queryUrl = query.toString();
-                String vnp_SecureHash = Config.hmacSHA512(Config.secretKey, hashData.toString());
-                queryUrl += "&vnp_SecureHash=" + vnp_SecureHash;
-                String paymentUrl = Config.vnp_PayUrl + "?" + queryUrl;
-                job.addProperty("code", "00");
-                job.addProperty("message", "success");
-                job.addProperty("data", paymentUrl);
+                else {
+                    String plan_id = req.getParameter("plan_id");
+                    int months = Integer.parseInt(req.getParameter("months"));
+                    String sql = "select * from subscribe_plans where id = ?";
+                    String[] vars = new String[]{plan_id};
+                    String[] fields = new String[]{"id", "name_vn", "name_kr", "number_of_property", "price_per_month", "number_of_comments", "number_of_words_per_cmt"};
+                    ArrayList<MyObject> plans  = DB.getData(sql, vars, fields);
+                    int price = Integer.parseInt(plans.get(0).getPrice_per_month());
+                    //==================
+                    sql = "select * from priority_plans where id = ?";
+                    vars = new String[]{choosing_priority};
+                    fields = new String[]{"id", "priority", "hidden", "price_per_property"};
+                    ArrayList<MyObject> priorities  = DB.getData(sql, vars, fields);
+                    //==================
+                    int price_per_property = Integer.parseInt(priorities.get(0).getPrice_per_property());
+                    int number_of_property = Integer.parseInt(plans.get(0).getNumber_of_property());
+                    int discount = 0;
+                    if (months == 1 || months == 2 || months == 3){
+                        discount = 0;
+                    } else if (months == 4 || months == 5 || months == 6){
+                        discount = 5;
+                    } else if (months == 7 || months == 8 || months == 9){
+                        discount = 10;
+                    } else if(months == 10 || months == 11 || months == 12){
+                        discount = 15;
+                    }
+                    //==================
+                    String vnp_Version = "2.1.0";
+                    String vnp_Command = "pay";
+                    String orderType = "other";
+                    long amount = (long) (((long) price * months + (long) price_per_property * number_of_property) * (1 - (float)(discount) / 100));
+                    String bankCode = req.getParameter("bankCode");
+                    String vnp_TxnRef = Config.getRandomNumber(8);
+                    String vnp_IpAddr = Config.getIpAddress(req);
+                    String vnp_TmnCode = Config.vnp_TmnCode;
+                    Map<String, String> vnp_Params = new HashMap<>();
+                    vnp_Params.put("vnp_Version", vnp_Version);
+                    vnp_Params.put("vnp_Command", vnp_Command);
+                    vnp_Params.put("vnp_TmnCode", vnp_TmnCode);
+                    vnp_Params.put("vnp_Amount", amount + "00");
+                    vnp_Params.put("vnp_CurrCode", "VND");
+
+                    if (bankCode != null && !bankCode.isEmpty()) {
+                        vnp_Params.put("vnp_BankCode", bankCode);
+                    }
+                    vnp_Params.put("vnp_TxnRef", vnp_TxnRef);
+                    String vnp_OrderInfo = String.valueOf(UUID.randomUUID());
+                    vnp_OrderInfo += "|" + System.currentTimeMillis();
+                    vnp_Params.put("vnp_OrderInfo", vnp_OrderInfo);
+                    vnp_Params.put("vnp_OrderType", orderType);
+
+                    String locate = req.getParameter("language");
+                    if (locate != null && !locate.isEmpty()) {
+                        vnp_Params.put("vnp_Locale", locate);
+                    } else {
+                        vnp_Params.put("vnp_Locale", "vn");
+                    }
+                    vnp_Params.put("vnp_ReturnUrl", Config.vnp_ReturnUrl);
+                    vnp_Params.put("vnp_IpAddr", vnp_IpAddr);
+
+                    Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
+                    SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
+                    SimpleDateFormat sqlFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                    String vnp_CreateDate = formatter.format(cld.getTime());
+                    vnp_Params.put("vnp_CreateDate", vnp_CreateDate);
+
+                    cld.add(Calendar.MINUTE, 15);
+                    String vnp_ExpireDate = formatter.format(cld.getTime());
+                    vnp_Params.put("vnp_ExpireDate", vnp_ExpireDate);
+
+                    List fieldNames = new ArrayList(vnp_Params.keySet());
+                    Collections.sort(fieldNames);
+                    StringBuilder hashData = new StringBuilder();
+                    StringBuilder query = new StringBuilder();
+                    Iterator itr = fieldNames.iterator();
+                    //========================================
+                    sql = "insert into subscriptions(user_id, subscribe_plans_id, from_date, to_date, number_of_property, price_per_month, number_of_comments, number_of_words_per_cmt, discount, price_to_pay, vnp_TxnRef, vnp_OrderInfo, create_order_at, vnp_TransactionStatus, priority_plans_id, priority, price_per_property) values (?, ?, ?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?, 0, ? , ?, ?)";
+                    Date[] dates = calculateDatesAfterXMonths(months);
+                    try {
+                        vars = new String[]{user.id, plan_id,dateFormat.format(dates[0]), dateFormat.format(dates[1]), plans.get(0).getNumber_of_property(), plans.get(0).getPrice_per_month(), plans.get(0).getNumber_of_comments(), plans.get(0).getNumber_of_words_per_cmt(), String.valueOf(discount),String.valueOf(amount), vnp_TxnRef, vnp_OrderInfo,  sqlFormatter.format(formatter.parse(vnp_CreateDate)), priorities.get(0).getId(), priorities.get(0).getPriority(), priorities.get(0).getPrice_per_property()};
+                    } catch (ParseException e) {
+                        throw new RuntimeException(e);
+                    }
+                    //========================================
+                    DB.executeUpdate(sql, vars);
+                    while (itr.hasNext()) {
+                        String fieldName = (String) itr.next();
+                        String fieldValue = (String) vnp_Params.get(fieldName);
+                        if ((fieldValue != null) && (fieldValue.length() > 0)) {
+                            //Build hash data
+                            hashData.append(fieldName);
+                            hashData.append('=');
+                            hashData.append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII.toString()));
+                            //Build query
+                            query.append(URLEncoder.encode(fieldName, StandardCharsets.US_ASCII.toString()));
+                            query.append('=');
+                            query.append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII.toString()));
+                            if (itr.hasNext()) {
+                                query.append('&');
+                                hashData.append('&');
+                            }
+                        }
+                    }
+                    String queryUrl = query.toString();
+                    String vnp_SecureHash = Config.hmacSHA512(Config.secretKey, hashData.toString());
+                    queryUrl += "&vnp_SecureHash=" + vnp_SecureHash;
+                    String paymentUrl = Config.vnp_PayUrl + "?" + queryUrl;
+                    job.addProperty("code", "00");
+                    job.addProperty("message", "success");
+                    job.addProperty("data", paymentUrl);
+                }
+
             } else {
                 Properties language = (Properties) req.getAttribute("language");
                 job.addProperty("code", "01");
                 job.addProperty("message", "error");
                 job.addProperty("data", language.getProperty("has_subs"));
             }
-
             Gson gson = new Gson();
             resp.getWriter().write(gson.toJson(job));
         }
     }
+
+    @WebServlet("/user/upgrade-account-priority")
+    public static class UserUpgradeAccountPriority extends HttpServlet{
+        @Override
+        protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+
+        }
+    }
+
     @WebServlet("/user/vnpay-result")
     public static class VNPAYResult extends HttpServlet{
         @Override
@@ -325,17 +450,23 @@ public class SubscribeController {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
             String current_date = currentDateTime.format(formatter);
             MyObject user = (MyObject)req.getSession().getAttribute("login");
-            String sql = "select subscriptions.*, users.name as username from subscriptions inner join users on subscriptions.user_id = users.id where user_id = ? and from_date < ? and to_date > ?";
+            String sql = "select subscriptions.*, users.name as username from subscriptions inner join users on subscriptions.user_id = users.id where user_id = ? and from_date < ? and to_date > ? and vnp_TransactionStatus = '00'";
             String[] vars = new String[]{user.id, current_date, current_date};
-            ArrayList<MyObject> subs = DB.getData(sql, vars, new String[]{"number_of_comments", "number_of_words_per_cmt"});
+            ArrayList<MyObject> subs = DB.getData(sql, vars, new String[]{"number_of_comments", "number_of_words_per_cmt", "from_date", "to_date"});
             com.google.gson.JsonObject job = new JsonObject();
             if (subs.size() == 0){
                 job.addProperty("number_of_comments", "0");
                 job.addProperty("number_of_words_per_cmt", "0");
+                job.addProperty("commented", "0");
             } else {
+                sql = "select count(id) as count_comment from comments where user_id = ? and ? < created_at and created_at < ?";
+                vars = new String[]{user.id, subs.get(0).getFrom_date(), subs.get(0).getTo_date()};
+                ArrayList<MyObject> count_comments = DB.getData(sql, vars, new String[]{"count_comment"});
                 job.addProperty("number_of_comments", subs.get(0).getNumber_of_comments());
                 job.addProperty("number_of_words_per_cmt", subs.get(0).getNumber_of_words_per_cmt());
+                job.addProperty("commented", count_comments.get(0).getCount_comment());
             }
+
 
             Gson gson = new Gson();
             resp.getWriter().write(gson.toJson(job));

@@ -46,7 +46,7 @@ public class PropertyController {
             if (subs.size()==1){
                 ArrayList<MyObject> districts_list = DB.getData("select * from districts;", new String[]{"id", "name", "province_id"});
                 req.setAttribute("districts_list", districts_list);
-                req.setAttribute("subs", subs.get(0));
+                req.setAttribute("subs", subs);
                 req.getRequestDispatcher("/views/user/add-property.jsp").forward(req, resp);
             } else {
                 req.getRequestDispatcher("/views/user/make_subs.jsp").forward(req, resp);
@@ -138,24 +138,23 @@ public class PropertyController {
             if (properties.size() == 0){
                 req.getRequestDispatcher("/views/user/no-property.jsp").forward(req, resp);
             } else {
+                LocalDateTime currentDateTime = LocalDateTime.now();
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                String current_date = currentDateTime.format(formatter);
+                ArrayList<MyObject> subs = DB.getData("select * from subscriptions where user_id = ? and from_date < ? and to_date > ? and vnp_TransactionStatus = '00'", new String[]{user.id, current_date, current_date}, new String[]{"id", "from_date", "to_date", "number_of_property"});
+                req.setAttribute("subs", subs);
                 ArrayList<MyObject> property_near_location = DB.getData("select property_near_location.*, nearby_locations.name_vn as nearby_location_name_vn, nearby_locations.name_kr as nearby_location_name_kr from nearby_locations inner join property_near_location on nearby_locations.id = property_near_location.near_location_id inner join properties on property_near_location.property_id = properties.id where properties.user_id = ?", new String[]{user.id}, new String[]{"id", "property_id", "near_location_id", "nearby_location_name_vn", "nearby_location_name_kr"});
                 ArrayList<MyObject> images = DB.getData("select property_images.* from property_images inner join properties on property_images.property_id = properties.id where user_id = ?", vars, new String[]{"id", "property_id", "path", "is_thumb_nail"});
                 ArrayList<MyObject> property_amenities = DB.getData("select property_amenities.*, amenities.name_kr as amenity_name_kr, amenities.name_vn as amenity_name_vn from property_amenities inner join properties on property_amenities.property_id = properties.id inner join amenities on property_amenities.amenity_id = amenities.id where properties.user_id = ?", new String[]{user.id}, new String[]{"id", "property_id", "amenity_id", "amenity_name_kr", "amenity_name_vn"});
                 ArrayList<MyObject> property_list = DB.getData("select * from property_types", new String[]{"id", "name_vn","name_kr", "description_vn", "description_kr"});
                 ArrayList<MyObject> provinces_list = DB.getData("select * from provinces;", new String[]{"id", "name"});
                 ArrayList<MyObject> districts_list = DB.getData("select * from districts;", new String[]{"id", "name", "province_id"});
-                LocalDateTime currentDateTime = LocalDateTime.now();
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-                String current_date = currentDateTime.format(formatter);
                 ArrayList<MyObject> number_of_property = DB.getData("select number_of_property from subscriptions where user_id = ?  and from_date < ? and to_date > ?",new String[]{user.id, current_date, current_date}, new String[]{"number_of_property"});
-                ArrayList<MyObject> subs = DB.getData("select * from subscriptions where user_id = ? and from_date < ? and to_date > ? and vnp_TransactionStatus = '00'", new String[]{user.id, current_date, current_date}, new String[]{"id", "from_date", "to_date", "number_of_property"});
-                req.setAttribute("subs", subs.get(0));
                 req.setAttribute("number_of_property", number_of_property);
                 req.setAttribute("property_near_location", property_near_location);
                 req.setAttribute("property_amenities", property_amenities);
                 req.setAttribute("properties", properties);
                 req.setAttribute("images", images);
-                //thực ra là type list, đặt lộn tên
                 req.setAttribute("property_list", property_list);
                 req.setAttribute("provinces_list", provinces_list);
                 req.setAttribute("districts_list", districts_list);
@@ -297,8 +296,9 @@ public class PropertyController {
             String update_area = req.getParameter("update_area");
             String sale = req.getParameter("sale");
             String update_price = req.getParameter("update_price");
-            String sql = "update properties set name_vn = ?, name_kr = ?, description_vn = ?, description_kr = ?, property_type = ?, district_id = ?, address = ?, floor_numbers = ?, at_floor = ?, bedrooms = ?, bathrooms = ?, area = ?, for_sale = ?, price = ? where id = ?";
-            String[] vars = new String[]{name_vn, name_kr, description_vi, description_kr, property_type, district_id, address, floor_numbers, at_floor, bedrooms, bathrooms, update_area, sale, update_price, p_id};
+            String gg_map_api = req.getParameter("gg_map_api");
+            String sql = "update properties set name_vn = ?, name_kr = ?, description_vn = ?, description_kr = ?, property_type = ?, district_id = ?, address = ?, floor_numbers = ?, at_floor = ?, bedrooms = ?, bathrooms = ?, area = ?, for_sale = ?, price = ?, gg_map_api = ? where id = ?";
+            String[] vars = new String[]{name_vn, name_kr, description_vi, description_kr, property_type, district_id, address, floor_numbers, at_floor, bedrooms, bathrooms, update_area, sale, update_price,gg_map_api, p_id};
             boolean check = DB.executeUpdate(sql, vars);
             String nearby_location_id = req.getParameter("nearby_location_id");
             nearby_location_id = nearby_location_id.substring(0, nearby_location_id.length()-1);
@@ -414,7 +414,7 @@ public class PropertyController {
             String near_locations = req.getParameter("near_locations");
             String for_sale = req.getParameter("for_sale");
             ArrayList<String> vars = new ArrayList<>();
-            String sql = "select distinct properties.id, properties.name_vn, properties.name_kr, property_type, properties.description_vn, properties.description_kr, price, floor_numbers, at_floor, district_id, address, bathrooms, bedrooms, area, properties.user_id, hidden, for_sale, sold, created_at, gg_map_api, users.name as username, property_types.name_vn as property_type_name_vn, property_types.name_kr as property_type_name_kr, province_id, province_id, property_images.path as thumbnail \n" +
+            String sql = "select distinct properties.id, properties.name_vn, properties.name_kr, property_type, properties.description_vn, properties.description_kr, price, floor_numbers, at_floor, district_id, address, bathrooms, bedrooms, area, properties.user_id, hidden, for_sale, sold, created_at, gg_map_api, users.name as username, property_types.name_vn as property_type_name_vn, property_types.name_kr as property_type_name_kr, province_id, province_id, property_images.path as thumbnail, subscriptions.priority as priority \n" +
                     "from properties\n" +
                     "         inner join users on properties.user_id = users.id\n" +
                     "         inner join property_types on properties.property_type = property_types.id\n" +
@@ -486,6 +486,7 @@ public class PropertyController {
             for (int i = 0; i < vars.size(); i++) {
                 vars_arr[i] = vars.get(i);
             }
+            sql += " order by priority";
             String[] fields = new String[]{"id", "name_vn", "name_kr", "property_type", "description_vn", "description_kr", "price", "floor_numbers", "at_floor", "district_id", "address", "bathrooms", "bedrooms", "area", "user_id", "for_sale", "sold", "created_at", "username", "property_type_name_vn", "property_type_name_kr", "province_id", "thumbnail", "gg_map_api"};
             ArrayList<MyObject> properties = DB.getData(sql, vars_arr, fields);
             /*String img_id = "(";
