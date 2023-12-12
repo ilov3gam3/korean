@@ -131,7 +131,7 @@
 
                         </a>
                         <a href="#" class="nav-item nav-link" v-on:click="choose_location()">
-                            <span v-if="location == null">Chưa chọn thành phố</span>
+                            <span v-if="location == null"><%=language.getProperty("not_choose_city")%></span>
                             <span v-if="location != null"><%=language.getProperty("head.you_are_at")%>: {{location.name}}</span>
                         </a>
                     </div>
@@ -147,7 +147,7 @@
                                     .then((res)=>{
                                         this.provinces = JSON.parse(res.data.provinces_list)
                                     })
-                                this.location = this.getCookie("location") == '' ? null : this.getCookie("location")
+                                this.location = this.getCookie("location")
                                 if (this.location == null){
                                     setTimeout(function() {
                                         this.show_modal()
@@ -172,6 +172,7 @@
                                 },
                                 updateCookie(){
                                     this.location = JSON.parse(this.getCookie("location"))
+                                    this.load();
                                 },
                                 setCookie(cname, cvalue, exdays) {
                                     const d = new Date();
@@ -188,7 +189,16 @@
                                 },
                                 choose_location(){
                                     choose_location_foot.show_modal(this.provinces)
-                                }
+                                },
+                                load(){
+                                    this.location_id = this.getCookie("location")
+                                    axios.get('<%=request.getContextPath()%>/api/get-property-listing?location_id=' + this.location.id)
+                                        .then((res)=>{
+                                            this.properties = JSON.parse(res.data.properties)
+                                            property_listing_123.properties = this.properties
+                                            property_listing_123.location = JSON.parse(this.location_id)
+                                        })
+                                },
                             }
                         })
                     </script>

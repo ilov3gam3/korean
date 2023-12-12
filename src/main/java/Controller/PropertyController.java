@@ -486,7 +486,7 @@ public class PropertyController {
             for (int i = 0; i < vars.size(); i++) {
                 vars_arr[i] = vars.get(i);
             }
-            sql += " order by priority";
+            sql += " order by priority desc";
             String[] fields = new String[]{"id", "name_vn", "name_kr", "property_type", "description_vn", "description_kr", "price", "floor_numbers", "at_floor", "district_id", "address", "bathrooms", "bedrooms", "area", "user_id", "for_sale", "sold", "created_at", "username", "property_type_name_vn", "property_type_name_kr", "province_id", "thumbnail", "gg_map_api"};
             ArrayList<MyObject> properties = DB.getData(sql, vars_arr, fields);
             /*String img_id = "(";
@@ -605,6 +605,37 @@ public class PropertyController {
                 req.setAttribute("near_locations", near_locations);
                 req.getRequestDispatcher("/views/view-property.jsp").forward(req, resp);
             }
+        }
+    }
+
+    @WebServlet("/api/get-property-listing")
+    public static class GetPropertyListing extends HttpServlet{
+        @Override
+        protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            String location_id = req.getParameter("location_id");
+            String sql = "select distinct top 8 properties.id, properties.name_vn, properties.name_kr, property_type, properties.description_vn, properties.description_kr, price, floor_numbers, at_floor, district_id, address, bathrooms, bedrooms, area, properties.user_id, hidden, for_sale, sold, created_at, gg_map_api, users.name as username, property_types.name_vn as property_type_name_vn, property_types.name_kr as property_type_name_kr, province_id, province_id, property_images.path as thumbnail, subscriptions.priority as priority\n" +
+                    "from properties\n" +
+                    "         inner join users on properties.user_id = users.id\n" +
+                    "         inner join property_types on properties.property_type = property_types.id\n" +
+                    "         inner join districts on properties.district_id = districts.id\n" +
+                    "         inner join property_images on properties.id = property_images.property_id\n" +
+                    "         inner join subscriptions on users.id = subscriptions.user_id\n" +
+                    "where hidden = 'false' and from_date < ? and to_date > ? and vnp_TransactionStatus = '00' and property_images.is_thumb_nail = 'true' and province_id = ?\n" +
+                    "order by priority desc";
+            LocalDateTime currentDateTime = LocalDateTime.now();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            String current_date = currentDateTime.format(formatter);
+            String[] vars = new String[]{current_date, current_date, location_id};
+            String[] fields = new String[]{"id", "name_vn", "name_kr", "property_type", "description_vn", "description_kr", "price", "floor_numbers", "at_floor", "district_id", "address", "bathrooms", "bedrooms", "area", "user_id", "for_sale", "sold", "created_at", "username", "property_type_name_vn", "property_type_name_kr", "province_id", "thumbnail", "gg_map_api"};
+            ArrayList<MyObject> properties = DB.getData(sql, vars, fields);
+            com.google.gson.JsonObject job = new JsonObject();
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+            objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+            String json_string = objectMapper.writeValueAsString(properties);
+            job.addProperty("properties", json_string);
+            Gson gson = new Gson();
+            resp.getWriter().write(gson.toJson(job));
         }
     }
 }

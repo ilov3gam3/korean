@@ -161,8 +161,8 @@
             test: 123,
         },
         created(){
-            this.location = this.getCookie("location") == null ? '0' : this.getCookie("location")
-            if (this.location == '0'){
+            this.location = this.getCookie("location")
+            if (this.location === null){
                 $("#trigger_modal").click()
                 axios.get('<%=request.getContextPath()%>/api/get-locations')
                     .then((res)=>{
