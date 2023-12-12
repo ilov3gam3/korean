@@ -93,4 +93,11 @@ public class MyObject {
     public String post_id;
     public String priority;
     public String price_per_property;
+    public String note;
+    public String is_received;
+    public String is_returned;
+    public String review_id;
+    public String stars;
+    public String booking_id;
+    public String priority_plans_id;
 }

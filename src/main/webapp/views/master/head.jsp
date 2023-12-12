@@ -227,18 +227,24 @@
                                    class="dropdown-item"><%= language.getProperty("head.profile") %>
                                 </a>
                                 <% if (user.getIs_admin().equals("0")) { %>
-                                <a href="${pageContext.request.contextPath}/user/your-property"
-                                   class="dropdown-item"><%= language.getProperty("head.your_property") %>
-                                </a>
-                                <a href="${pageContext.request.contextPath}/user/upgrade-account"
-                                   class="dropdown-item"><%= language.getProperty("head.subscribe") %>
-                                </a>
-                                <a href="${pageContext.request.contextPath}/user/transaction"
-                                   class="dropdown-item"><%= language.getProperty("head.transaction") %>
-                                </a>
-                                <a href="${pageContext.request.contextPath}/user/your-posts"
-                                   class="dropdown-item"><%= language.getProperty("head.posts") %>
-                                </a>
+                                    <a href="${pageContext.request.contextPath}/user/your-property"
+                                       class="dropdown-item"><%= language.getProperty("head.your_property") %>
+                                    </a>
+                                    <a href="${pageContext.request.contextPath}/user/upgrade-account"
+                                       class="dropdown-item"><%= language.getProperty("head.subscribe") %>
+                                    </a>
+                                    <a href="${pageContext.request.contextPath}/user/transaction"
+                                       class="dropdown-item"><%= language.getProperty("head.transaction") %>
+                                    </a>
+                                    <a href="${pageContext.request.contextPath}/user/your-posts"
+                                       class="dropdown-item"><%= language.getProperty("head.posts") %>
+                                    </a>
+                                    <a href="${pageContext.request.contextPath}/user/your-bookings"
+                                       class="dropdown-item"><%= language.getProperty("head.your-bookings") %>
+                                    </a>
+                                    <a href="${pageContext.request.contextPath}/user/your-booked"
+                                       class="dropdown-item"><%= language.getProperty("head.your-booked") %>
+                                    </a>
                                 <%} else {%>
 
                                 <%} %>

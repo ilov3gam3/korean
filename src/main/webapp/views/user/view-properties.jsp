@@ -61,10 +61,10 @@
                     </div>
                 </div>
                 <div class="col-8">
-                    <h3>tên tiếng việt:  <%=properties.get(i).getName_vn()%></h3>
-                    <h3>tên tiếng hàn:  <%=properties.get(i).getName_kr()%></h3>
-                    <p>mô tả tiếng việt: <%=properties.get(i).getDescription_vn()%></p>
-                    <p>mô tả tiếng hàn: <%=properties.get(i).getDescription_kr()%></p>
+                    <h3><%=language.getProperty("plans_name_vn")%>:  <%=properties.get(i).getName_vn()%></h3>
+                    <h3><%=language.getProperty("plans_name_kr")%>:  <%=properties.get(i).getName_kr()%></h3>
+                    <p><%=language.getProperty("property_type_vn_des")%>: <%=properties.get(i).getDescription_vn()%></p>
+                    <p><%=language.getProperty("property_type_kr_des")%>: <%=properties.get(i).getDescription_kr()%></p>
                     <div class="col-12 row">
                         <div class="col-3">
                             Loại nhà ở:
@@ -93,44 +93,44 @@
                     </div>
                     <div class="col-12 row">
                         <div class="col-3">
-                            Số tầng: <%=properties.get(i).getFloor_numbers()%>
+                            <%=language.getProperty("add_property_number_floor")%>: <%=properties.get(i).getFloor_numbers()%>
                         </div>
                         <div class="col-3">
-                            Ở tầng: <%=properties.get(i).getAt_floor()%>
+                            <%=language.getProperty("add_property_at_floor")%>: <%=properties.get(i).getAt_floor()%>
                         </div>
                         <div class="col-3">
-                            Số phòng tắm: <%=properties.get(i).getBathrooms()%>
+                            <%=language.getProperty("add_property_bath_room")%>: <%=properties.get(i).getBathrooms()%>
                         </div>
                         <div class="col-3">
-                            Số phòng ngủ: <%=properties.get(i).getBedrooms()%>
+                            <%=language.getProperty("add_property_bed_room")%>: <%=properties.get(i).getBedrooms()%>
                         </div>
                     </div>
                     <div class="col-12 row">
                         <div class="col-6">
-                            <p style="margin-top: 4px">Địa chỉ: <%=properties.get(i).getAddress()%>, <%=properties.get(i).getDistrict_name()%>, <%=properties.get(i).getProvince_name()%></p>
+                            <p style="margin-top: 4px"><%=language.getProperty("add_property_address")%>: <%=properties.get(i).getAddress()%>, <%=properties.get(i).getDistrict_name()%>, <%=properties.get(i).getProvince_name()%></p>
                         </div>
                         <div class="col-3">
                             <% if (properties.get(i).getHidden().equals("1")) {%>
-                            <button id="hidden_btn_id_<%=properties.get(i).getId()%>" onclick="changeHidden('<%=properties.get(i).getId()%>')" title="Hiện nhà ở này" class="btn btn-danger" style="width: 100%">Đang bị ẩn</button>
+                            <button id="hidden_btn_id_<%=properties.get(i).getId()%>" onclick="changeHidden('<%=properties.get(i).getId()%>')" title="Hiện nhà ở này" class="btn btn-danger" style="width: 100%"><%=language.getProperty("plans_hidden_true")%>></button>
                             <% } else { %>
-                            <button id="hidden_btn_id_<%=properties.get(i).getId()%>" onclick="changeHidden('<%=properties.get(i).getId()%>')" title="Ẩn nhà ở này" class="btn btn-success" style="width: 100%">Đang hiển thị</button>
+                            <button id="hidden_btn_id_<%=properties.get(i).getId()%>" onclick="changeHidden('<%=properties.get(i).getId()%>')" title="Ẩn nhà ở này" class="btn btn-success" style="width: 100%"><%=language.getProperty("add_property_showing")%></button>
                             <% } %>
                         </div>
                         <div class="col-3">
                             <% if (properties.get(i).getFor_sale().equals("1")){%>
                             <% if (properties.get(i).getSold().equals("1")){ %>
-                            <button id="btn_sold_<%=properties.get(i).getId()%>" onclick="changeSold('<%=properties.get(i).getId()%>')" class="btn btn-success" style="width: 100%">Đã bán</button>
+                            <button id="btn_sold_<%=properties.get(i).getId()%>" onclick="changeSold('<%=properties.get(i).getId()%>')" class="btn btn-success" style="width: 100%"><%=language.getProperty("view_sold")%></button>
                             <% } else { %>
-                            <button id="btn_sold_<%=properties.get(i).getId()%>" onclick="changeSold('<%=properties.get(i).getId()%>')" class="btn btn-warning" style="width: 100%">Chưa bán</button>
+                            <button id="btn_sold_<%=properties.get(i).getId()%>" onclick="changeSold('<%=properties.get(i).getId()%>')" class="btn btn-warning" style="width: 100%"><%=language.getProperty("view_not_sold")%></button>
                             <% } %>
                             <%} else { %>
-                            <button class="btn btn-dark" disabled style="width: 100%">Cho thuê</button>
+                            <button class="btn btn-dark" disabled style="width: 100%"><%=language.getProperty("add_property_type_rent")%></button>
                             <% } %>
                         </div>
                     </div>
                     <div class="col-12 row">
                         <div class="col-9">
-                            <p>Tiện ích:
+                            <p><%=language.getProperty("amenities_title")%>:
                                 <% String temp_amenities = ""; %>
                                 <% for (int j = 0; j < property_amenities.size(); j++) {%>
                                 <% if (property_amenities.get(j).getProperty_id().equals(properties.get(i).getId())){
@@ -143,7 +143,7 @@
                                 <% } %>
                                 <% } %>
                             </p>
-                            <p>Ở gần:
+                            <p><%=language.getProperty("add_property_choose_nearby")%>:
                                 <% String temp_near_locations = ""; %>
                                 <% for (int j = 0; j < property_near_location.size(); j++) {%>
                                 <% if (property_near_location.get(j).getProperty_id().equals(properties.get(i).getId())){
@@ -156,7 +156,7 @@
                                 <% } %>
                                 <% } %>
                             </p>
-                            <button v-on:click="view_map('<%=properties.get(i).gg_map_api.replace("\"", "`")%>')" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#viewMapModel">Xem bản đồ</button>
+                            <button v-on:click="view_map('<%=properties.get(i).gg_map_api.replace("\"", "`")%>')" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#viewMapModel"><%=language.getProperty("view_properties_view_map")%></button>
                         </div>
                         <div class="col-3">
                             <button v-on:click="addValueModalVue('<%=temp_amenities%>', '<%=temp_near_locations%>')" onclick="addValueModal('<%=properties.get(i).getName_vn()%>', '<%=properties.get(i).getName_kr()%>', '<%=properties.get(i).getDescription_vn()%>', '<%=properties.get(i).getDescription_kr()%>', '<%=properties.get(i).getId()%>', '<%=formatter.format(Double.parseDouble(properties.get(i).getPrice()))%>', '<%=properties.get(i).getArea()%>', '<%=properties.get(i).getFloor_numbers()%>', '<%=properties.get(i).getAt_floor()%>', '<%=properties.get(i).getAddress()%>', '<%=properties.get(i).getBathrooms()%>', '<%=properties.get(i).getBedrooms()%>','<%=properties.get(i).getFor_sale()%>', '<%=properties.get(i).getProvince_id()%>', '<%=properties.get(i).getDistrict_id()%>', '<%=properties.get(i).getProperty_type()%>', '<%=properties.get(i).getGg_map_api().replace("\"", "`")%>')" data-bs-toggle="modal" data-bs-target="#editModal" style="width: 100%" class="btn btn-warning">Chỉnh sửa</button>
@@ -480,15 +480,15 @@
                         count_not_hidden--
                         count_hidden++
                         $("#hidden_btn_id_" + p_id).attr("class", "btn btn-danger")
-                        $("#hidden_btn_id_" + p_id).text("Đang bị ẩn")
+                        $("#hidden_btn_id_" + p_id).text("<%=language.getProperty("plans_hidden_true")%>")
                     } else {
                         count_not_hidden++
                         count_hidden--
                         $("#hidden_btn_id_" + p_id).attr("class", "btn btn-success")
-                        $("#hidden_btn_id_" + p_id).text("Đang hiển thị")
+                        $("#hidden_btn_id_" + p_id).text("<%=language.getProperty("add_property_showing")%>")
                     }
-                    $("#hidden_prop").text("Bị ẩn: " + count_hidden)
-                    $("#not_hidden_prop").text("Đang hiển thị: " + count_not_hidden)
+                    $("#hidden_prop").text("<%=language.getProperty("plans_hidden_true")%>: " + count_hidden)
+                    $("#not_hidden_prop").text("<%=language.getProperty("add_property_showing")%>: " + count_not_hidden)
                 } else {
                     toastr.error(res.data.message)
                 }
@@ -504,17 +504,17 @@
         })
             .then((res)=>{
                 if (res.data.status){
-                    toastr.success("Thay đổi thành công.")
+                    toastr.success("<%=language.getProperty("view_subs_status_success")%>")
                     var hidden_btn = $("#btn_sold_" + p_id)
                     if (hidden_btn.attr("class") === "btn btn-success"){
                         $("#btn_sold_" + p_id).attr("class", "btn btn-warning")
-                        $("#btn_sold_" + p_id).text("Chưa bán")
+                        $("#btn_sold_" + p_id).text("<%=language.getProperty("view_not_sold")%>")
                     } else {
                         $("#btn_sold_" + p_id).attr("class", "btn btn-success")
-                        $("#btn_sold_" + p_id).text("Đã bán")
+                        $("#btn_sold_" + p_id).text("<%=language.getProperty("view_sold")%>")
                     }
                 } else {
-                    toastr.error("Thay đổi không thành công.")
+                    toastr.error("<%=language.getProperty("view_subs_status_fail")%>")
                 }
             })
     }
@@ -613,7 +613,7 @@
         while (district_select.options.length > 0) {
             district_select.remove(0);
         }
-        district_select.innerHTML = '<option value="">Chọn quận huyện</option>';
+        district_select.innerHTML = '<option value=""><%=language.getProperty("add_property_choose_district")%></option>';
         if (selectedProvince){
             for (let i = 0; i < district_json.length; i++) {
 

@@ -117,10 +117,10 @@
 <script>
     var editModal = $("#editModal");
     editModal.on('show.bs.modal', function () {
-        // $("#navbar").attr("hidden", true)
+        $("#navbar").attr("hidden", true)
     })
     editModal.on('hidden.bs.modal', function () {
-        // $("#navbar").attr("hidden", false)
+        $("#navbar").attr("hidden", false)
     })
     function showEditModal(province_id, province_name, districts) {
         $("#update_province_id").val(province_id)

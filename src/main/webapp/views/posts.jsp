@@ -224,7 +224,7 @@
                         toastr.warning("<%=language.getProperty("post_pls_input_cmt")%>")
                     } else {
                         if (this.posts[key].comment_input.length > this.number_of_words_per_cmt){
-                            toastr.warning("<%=language.getProperty("post_pls_input_cmt")%>".replace("123", this.number_of_words_per_cmt))
+                            toastr.warning("<%=language.getProperty("post_dont_input_more_than")%>".replace("123", this.number_of_words_per_cmt))
                         } else {
                             var form = new FormData()
                             form.append('comment', this.posts[key].comment_input)

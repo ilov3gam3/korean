@@ -32,7 +32,13 @@ public class SubscribeController {
                     "group by subscribe_plans.id, name_vn, name_kr, subscribe_plans.number_of_property, subscribe_plans.price_per_month, subscribe_plans.number_of_comments, subscribe_plans.number_of_words_per_cmt, hidden";
             String[] fields = new String[]{"id", "name_vn", "name_kr", "number_of_property", "price_per_month", "number_of_comments", "number_of_words_per_cmt", "hidden", "numbers"};
             ArrayList<MyObject> plans = DB.getData(sql, fields);
+
+            sql = "select priority_plans.*, count(subscriptions.id) as numbers from priority_plans left join subscriptions on priority_plans.id = subscriptions.priority_plans_id\n" +
+                    "group by priority_plans.id, priority_plans.priority, hidden, priority_plans.price_per_property";
+            fields = new String[]{"id", "priority", "hidden", "price_per_property", "numbers"};
+            ArrayList<MyObject> priority_plans = DB.getData(sql, fields);
             req.setAttribute("plans",plans);
+            req.setAttribute("priority_plans",priority_plans);
             req.getRequestDispatcher("/views/admin/plans.jsp").forward(req, resp);
         }
 
@@ -336,14 +342,6 @@ public class SubscribeController {
         }
     }
 
-    @WebServlet("/user/upgrade-account-priority")
-    public static class UserUpgradeAccountPriority extends HttpServlet{
-        @Override
-        protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-
-        }
-    }
-
     @WebServlet("/user/vnpay-result")
     public static class VNPAYResult extends HttpServlet{
         @Override
@@ -421,7 +419,7 @@ public class SubscribeController {
         @Override
         protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
             String sql = "select subscriptions.*, subscribe_plans.name_vn as subscribe_plans_name_vn, subscribe_plans.name_kr as subscribe_plans_name_kr, users.name as username from subscriptions inner join subscribe_plans on subscriptions.subscribe_plans_id = subscribe_plans.id inner join users on subscriptions.user_id = users.id";
-            String[] fields = new String[]{"id", "user_id", "subscribe_plans_id", "from_date", "to_date", "number_of_property", "price_per_month", "number_of_comments", "number_of_words_per_cmt", "discount", "price_to_pay", "vnp_BankCode", "vnp_TransactionNo", "vnp_TransactionStatus", "vnp_OrderInfo", "vnp_TxnRef", "vnp_CardType", "vnp_BankTranNo", "create_order_at", "paid_at", "subscribe_plans_name_vn", "subscribe_plans_name_kr", "username"};
+            String[] fields = new String[]{"id", "user_id", "subscribe_plans_id", "from_date", "to_date", "number_of_property", "price_per_month", "number_of_comments", "number_of_words_per_cmt", "discount", "price_to_pay", "vnp_BankCode", "vnp_TransactionNo", "vnp_TransactionStatus", "vnp_OrderInfo", "vnp_TxnRef", "vnp_CardType", "vnp_BankTranNo", "create_order_at", "paid_at", "subscribe_plans_name_vn", "subscribe_plans_name_kr", "username", "priority", "price_per_property", "priority_plans_id"};
             ArrayList<MyObject> subs = DB.getData(sql, fields);
             req.setAttribute("subs", subs);
             req.getRequestDispatcher("/views/admin/view-subs.jsp").forward(req, resp);
@@ -435,7 +433,7 @@ public class SubscribeController {
             MyObject user = (MyObject)req.getSession().getAttribute("login");
             String sql = "select subscriptions.*, subscribe_plans.name_vn as subscribe_plans_name_vn, subscribe_plans.name_kr as subscribe_plans_name_kr, users.name as username from subscriptions inner join subscribe_plans on subscriptions.subscribe_plans_id = subscribe_plans.id inner join users on subscriptions.user_id = users.id where user_id = ?";
             String[] vars = new String[]{user.id};
-            String[] fields = new String[]{"id", "user_id", "subscribe_plans_id", "from_date", "to_date", "number_of_property", "price_per_month", "number_of_comments", "number_of_words_per_cmt", "discount", "price_to_pay", "vnp_BankCode", "vnp_TransactionNo", "vnp_TransactionStatus", "vnp_OrderInfo", "vnp_TxnRef", "vnp_CardType", "vnp_BankTranNo", "create_order_at", "paid_at", "subscribe_plans_name_vn", "subscribe_plans_name_kr", "username"};
+            String[] fields = new String[]{"id", "user_id", "subscribe_plans_id", "from_date", "to_date", "number_of_property", "price_per_month", "number_of_comments", "number_of_words_per_cmt", "discount", "price_to_pay", "vnp_BankCode", "vnp_TransactionNo", "vnp_TransactionStatus", "vnp_OrderInfo", "vnp_TxnRef", "vnp_CardType", "vnp_BankTranNo", "create_order_at", "paid_at", "subscribe_plans_name_vn", "subscribe_plans_name_kr", "username", "priority", "price_per_property", "priority_plans_id"};
             ArrayList<MyObject> subs = DB.getData(sql,vars, fields);
             req.setAttribute("subs", subs);
             req.getRequestDispatcher("/views/user/view-subs.jsp").forward(req, resp);
@@ -470,6 +468,124 @@ public class SubscribeController {
 
             Gson gson = new Gson();
             resp.getWriter().write(gson.toJson(job));
+        }
+    }
+
+    @WebServlet("/admin/change-priority-status")
+    public static class ChangePriority_status extends HttpServlet{
+        @Override
+        protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            Properties language = (Properties) req.getAttribute("language");
+            String id = req.getParameter("id");
+            String sql = "update priority_plans set hidden = ~hidden where id = ?";
+            boolean check = DB.executeUpdate(sql, new String[]{id});
+            if (check){
+                req.getSession().setAttribute("mess", "success|" + language.getProperty("update_id_card_success"));
+            } else {
+                req.getSession().setAttribute("mess", "warning|" + language.getProperty("update_id_card_fail"));
+            }
+            req.getSession().setAttribute("show_priority", true);
+            resp.sendRedirect(req.getContextPath() + "/admin/view-all-plans");
+        }
+    }
+
+    @WebServlet("/admin/delete-plan")
+    public static class DeletePlan extends HttpServlet{
+        @Override
+        protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            Properties language = (Properties) req.getAttribute("language");
+            String id = req.getParameter("id");
+            String sql = "delete subscribe_plans where id = ?";
+            boolean check = DB.executeUpdate(sql, new String[]{id});
+            if (check){
+                req.getSession().setAttribute("mess", "success|" + language.getProperty("delete_success"));
+            } else {
+                req.getSession().setAttribute("mess", "warning|" + language.getProperty("delete_fail"));
+            }
+            resp.sendRedirect(req.getContextPath() + "/admin/view-all-plans");
+        }
+    }
+
+    @WebServlet("/admin/delete-priority")
+    public static class DeletePriorityPlan extends HttpServlet{
+        @Override
+        protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            Properties language = (Properties) req.getAttribute("language");
+            String id = req.getParameter("id");
+            String sql = "delete from priority_plans where id = ?";
+            boolean check = DB.executeUpdate(sql, new String[]{id});
+            if (check){
+                req.getSession().setAttribute("mess", "success|" + language.getProperty("delete_success"));
+            } else {
+                req.getSession().setAttribute("mess", "warning|" + language.getProperty("delete_fail"));
+            }
+            req.getSession().setAttribute("show_priority", "true");
+            resp.sendRedirect(req.getContextPath() + "/admin/view-all-plans");
+        }
+    }
+
+    @WebServlet("/admin/add-priority")
+    public static class AddPriority extends HttpServlet{
+        @Override
+        protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            Properties language = (Properties) req.getAttribute("language");
+            String priority = req.getParameter("priority");
+            String price = req.getParameter("price");
+            String sql = "insert into priority_plans(priority, hidden, price_per_property) values (?, 'false', ?)";
+            String[] vars = new String[]{priority, price};
+            boolean check = DB.executeUpdate(sql, vars);
+            if (check){
+                req.getSession().setAttribute("mess", "success|"+language.getProperty("add_success"));
+            } else {
+                req.getSession().setAttribute("mess", "error|"+language.getProperty("add_fail"));
+            }
+            req.getSession().setAttribute("show_priority", "true");
+            resp.sendRedirect(req.getContextPath() + "/admin/view-all-plans");
+        }
+    }
+
+    @WebServlet("/admin/update-plan")
+    public static class UpdatePlan extends HttpServlet{
+        @Override
+        protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            Properties language = (Properties) req.getAttribute("language");
+            String name_vn = req.getParameter("name_vn");
+            String name_kr = req.getParameter("name_kr");
+            String number_of_property = req.getParameter("number_of_property");
+            String price_per_month = req.getParameter("price_per_month");
+            String number_of_comments = req.getParameter("number_of_comments");
+            String number_of_words_per_cmt = req.getParameter("number_of_words_per_cmt");
+            String id = req.getParameter("id");
+            String sql = "update subscribe_plans set name_vn = ?, name_kr = ?, number_of_property= ?, price_per_month= ?, number_of_comments= ?, number_of_words_per_cmt= ? where id = ?";
+            String[] vars = new String[]{name_vn, name_kr, number_of_property, price_per_month, number_of_comments, number_of_words_per_cmt, id};
+            boolean check = DB.executeUpdate(sql, vars);
+            if (check){
+                req.getSession().setAttribute("mess", "success|"+language.getProperty("update_id_card_success"));
+            } else {
+                req.getSession().setAttribute("mess", "error|"+language.getProperty("update_id_card_fail"));
+            }
+            resp.sendRedirect(req.getContextPath() + "/admin/view-all-plans");
+        }
+    }
+
+    @WebServlet("/admin/update-priority-plan")
+    public static class UpdatePriorityPlan extends HttpServlet{
+        @Override
+        protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            Properties language = (Properties) req.getAttribute("language");
+            String priority = req.getParameter("priority");
+            String price_per_property = req.getParameter("price_per_property");
+            String id = req.getParameter("id");
+            String sql = "update priority_plans set priority = ?, price_per_property = ? where id = ?";
+            String[] vars = new String[]{priority, price_per_property, id};
+            boolean check = DB.executeUpdate(sql, vars);
+            if (check){
+                req.getSession().setAttribute("mess", "success|"+language.getProperty("update_id_card_success"));
+            } else {
+                req.getSession().setAttribute("mess", "error|"+language.getProperty("update_id_card_fail"));
+            }
+            req.getSession().setAttribute("show_priority", "true");
+            resp.sendRedirect(req.getContextPath() + "/admin/view-all-plans");
         }
     }
 }
