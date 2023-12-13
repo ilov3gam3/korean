@@ -9,8 +9,13 @@
     <div class="row col-11  d-flex justify-content-center">
         <h2><%= language.getProperty("add_property_title") %>
         </h2>
-            <h4><%=language.getProperty("add_property_number_of_property")%>: <%=Integer.parseInt(counts.get(0).getHidden_count()) + Integer.parseInt(counts.get(0).getNot_hidden_count())%>, <%=language.getProperty("plans_hidden_true")%>: <%=counts.get(0).getHidden_count()%>, <%=language.getProperty("add_property_showing")%>: <%=counts.get(0).getNot_hidden_count()%></h4>
-            <h4><%=language.getProperty("add_property_can_add").replace("123", String.valueOf(Integer.parseInt(subs.get(0).getNumber_of_property()) - Integer.parseInt(counts.get(0).getNot_hidden_count())))%></h4>
+            <% if (counts.get(0).getHidden_count() == null && counts.get(0).getNot_hidden_count() == null){ %>
+                <h4><%=language.getProperty("add_property_number_of_property")%>: 0, <%=language.getProperty("plans_hidden_true")%>: 0, <%=language.getProperty("add_property_showing")%>: 0</h4>
+                <h4><%=language.getProperty("add_property_can_add").replace("123", String.valueOf(Integer.parseInt(subs.get(0).getNumber_of_property())))%></h4>
+            <% } else { %>
+                <h4><%=language.getProperty("add_property_number_of_property")%>: <%=Integer.parseInt(counts.get(0).getHidden_count()) + Integer.parseInt(counts.get(0).getNot_hidden_count())%>, <%=language.getProperty("plans_hidden_true")%>: <%=counts.get(0).getHidden_count()%>, <%=language.getProperty("add_property_showing")%>: <%=counts.get(0).getNot_hidden_count()%></h4>
+                <h4><%=language.getProperty("add_property_can_add").replace("123", String.valueOf(Integer.parseInt(subs.get(0).getNumber_of_property()) - Integer.parseInt(counts.get(0).getNot_hidden_count())))%></h4>
+            <% } %>
         <form onsubmit="handle_form_submit(event)" id="my_form">
             <div class="col-12">
                 <div class="row">
@@ -282,20 +287,13 @@
 <%@ include file="../master/foot.jsp" %>
 <script>
     <%if (subs.size()!=0){ %>
-        <% if (Integer.parseInt(subs.get(0).getNumber_of_property()) <= Integer.parseInt(counts.get(0).getNot_hidden_count())) { %>
+        <% if (Integer.parseInt(subs.get(0).getNumber_of_property()) <= Integer.parseInt(counts.get(0).getNot_hidden_count() == null ? "0" : counts.get(0).getNot_hidden_count())) { %>
             var form = document.getElementById("my_form");
             var elements = form.elements;
             for (var i = 0; i < elements.length; i++) {
                 elements[i].disabled = true;
             }
         <% } %>
-    <% } %>
-    <% if (subs.size() == 0) { %>
-        var form = document.getElementById("my_form");
-        var elements = form.elements;
-        for (var i = 0; i < elements.length; i++) {
-            elements[i].disabled = true;
-        }
     <% } %>
 
     $("#amenity").chosen();
@@ -336,6 +334,9 @@
             .then((res) => {
                 detected_language = res.data[0].detectedLanguage.language
                 translated_text = res.data[0].translations[0].text
+            })
+            .catch((err) =>{
+                toastr.warning("<%=language.getProperty("add_property_trans_error")%>")
             })
     }
     $("#trans_to_kr").on('click', async function () {
@@ -464,6 +465,9 @@
                 } else {
                     toastr.error("<%= language.getProperty("add_fail") %>")
                 }
+                setTimeout(function () {
+                    location.reload();
+                }, 1000);
             })
         } else {
             toastr.warning("<%= language.getProperty("add_property_fill_full_form") %>")
