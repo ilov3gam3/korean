@@ -18,7 +18,7 @@ public class AmenityController {
         @Override
         protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
             String sql = "select amenities.*, count(properties.id) as numbers from amenities left join property_amenities on amenities.id = property_amenities.amenity_id left join properties on property_amenities.property_id = properties.id\n" +
-                    "group by amenities.id, amenities.name_vn, amenities.name_kr";
+                    "group by amenities.id, amenities.name_vn, amenities.name_kr order by amenities.id desc";
             String[] fields = new String[]{"id", "name_vn", "name_kr", "numbers"};
             ArrayList<MyObject> amenities = DB.getData(sql, fields);
             req.setAttribute("amenities", amenities);

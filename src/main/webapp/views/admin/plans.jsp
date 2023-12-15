@@ -9,10 +9,10 @@
       <div class="col-lg-12 text-start text-lg-center wow slideInRight" data-wow-delay="0.1s">
         <ul class="nav nav-pills d-inline-flex justify-content-end mb-1 mt-3">
           <li class="nav-item me-2">
-            <a class="btn btn-outline-primary <%=request.getSession().getAttribute("show_priority") == null ? "active" : ""%>" data-bs-toggle="pill" href="#plans"><%=language.getProperty("post_comment")%></a>
+            <a class="btn btn-outline-primary <%=request.getSession().getAttribute("show_priority") == null ? "active" : ""%>" data-bs-toggle="pill" href="#plans"><%=language.getProperty("admin_panel_plans")%></a>
           </li>
           <li class="nav-item me-2">
-            <a class="btn btn-outline-primary <%=request.getSession().getAttribute("show_priority") == null ? "" : "active"%>" data-bs-toggle="pill" href="#plans_priority"><%=language.getProperty("post_like")%></a>
+            <a class="btn btn-outline-primary <%=request.getSession().getAttribute("show_priority") == null ? "" : "active"%>" data-bs-toggle="pill" href="#plans_priority"><%=language.getProperty("plans_priority_plans")%></a>
           </li>
         </ul>
       </div>

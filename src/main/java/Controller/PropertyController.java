@@ -637,5 +637,49 @@ public class PropertyController {
             Gson gson = new Gson();
             resp.getWriter().write(gson.toJson(job));
         }
+
+
+    }
+
+    @WebServlet("/api/get-top-1-property")
+    public static class GetTopProperty extends HttpServlet{
+        @Override
+        protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            String location = req.getParameter("location_id");
+            String sql = "select top 1 properties.*, ROUND(avg(cast(reviews.stars as FLOAT)), 1) as numbers from properties inner join districts on properties.district_id = districts.id inner join bookings on properties.id = bookings.property_id left join reviews on bookings.id = reviews.booking_id where province_id = ?\n" +
+                    "group by properties.id, name_vn, name_kr, property_type, description_vn, description_kr, price, floor_numbers, at_floor, district_id, address, bedrooms, bathrooms, area, properties.user_id, hidden, for_sale, sold, properties.created_at, gg_map_api order by numbers desc";
+            ArrayList<MyObject> properties = DB.getData(sql, new String[]{location}, new String[]{"id", "name_vn", "name_kr", "property_type", "description_vn", "description_kr", "price", "floor_numbers", "at_floor", "district_id", "address", "bathrooms", "bedrooms", "area", "user_id", "for_sale", "sold", "created_at", "numbers"});
+            com.google.gson.JsonObject job = new JsonObject();
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+            objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+            String json_string = objectMapper.writeValueAsString(properties.get(0));
+            job.addProperty("property", json_string);
+            Gson gson = new Gson();
+            resp.getWriter().write(gson.toJson(job));
+        }
+    }
+
+    @WebServlet("/user/delete-property")
+    public static class DeleteProperty extends HttpServlet{
+        @Override
+        protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            String id = req.getParameter("id");
+            String sql = "delete from property_amenities where property_id = ?\n" +
+                    "delete from property_near_location where property_id = ?\n" +
+                    "delete from property_images where property_id = ?\n" +
+                    "delete from reviews where booking_id in (select id from bookings where property_id = ?)\n" +
+                    "delete from bookings where property_id = ?\n" +
+                    "delete from properties where id = ?";
+            String[] vars = new String[]{id, id, id, id, id, id};
+            boolean check = DB.executeUpdate(sql, vars);
+            Properties language = (Properties) req.getAttribute("language");
+            if (check){
+                req.getSession().setAttribute("mess", "success|" + language.getProperty("delete_success"));
+            } else {
+                req.getSession().setAttribute("mess", "error|" + language.getProperty("delete_fail"));
+            }
+            resp.sendRedirect(req.getContextPath() + "/user/your-property");
+        }
     }
 }

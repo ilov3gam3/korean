@@ -88,7 +88,7 @@
         <div class="col-lg-6">
           <div class="text-start mx-auto mb-5 wow slideInLeft" data-wow-delay="0.1s">
             <h1 class="mb-3"><%=language.getProperty("search_result")%></h1>
-            <p>Eirmod sed ipsum dolor sit rebum labore magna erat. Tempor ut dolore lorem kasd vero ipsum sit eirmod sit diam justo sed rebum.</p>
+            <p>{{'<%=language.getProperty("lang")%>' == 'vn' ? type_des.description_vn : type_des.description_kr}}</p>
           </div>
         </div>
         <div class="col-lg-6 text-start text-lg-end wow slideInRight" data-wow-delay="0.1s">
@@ -153,14 +153,20 @@
       form_choosing_property_type_id: 0,
       keyword: '',
       for_sale: -1,
+      type_des : '',
 
       user_choose_amenity: [],
       user_choose_near_locations: [],
       lang: '<%=lang%>',
-      context: '<%=request.getContextPath()%>'
+      context: '<%=request.getContextPath()%>',
+      para : '<%=request.getParameter("para")%>'
     },
     created(){
       this.getAllData();
+      if (this.para !== ''){
+        this.form_choosing_property_type_id = this.para
+        this.search()
+      }
     },
     methods:{
       getAllData(){
@@ -229,8 +235,14 @@
           }
         }).then((res)=>{
           this.properties = JSON.parse(res.data.properties)
-          console.log(this.properties)
         })
+
+        if (this.form_choosing_property_type_id != '0'){
+          axios.get('<%=request.getContextPath()%>/get-type-description?id=' + this.form_choosing_property_type_id)
+                  .then((res)=>{
+                    this.type_des = JSON.parse(res.data.type_des)
+                  })
+        }
       },
       getProvinceName(id){
         for (let i = 0; i < this.provinces.length; i++) {

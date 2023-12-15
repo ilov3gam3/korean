@@ -18,7 +18,7 @@ public class NearLocationController {
         @Override
         protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
             String sql = "select nearby_locations.*, count(properties.id) as numbers from nearby_locations left join property_near_location on nearby_locations.id = property_near_location.near_location_id left join properties on property_near_location.property_id = properties.id\n" +
-                    "group by nearby_locations.id, nearby_locations.name_vn, nearby_locations.name_kr";
+                    "group by nearby_locations.id, nearby_locations.name_vn, nearby_locations.name_kr order by nearby_locations.id desc";
             String[] fields = new String[]{"id", "name_vn", "name_kr", "numbers"};
             ArrayList<MyObject> locations = DB.getData(sql, fields);
             req.setAttribute("locations", locations);

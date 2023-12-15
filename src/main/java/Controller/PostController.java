@@ -464,4 +464,75 @@ public class PostController {
             resp.getWriter().write(gson.toJson(job));
         }
     }
+
+    @WebServlet("/admin/update-post")
+    public static class AdminGetPost extends HttpServlet{
+        @Override
+        protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            String id = req.getParameter("id");
+            String title = req.getParameter("title");
+            String content = req.getParameter("content");
+            String sql = "update posts set title = ?, content = ? where id = ?";
+            String[] vars = new String[]{title, content, id};
+            boolean check = DB.executeUpdate(sql, vars);
+            Properties language = (Properties) req.getAttribute("language");
+            if (check){
+                req.getSession().setAttribute("mess", "success|" + language.getProperty("update_id_card_success"));
+            } else {
+                req.getSession().setAttribute("mess", "error|" + language.getProperty("update_id_card_fail"));
+            }
+            resp.sendRedirect(req.getContextPath() + "/admin/view-posts");
+        }
+
+        @Override
+        protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            String id = req.getParameter("id");
+            String sql = "delete from comments where post_id = ?\n" +
+                    "delete from likes where post_id = ?\n" +
+                    "delete from posts where id = ?";
+            String[] vars = new String[]{id, id, id};
+            boolean check = DB.executeUpdate(sql, vars);
+            Properties language = (Properties) req.getAttribute("language");
+            if (check){
+                req.getSession().setAttribute("mess", "success|" + language.getProperty("delete_success"));
+            } else {
+                req.getSession().setAttribute("mess", "error|" + language.getProperty("delete_fail"));
+            }
+            resp.sendRedirect(req.getContextPath() + "/admin/view-posts");
+        }
+    }
+
+    @WebServlet("/admin/update-comments")
+    @MultipartConfig(
+            fileSizeThreshold = 1024 * 1024, // 1 MB
+            maxFileSize = 1024 * 1024 * 50,      // 10 MB
+            maxRequestSize = 1024 * 1024 * 50  // 10 MB
+    )
+    public static class AdminUpdateComment extends HttpServlet{
+        @Override
+        protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            String id = req.getParameter("id");
+            String content = req.getParameter("content");
+            String sql = "update comments set content = ? where id = ?";
+            String[] vars = new String[]{content, id};
+            boolean check = DB.executeUpdate(sql, vars);
+            com.google.gson.JsonObject job = new JsonObject();
+            job.addProperty("status", check);
+            Gson gson = new Gson();
+            resp.getWriter().write(gson.toJson(job));
+        }
+
+        @Override
+        protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            String id = req.getParameter("id");
+            String sql = "delete from comments where id = ?";
+            String[] vars = new String[]{id};
+            boolean check = DB.executeUpdate(sql, vars);
+            com.google.gson.JsonObject job = new JsonObject();
+            job.addProperty("status", check);
+            Gson gson = new Gson();
+            resp.getWriter().write(gson.toJson(job));
+        }
+    }
 }
+

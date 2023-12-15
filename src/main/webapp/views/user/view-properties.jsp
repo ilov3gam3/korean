@@ -160,6 +160,7 @@
                         </div>
                         <div class="col-3">
                             <button v-on:click="addValueModalVue('<%=temp_amenities%>', '<%=temp_near_locations%>')" onclick="addValueModal('<%=properties.get(i).getName_vn()%>', '<%=properties.get(i).getName_kr()%>', '<%=properties.get(i).getDescription_vn()%>', '<%=properties.get(i).getDescription_kr()%>', '<%=properties.get(i).getId()%>', '<%=formatter.format(Double.parseDouble(properties.get(i).getPrice()))%>', '<%=properties.get(i).getArea()%>', '<%=properties.get(i).getFloor_numbers()%>', '<%=properties.get(i).getAt_floor()%>', '<%=properties.get(i).getAddress()%>', '<%=properties.get(i).getBathrooms()%>', '<%=properties.get(i).getBedrooms()%>','<%=properties.get(i).getFor_sale()%>', '<%=properties.get(i).getProvince_id()%>', '<%=properties.get(i).getDistrict_id()%>', '<%=properties.get(i).getProperty_type()%>', '<%=properties.get(i).getGg_map_api().replace("\"", "`")%>')" data-bs-toggle="modal" data-bs-target="#editModal" style="width: 100%" class="btn btn-warning">Chỉnh sửa</button>
+                            <button onclick="addDeleteModal(<%=properties.get(i).getId()%>)" data-bs-toggle="modal" data-bs-target="#deleteModal" style="width: 100%" class="btn btn-danger mt-1"><%=language.getProperty("amenities_delete")%></button>
                         </div>
                     </div>
                 </div>
@@ -169,7 +170,7 @@
 <% } %>
 <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-xl ">
-            <div class="modal-content">
+            <div class="modal-content" style="max-height: 73vh; overflow-y: auto;">
                 <div class="modal-header">
                     <h5 class="modal-title" id="exampleModalLabel"><%= language.getProperty("property_type_add_new") %></h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -369,7 +370,7 @@
                             </div>
                             <div class="col-12 row">
                                 <div class="form-group">
-                                    <label for="gg_map_api"><%=language.getProperty("gg_map_api")%> <a target="_blank" href="https://www.google.com/search?q=h%C6%B0%E1%BB%9Bng+d%E1%BA%ABn+l%E1%BA%A5y+link+google+map&oq=h%C6%B0%E1%BB%9Bng+d%E1%BA%ABn+l%E1%BA%A5y+link+google+map&gs_lcrp=EgZjaHJvbWUyBggAEEUYOTIICAEQABgWGB4yCAgCEAAYFhge0gEJMTE2MDdqMGoxqAIAsAIA&sourceid=chrome&ie=UTF-8"><%=language.getProperty("gg_map_api_tut")%></a></label>
+                                    <label for="gg_map_api"><%=language.getProperty("gg_map_api")%> <a target="_blank" href="https://support.google.com/maps/answer/7101463?hl=vi&co=GENIE.Platform%3DDesktop"><%=language.getProperty("gg_map_api_tut")%></a></label>
                                     <input id="gg_map_api" name="gg_map_api" type="text" class="form-control">
                                 </div>
                             </div>
@@ -436,23 +437,37 @@
             </div>
         </div>
     </div>
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xl ">
+            <div class="modal-content">
+                <form action="${pageContext.request.contextPath}/user/delete-property" method="post">
+                    <input type="hidden" name="id" id="id_delete">
+                    <p><%=language.getProperty("view_properties_delete_warning")%></p>
+                    <button class="btn btn-danger" style="width: 100%;"><%=language.getProperty("amenities_delete")%></button>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
 <%@ include file="../master/foot.jsp" %>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.0/axios.min.js" integrity="sha512-WrdC3CE9vf1nBf58JHepuWT4x24uTacky9fuzw2g/3L9JkihgwZ6Cfv+JGTtNyosOhEmttMtEZ6H3qJWfI7gIQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script>
     var addModal = $("#editModal");
-    var district_json  = JSON.parse('[<c:forEach var="district" items="${districts_list}"> {"id":"${district.getId()}", "name":"${district.getName()}", "province_id":"${district.getProvince_id()}"}, </c:forEach>]'.replace(", ]", "]"))
     addModal.on('show.bs.modal', function () {
-        // $("#navbar").attr("hidden", true)
+        console.log("open")
+        $("#navbar").attr("hidden", true)
     })
     addModal.on('hidden.bs.modal', function () {
-        // $("#navbar").attr("hidden", false)
+        console.log("close")
+        $("#navbar").attr("hidden", false)
         $("#name_vn").val('')
         $("#name_kr").val('')
         $("#description_vi").text('')
         $("#description_kr").text('')
         $("#update_form_p_id").val('')
     })
+
+    var district_json  = JSON.parse('[<c:forEach var="district" items="${districts_list}"> {"id":"${district.getId()}", "name":"${district.getName()}", "province_id":"${district.getProvince_id()}"}, </c:forEach>]'.replace(", ]", "]"))
     const contextPath = '${pageContext.request.contextPath}'
     const width = $("#small_imgs_<%=properties.get(0).getId()%>").width();
     const each_img_width = Math.floor(width/4);
@@ -626,6 +641,9 @@
             }
         }
     }
+    function addDeleteModal(id) {
+        $("#id_delete").val(id)
+    }
 </script>
 <script>
 var app = new Vue({
@@ -762,7 +780,7 @@ var app = new Vue({
         },
         view_map(link){
             $("#view_map").html(link.replaceAll("`", "\""))
-        }
-    }
+        },
+    },
 })
 </script>

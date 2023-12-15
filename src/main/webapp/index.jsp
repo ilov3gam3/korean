@@ -33,22 +33,22 @@
                 <p>Eirmod sed ipsum dolor sit rebum labore magna erat. Tempor ut dolore lorem kasd vero ipsum sit eirmod sit. Ipsum diam justo sed rebum vero dolor duo.</p>
             </div>
             <div class="row g-4">
-                <%ArrayList<MyObject> property_types = DB.getData("select top 8 property_types.*, count(properties.id) as numbers from property_types left join properties on property_types.id = properties.property_type\n" +
+                <%ArrayList<MyObject> property_types = DB.getData("select top 4 property_types.*, count(properties.id) as numbers from property_types left join properties on property_types.id = properties.property_type\n" +
                         "group by property_types.id, property_types.name_vn, property_types.name_kr, property_types.description_vn, property_types.description_kr\n" +
                         "order by count(properties.id) desc",new String[]{"id", "name_vn","name_kr", "description_vn", "description_kr", "numbers"});%>
                 <% for (int i = 0; i < property_types.size(); i++) { %>
-                <div class="col-lg-3 col-sm-6 wow fadeInUp" data-wow-delay="<%=String.format("%.1f", (i%4)*0.2+0.1)%>s">
-                    <a class="cat-item d-block bg-light text-center rounded p-3" href="">
+                <div title="<%=lang.equals("kr") ? property_types.get(i).getDescription_kr() : property_types.get(i).getDescription_vn()%>" class="col-lg-3 col-sm-6 wow fadeInUp" data-wow-delay="<%=String.format("%.1f", (i%4)*0.2+0.1)%>s">
+                    <a class="cat-item d-block bg-light text-center rounded p-3" href="${pageContext.request.contextPath}/search?para=<%=property_types.get(i).getId()%>">
                         <div class="rounded p-4">
                             <div class="icon mb-3">
                                 <img class="img-fluid" src="${pageContext.request.contextPath}/assets/img/icon-apartment.png" alt="Icon">
                             </div>
                             <%if (lang.equals("kr")){%>
-                            <h6><%=property_types.get(i).getName_kr()%></h6>
-                            <span><%=property_types.get(i).getNumbers()%> 속성</span>
+                                <h6><%=property_types.get(i).getName_kr()%></h6>
+                                <span><%=property_types.get(i).getNumbers()%> 집</span>
                             <% } else { %>
-                            <h6><%=property_types.get(i).getName_vn()%></h6>
-                            <span><%=property_types.get(i).getNumbers()%> Tài sản</span>
+                                <h6><%=property_types.get(i).getName_vn()%></h6>
+                                <span><%=property_types.get(i).getNumbers()%> Nhà ở</span>
                             <% } %>
                         </div>
                     </a>
@@ -58,6 +58,7 @@
         </div>
     </div>
     <!-- Category End -->
+    <div id="property_listing_123">
     <!-- About Start -->
     <div class="container-xxl py-5">
         <div class="container">
@@ -68,19 +69,19 @@
                     </div>
                 </div>
                 <div class="col-lg-6 wow fadeIn" data-wow-delay="0.5s">
-                    <h1 class="mb-4">#1 Place To Find The Perfect Property</h1>
-                    <p class="mb-4">Tempor erat elitr rebum at clita. Diam dolor diam ipsum sit. Aliqu diam amet diam et eos. Clita erat ipsum et lorem et sit, sed stet lorem sit clita duo justo magna dolore erat amet</p>
-                    <p><i class="fa fa-check text-primary me-3"></i>Tempor erat elitr rebum at clita</p>
-                    <p><i class="fa fa-check text-primary me-3"></i>Aliqu diam amet diam et eos</p>
-                    <p><i class="fa fa-check text-primary me-3"></i>Clita duo justo magna dolore erat amet</p>
-                    <a class="btn btn-primary py-3 px-5 mt-3" href="">Read More</a>
+                    <h1 class="mb-4">{{'<%=language.getProperty("best_review")%>'.replace("xxx", location.name)}}</h1>
+                    <h3 class="mb-4">{{'<%=language.getProperty("lang")%>' == 'vn' ? top_property.name_vn : top_property.name_kr}}</h3>
+                    <p class="mb-4">{{'<%=language.getProperty("lang")%>' == 'vn' ? top_property.description_vn : top_property.description_kr}}</p>
+                    <p><i class="fa fa-check text-primary me-3"></i><%=language.getProperty("avg_review")%>: {{top_property.numbers}}⭐</p>
+                    <p><i class="fa fa-check text-primary me-3"></i><%=language.getProperty("add_property_address")%>: {{top_property.address}}, {{getDistrictName(top_property.district_id)}}, {{getProvinceName(top_property.province_id)}}</p>
+                    <a class="btn btn-primary py-3 px-5 mt-3" :href="'<%=request.getContextPath()%>' + '/view-property?id=' + top_property.id"><%=language.getProperty("details")%></a>
                 </div>
             </div>
         </div>
     </div>
     <!-- About End -->
     <!-- Property List Start -->
-    <div id="property_listing_123" class="container-xxl py-5">
+    <div class="container-xxl py-5">
         <div class="container">
             <div class="row g-0 gx-5 align-items-end">
                 <div class="col-lg-6">
@@ -119,6 +120,8 @@
             </div>
         </div>
     </div>
+    <!-- Property List End -->
+</div>
     <script>
     var property_listing_123 = new Vue({
         el: "#property_listing_123",
@@ -129,6 +132,7 @@
             lang: '<%=lang%>',
             districts: [],
             provinces: [],
+            top_property : {}
         },
         created(){
             axios.get('<%=request.getContextPath()%>/api/get-locations')
@@ -155,7 +159,6 @@
         },
     })
 </script>
-    <!-- Property List End -->
     <!-- Call to Action Start -->
     <div class="container-xxl py-5">
         <div class="container">

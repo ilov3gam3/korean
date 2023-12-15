@@ -77,6 +77,10 @@
             border: 1px solid #ccc; /* Optional: Add a border for better visibility */
             padding: 5px; /* Optional: Add padding for better appearance */
         }
+/*        .modal-content {
+            max-height: 73vh; !* Adjust the value as needed *!
+            overflow-y: auto; !* Enable vertical scrolling if needed *!
+        }*/
     </style>
 </head>
 
@@ -117,10 +121,12 @@
                             </a>
                             <div class="dropdown-menu rounded-0 m-0">
                                 <a href="${pageContext.request.contextPath}/change-language?user_lang=vn&current_url=<%= request.getAttribute("current_url") %>"
-                                   class="dropdown-item"><%= language.getProperty("head.vietnamese") %>
+                                   class="dropdown-item"><%= language.getProperty("head.vietnamese") %> <img style="width: 20px; height: 20px" src="${pageContext.request.contextPath}/assets/img/vietnam-flag.png"
+                                                                                                             alt="">
                                 </a>
                                 <a href="${pageContext.request.contextPath}/change-language?user_lang=kr&current_url=<%= request.getAttribute("current_url") %>"
-                                   class="dropdown-item"><%= language.getProperty("head.korean") %>
+                                   class="dropdown-item"><%= language.getProperty("head.korean") %> <img style="width: 20px; height: 20px" src="${pageContext.request.contextPath}/assets/img/korean-flag.jpg"
+                                                                                                         alt="">
                                 </a>
                             </div>
                         </div>
@@ -195,8 +201,17 @@
                                     axios.get('<%=request.getContextPath()%>/api/get-property-listing?location_id=' + this.location.id)
                                         .then((res)=>{
                                             this.properties = JSON.parse(res.data.properties)
-                                            property_listing_123.properties = this.properties
-                                            property_listing_123.location = JSON.parse(this.location_id)
+                                            if (typeof property_listing_123 !== 'undefined'){
+                                                property_listing_123.properties = this.properties
+                                                property_listing_123.location = JSON.parse(this.location_id)
+                                            }
+                                        })
+                                    axios.get('<%=request.getContextPath()%>/api/get-top-1-property?location_id=' + this.location.id)
+                                        .then((res)=>{
+                                            if (typeof property_listing_123 !== 'undefined'){
+                                                property_listing_123.top_property = JSON.parse(res.data.property)
+                                                console.log(property_listing_123.top_property)
+                                            }
                                         })
                                 },
                             }

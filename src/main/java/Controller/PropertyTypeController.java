@@ -2,6 +2,10 @@ package Controller;
 
 import Database.DB;
 import Database.MyObject;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -74,6 +78,25 @@ public class PropertyTypeController {
                 req.getSession().setAttribute("mess", "error|" + language.getProperty("delete_fail"));
             }
             resp.sendRedirect(req.getContextPath() + "/admin/property-type-management");
+        }
+    }
+    @WebServlet("/get-type-description")
+    public static class GetTypeDes extends HttpServlet{
+        @Override
+        protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            String id = req.getParameter("id");
+            String sql =  "select * from property_types where id = ?";
+            String[] vars = new String[]{id};
+            String[] fields = new String[]{"id", "name_vn","name_kr", "description_vn", "description_kr"};
+            ArrayList<MyObject> types = DB.getData(sql, vars, fields);
+            com.google.gson.JsonObject job = new JsonObject();
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+            objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+            String json_string = objectMapper.writeValueAsString(types.size() == 1 ? types.get(0) : "");
+            job.addProperty("type_des", json_string);
+            Gson gson = new Gson();
+            resp.getWriter().write(gson.toJson(job));
         }
     }
 }
