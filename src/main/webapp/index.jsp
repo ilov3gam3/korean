@@ -61,7 +61,7 @@
     <div id="property_listing_123">
     <!-- About Start -->
     <div class="container-xxl py-5">
-        <div class="container">
+        <div class="container" v-if="top_property != null">
             <div class="row g-5 align-items-center">
                 <div class="col-lg-6 wow fadeIn" data-wow-delay="0.1s">
                     <div class="about-img position-relative overflow-hidden p-5 pe-0">
@@ -78,6 +78,18 @@
                 </div>
             </div>
         </div>
+        <div class="container" v-if="top_property == null">
+            <div class="row g-5 align-items-center">
+                <div class="col-lg-6 wow fadeIn" data-wow-delay="0.1s">
+                    <div class="about-img position-relative overflow-hidden p-5 pe-0">
+                        <img class="img-fluid w-100" src="${pageContext.request.contextPath}/assets/img/about.jpg">
+                    </div>
+                </div>
+                <div class="col-lg-6 wow fadeIn" data-wow-delay="0.5s">
+                    <h1 class="mb-4">{{'<%=language.getProperty("no_properties_at")%>'.replace("XXX", location.name)}}</h1>
+                </div>
+            </div>
+        </div>
     </div>
     <!-- About End -->
     <!-- Property List Start -->
@@ -86,7 +98,7 @@
             <div class="row g-0 gx-5 align-items-end">
                 <div class="col-lg-6">
                     <div class="text-start mx-auto mb-5 wow slideInLeft" data-wow-delay="0.1s">
-                        <h1 class="mb-3">{{ '<%=language.getProperty("property_listing")%>'.replace("XXX" ,this.location.name) }}</h1>
+                        <h1 class="mb-3">{{ '<%=language.getProperty("property_listing")%>'.replace("XXX" ,this.location.name) }} <span v-if="properties.length == 0">(<%=language.getProperty("no_properties")%>)</span></h1>
                         <p>Eirmod sed ipsum dolor sit rebum labore magna erat. Tempor ut dolore lorem kasd vero ipsum sit eirmod sit diam justo sed rebum.</p>
                     </div>
                 </div>

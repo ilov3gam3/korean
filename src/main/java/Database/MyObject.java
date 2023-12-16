@@ -100,4 +100,5 @@ public class MyObject {
     public String stars;
     public String booking_id;
     public String priority_plans_id;
+    public String registered_at;
 }

@@ -448,24 +448,30 @@ public class SubscribeController {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
             String current_date = currentDateTime.format(formatter);
             MyObject user = (MyObject)req.getSession().getAttribute("login");
-            String sql = "select subscriptions.*, users.name as username from subscriptions inner join users on subscriptions.user_id = users.id where user_id = ? and from_date < ? and to_date > ? and vnp_TransactionStatus = '00'";
-            String[] vars = new String[]{user.id, current_date, current_date};
-            ArrayList<MyObject> subs = DB.getData(sql, vars, new String[]{"number_of_comments", "number_of_words_per_cmt", "from_date", "to_date"});
             com.google.gson.JsonObject job = new JsonObject();
-            if (subs.size() == 0){
-                job.addProperty("number_of_comments", "0");
-                job.addProperty("number_of_words_per_cmt", "0");
+            if (user.getIs_admin().equals("1")){
+                job.addProperty("number_of_comments", String.valueOf(Integer.MAX_VALUE));
+                job.addProperty("number_of_words_per_cmt", String.valueOf(Integer.MAX_VALUE));
                 job.addProperty("commented", "0");
-            } else {
-                sql = "select count(id) as count_comment from comments where user_id = ? and ? < created_at and created_at < ?";
-                vars = new String[]{user.id, subs.get(0).getFrom_date(), subs.get(0).getTo_date()};
-                ArrayList<MyObject> count_comments = DB.getData(sql, vars, new String[]{"count_comment"});
-                job.addProperty("number_of_comments", subs.get(0).getNumber_of_comments());
-                job.addProperty("number_of_words_per_cmt", subs.get(0).getNumber_of_words_per_cmt());
-                job.addProperty("commented", count_comments.get(0).getCount_comment());
+                job.addProperty("is_admin", true);
+            }else {
+                String sql = "select subscriptions.*, users.name as username from subscriptions inner join users on subscriptions.user_id = users.id where user_id = ? and from_date < ? and to_date > ? and vnp_TransactionStatus = '00'";
+                String[] vars = new String[]{user.id, current_date, current_date};
+                ArrayList<MyObject> subs = DB.getData(sql, vars, new String[]{"number_of_comments", "number_of_words_per_cmt", "from_date", "to_date"});
+                if (subs.size() == 0){
+                    job.addProperty("number_of_comments", "0");
+                    job.addProperty("number_of_words_per_cmt", "0");
+                    job.addProperty("commented", "0");
+                } else {
+                    sql = "select count(id) as count_comment from comments where user_id = ? and ? < created_at and created_at < ?";
+                    vars = new String[]{user.id, subs.get(0).getFrom_date(), subs.get(0).getTo_date()};
+                    ArrayList<MyObject> count_comments = DB.getData(sql, vars, new String[]{"count_comment"});
+                    job.addProperty("number_of_comments", subs.get(0).getNumber_of_comments());
+                    job.addProperty("number_of_words_per_cmt", subs.get(0).getNumber_of_words_per_cmt());
+                    job.addProperty("commented", count_comments.get(0).getCount_comment());
+                }
+                job.addProperty("is_admin", false);
             }
-
-
             Gson gson = new Gson();
             resp.getWriter().write(gson.toJson(job));
         }

@@ -534,5 +534,14 @@ public class PostController {
             resp.getWriter().write(gson.toJson(job));
         }
     }
+
+    @WebServlet("/user/get-free_commets")
+    public static class GetFreeComments extends HttpServlet{
+        @Override
+        protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            MyObject user = (MyObject) req.getSession().getAttribute("login");
+            String sql = "";
+        }
+    }
 }
 

@@ -1,8 +1,12 @@
+<%@ page import="java.text.SimpleDateFormat" %>
+<%@ page import="java.util.Date" %>
+<%@ page import="java.util.concurrent.TimeUnit" %>
 <%@page contentType="text/html" pageEncoding="utf-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ include file="/views/master/head.jsp" %>
 <div class="container col-12" id="app">
-    <h3><%=language.getProperty("post_number_of_comments")%>: {{number_of_comments}}, <%=language.getProperty("post_commented")%> {{commented}} <%=language.getProperty("post_time")%></h3>
+    <h3 v-if="is_admin !== true"><%=language.getProperty("post_number_of_comments")%>: {{number_of_comments}}, <%=language.getProperty("post_commented")%> {{commented}} <%=language.getProperty("post_time")%></h3>
+    <h3 v-if="is_admin !== true && new_account && logged_in"><%=language.getProperty("post_free_cmt")%>: {{free_comments}}, <%=language.getProperty("post_free_word")%> {{free_words}}</h3>
     <template v-for="(value, key) in posts">
         <div class="p-2 mb-4 bg-body-tertiary rounded-3">
             <div class="container-fluid">
@@ -34,17 +38,17 @@
 
                                 <input v-if="!logged_in" type="text" class="form-control"
                                        placeholder="<%=language.getProperty("post_comment")%>" v-on:click="like(0)" readonly aria-describedby="basic-addon2">
-                                <input v-if="logged_in && commented < number_of_comments" type="text" class="form-control"
+                                <input v-if="logged_in && parseInt(commented) < parseInt(number_of_comments)" type="text" class="form-control"
                                        placeholder="<%=language.getProperty("post_comment")%>" v-model="value.comment_input" aria-describedby="basic-addon2">
-                                <input v-if="logged_in && commented >= number_of_comments" type="text" class="form-control"
+                                <input v-if="logged_in && parseInt(commented) >= parseInt(number_of_comments)" type="text" class="form-control"
                                        placeholder="<%=language.getProperty("post_comment")%>" v-on:click="no_more_cmt()" readonly aria-describedby="basic-addon2">
 
                                 <div class="input-group-append">
-                                    <span v-if="logged_in" class="input-group-text">{{value.comment_input !== '' ? (value.comment_input.length + '/' + number_of_words_per_cmt) : '0/' + number_of_words_per_cmt}}</span>
+                                    <span v-if="logged_in && is_admin !== true" class="input-group-text">{{value.comment_input !== '' ? (value.comment_input.length + '/' + number_of_words_per_cmt) : '0/' + number_of_words_per_cmt}}</span>
                                 </div>
                                 <div class="input-group-append">
                                     <button  class="btn btn-outline-primary"
-                                            type="submit"><%=language.getProperty("post_comment")%>
+                                             type="submit"><%=language.getProperty("post_comment")%>
                                     </button>
                                 </div>
                                 <div class="input-group-append">
@@ -63,79 +67,79 @@
     <div class="container">
         <button style="width: 100%;" class="btn btn-primary" v-if="show_load_more" v-on:click="get_posts()"><%=language.getProperty("post_get_more_post")%></button>
     </div>
-<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-xl">
-        <div class="modal-content" style="max-height: 70vh; overflow-y: scroll">
-            <div class="col-lg-12 text-start text-lg-center wow slideInRight" data-wow-delay="0.1s">
-                <ul class="nav nav-pills d-inline-flex justify-content-end mb-1 mt-3">
-                    <li class="nav-item me-2">
-                        <a class="btn btn-outline-primary active" data-bs-toggle="pill" href="#comments"><%=language.getProperty("post_comment")%></a>
-                    </li>
-                    <li class="nav-item me-2">
-                        <a class="btn btn-outline-primary" v-on:click="get_likes()" data-bs-toggle="pill" href="#likes"><%=language.getProperty("post_like")%></a>
-                    </li>
-                </ul>
-            </div>
-            <div class="tab-content">
-                <div id="comments" class="tab-pane fade show p-0 active">
-                    <div class="modal-header">
-                        <h5 class="modal-title" ><%=language.getProperty("post_comment")%></h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div v-if="viewing_comments_of !== -1" >
-                            <div v-if="posts[viewing_comments_of].comments !== -1">
-                                <div v-if="posts[viewing_comments_of].comments.length === 0">
-                                    <p class="text-center col-12"><%=language.getProperty("post_no_cmt")%></p>
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xl">
+            <div class="modal-content" style="max-height: 70vh; overflow-y: scroll">
+                <div class="col-lg-12 text-start text-lg-center wow slideInRight" data-wow-delay="0.1s">
+                    <ul class="nav nav-pills d-inline-flex justify-content-end mb-1 mt-3">
+                        <li class="nav-item me-2">
+                            <a class="btn btn-outline-primary active" data-bs-toggle="pill" href="#comments"><%=language.getProperty("post_comment")%></a>
+                        </li>
+                        <li class="nav-item me-2">
+                            <a class="btn btn-outline-primary" v-on:click="get_likes()" data-bs-toggle="pill" href="#likes"><%=language.getProperty("post_like")%></a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="tab-content">
+                    <div id="comments" class="tab-pane fade show p-0 active">
+                        <div class="modal-header">
+                            <h5 class="modal-title" ><%=language.getProperty("post_comment")%></h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div v-if="viewing_comments_of !== -1" >
+                                <div v-if="posts[viewing_comments_of].comments !== -1">
+                                    <div v-if="posts[viewing_comments_of].comments.length === 0">
+                                        <p class="text-center col-12"><%=language.getProperty("post_no_cmt")%></p>
+                                    </div>
+                                    <div v-else>
+                                        <template v-for="(value, key) in posts[viewing_comments_of].comments">
+                                            <div class="col-12">
+                                                <img style="width: 40px; height: 40px; object-fit: cover; border-radius: 50%"
+                                                     :src="value.avatar.startsWith('http') ? value.avatar : '${pageContext.request.contextPath}' + value.avatar"
+                                                     alt="">
+                                                {{value.username}}
+                                                ({{value.created_at}})<br>
+                                                <h6 style="text-indent: 50px; font-weight: bold">{{value.content}}</h6>
+                                            </div>
+                                        </template>
+                                    </div>
                                 </div>
-                                <div v-else>
-                                    <template v-for="(value, key) in posts[viewing_comments_of].comments">
-                                        <div class="col-12">
-                                            <img style="width: 40px; height: 40px; object-fit: cover; border-radius: 50%"
-                                                 :src="value.avatar.startsWith('http') ? value.avatar : '${pageContext.request.contextPath}' + value.avatar"
-                                                 alt="">
-                                            {{value.username}}
-                                            ({{value.created_at}})<br>
-                                            <h6 style="text-indent: 50px; font-weight: bold">{{value.content}}</h6>
-                                        </div>
-                                    </template>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="likes" class="tab-pane fade show p-0">
+                        <div class="modal-header">
+                            <h5 class="modal-title" ><%=language.getProperty("post_like")%></h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div v-if="viewing_comments_of !== -1" >
+                                <div v-if="posts[viewing_comments_of].likes !== -1">
+                                    <div v-if="posts[viewing_comments_of].comments.likes === 0">
+                                        <p class="text-center col-12"><%=language.getProperty("post_no_like")%></p>
+                                    </div>
+                                    <div v-else>
+                                        <template v-for="(value, key) in posts[viewing_comments_of].likes">
+                                            <div class="col-12 m-1">
+                                                <img style="width: 40px; height: 40px; object-fit: cover; border-radius: 50%"
+                                                     :src="value.avatar.startsWith('http') ? value.avatar : '${pageContext.request.contextPath}' + value.avatar"
+                                                     alt="">
+                                                {{value.username}}
+                                            </div>
+                                        </template>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div id="likes" class="tab-pane fade show p-0">
-                    <div class="modal-header">
-                        <h5 class="modal-title" ><%=language.getProperty("post_like")%></h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div v-if="viewing_comments_of !== -1" >
-                            <div v-if="posts[viewing_comments_of].likes !== -1">
-                                <div v-if="posts[viewing_comments_of].comments.likes === 0">
-                                    <p class="text-center col-12"><%=language.getProperty("post_no_like")%></p>
-                                </div>
-                                <div v-else>
-                                    <template v-for="(value, key) in posts[viewing_comments_of].likes">
-                                        <div class="col-12 m-1">
-                                            <img style="width: 40px; height: 40px; object-fit: cover; border-radius: 50%"
-                                                 :src="value.avatar.startsWith('http') ? value.avatar : '${pageContext.request.contextPath}' + value.avatar"
-                                                 alt="">
-                                            {{value.username}}
-                                        </div>
-                                    </template>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-warning" data-bs-dismiss="modal"><%=language.getProperty("post_close")%></button>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-warning" data-bs-dismiss="modal"><%=language.getProperty("post_close")%></button>
             </div>
         </div>
     </div>
-</div>
 </div>
 <%@ include file="/views/master/foot.jsp" %>
 <script>
@@ -150,13 +154,37 @@
             number_of_comments: 0,
             number_of_words_per_cmt: 0,
             viewing_comments_of : -1,
-            commented: 0
+            commented: 0,
+            is_admin: null,
+            free_comments : <%=Config.config.getProperty("free_comments")%> ,
+            free_words : <%=Config.config.getProperty("free_comments")%> ,
+            <% boolean new_account;
+                if (user == null){
+                    new_account = false;
+                } else {
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
+                    Date givenDate;
+                    try{
+                        givenDate = dateFormat.parse(user.registered_at);
+                        Date currentDate = new Date();
+                        long timeDifference = currentDate.getTime() - givenDate.getTime();
+                        long dayDifference = TimeUnit.MILLISECONDS.toDays(timeDifference);
+                        System.out.println(dayDifference);
+                        new_account = dayDifference <= 30;
+                    }catch (Exception e){
+                        e.printStackTrace();
+                        new_account = false;
+                    }
+                }
+            %>
+            new_account: <%=new_account%>
         },
         created() {
             this.get_posts()
             if (this.logged_in){
                 this.get_word_count();
             }
+
         },
         methods: {
             get_posts() {
@@ -182,7 +210,10 @@
                         this.number_of_comments = res.data.number_of_comments
                         this.number_of_words_per_cmt = res.data.number_of_words_per_cmt
                         this.commented = res.data.commented
-                        console.log(this.commented)
+                        this.is_admin = res.data.is_admin
+                        if (this.new_account){
+                            this.number_of_comments = parseInt(this.number_of_comments) + parseInt(this.free_comments)
+                        }
                     })
             },
             like(id) {
@@ -250,10 +281,10 @@
             },
             view_comments(id, key){
                 this.viewing_comments_of = key
-                    axios.get("${pageContext.request.contextPath}/get-comments?post_id=" + id)
-                        .then((res)=>{
-                            this.posts[key].comments = JSON.parse(res.data.comments)
-                        })
+                axios.get("${pageContext.request.contextPath}/get-comments?post_id=" + id)
+                    .then((res)=>{
+                        this.posts[key].comments = JSON.parse(res.data.comments)
+                    })
             },
             get_likes(){
                 axios.get("${pageContext.request.contextPath}/get-likes?post_id=" + this.posts[this.viewing_comments_of].id)
@@ -263,7 +294,7 @@
             },
             no_more_cmt(){
                 toastr.warning("<%=language.getProperty("post_no_more_cmt")%>")
-            }
+            },
         }
     })
 </script>

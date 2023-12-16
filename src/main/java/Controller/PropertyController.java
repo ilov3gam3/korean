@@ -653,7 +653,7 @@ public class PropertyController {
             ObjectMapper objectMapper = new ObjectMapper();
             objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
             objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-            String json_string = objectMapper.writeValueAsString(properties.get(0));
+            String json_string = objectMapper.writeValueAsString(properties.size() != 0 ? properties.get(0) : null);
             job.addProperty("property", json_string);
             Gson gson = new Gson();
             resp.getWriter().write(gson.toJson(job));

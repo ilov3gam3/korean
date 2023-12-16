@@ -163,7 +163,8 @@
     },
     created(){
       this.getAllData();
-      if (this.para !== ''){
+      console.log(this.para)
+      if (this.para !== 'null'){
         this.form_choosing_property_type_id = this.para
         this.search()
       }
@@ -236,7 +237,7 @@
         }).then((res)=>{
           this.properties = JSON.parse(res.data.properties)
         })
-
+        console.log(this.form_choosing_property_type_id)
         if (this.form_choosing_property_type_id != '0'){
           axios.get('<%=request.getContextPath()%>/get-type-description?id=' + this.form_choosing_property_type_id)
                   .then((res)=>{

@@ -29,6 +29,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Properties;
 import java.util.UUID;
@@ -107,7 +109,7 @@ public class UserController {
                 resp.sendRedirect(req.getContextPath() + "/register");
             } else {
                 String uuid = UUID.randomUUID().toString();
-                String sql = "insert into users(name, email, password, avatar, phone, dob, national_id,  hash, is_admin, is_verified, cards_verified, nationality) values(?, ?, ?, ?, ?, ?, ?, ?, 'false', 'false', 'false', ?);";
+                String sql = "insert into users(name, email, password, avatar, phone, dob, national_id,  hash, is_admin, is_verified, cards_verified, nationality, registered_at) values(?, ?, ?, ?, ?, ?, ?, ?, 'false', 'false', 'false', ?, ?);";
                 ExecutorService executorService = Executors.newSingleThreadExecutor();
                 executorService.submit(() -> {
                     try {
@@ -118,7 +120,10 @@ public class UserController {
                     }
                 });
                 executorService.shutdown();
-                String[] vars = new String[]{name, email, password, "/files/default-avatar.webp" ,phone, dob, national_id, uuid, nationality};
+                LocalDateTime currentDateTime = LocalDateTime.now();
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                String current_date = currentDateTime.format(formatter);
+                String[] vars = new String[]{name, email, password, "/files/default-avatar.webp" ,phone, dob, national_id, uuid, nationality, current_date};
                 boolean status = DB.executeUpdate(sql, vars);
                 if (status) {
                     req.getSession().setAttribute("mess", "success|" + language.getProperty("create_account_success"));
@@ -157,7 +162,7 @@ public class UserController {
             String password = req.getParameter("password");
             String sql = "select * from users where email = ? and password = ?";
             String[] vars = new String[]{email, password};
-            String[] fields = new String[]{"id", "name", "email", "password", "avatar", "phone", "dob", "national_id", "front_id_card", "back_id_card", "hash", "is_verified", "is_admin", "nationality"};
+            String[] fields = new String[]{"id", "name", "email", "password", "avatar", "phone", "dob", "national_id", "front_id_card", "back_id_card", "hash", "is_verified", "is_admin", "nationality", "registered_at"};
             ArrayList<MyObject> list = DB.getData(sql, vars, fields);
             Properties language = (Properties) req.getAttribute("language");
             if (list.size() == 0) {
@@ -308,7 +313,7 @@ public class UserController {
                                     req.setAttribute("avatar", avatar);
                                     req.getRequestDispatcher("/views/auth/add-more-info.jsp").forward(req, resp);
                                 } else {
-                                    MyObject user = DB.getData("select * from users where email = ?", new String[]{email}, new String[]{"id", "name", "email", "password", "avatar", "phone", "dob", "national_id", "front_id_card", "back_id_card", "hash", "is_verified", "is_admin"}).get(0);
+                                    MyObject user = DB.getData("select * from users where email = ?", new String[]{email}, new String[]{"id", "name", "email", "password", "avatar", "phone", "dob", "national_id", "front_id_card", "back_id_card", "hash", "is_verified", "is_admin", "registered_at"}).get(0);
                                     req.getSession().setAttribute("login", user);
                                     req.getSession().setAttribute("mess", "success|" + language.getProperty("login_success"));
                                     resp.sendRedirect(req.getContextPath() + "/");
@@ -366,12 +371,15 @@ public class UserController {
             String dob = req.getParameter("dob");
             String avatar = req.getParameter("avatar");
             String nationality = req.getParameter("nationality");
-            String sql = "insert into users(name, email, password, avatar, phone, dob, national_id, is_admin, is_verified, cards_verified, nationality) values(?, ?, ?, ?, ?, ?, ?, 'false', 'true', 'false', ?);";
-            String[] vars = new String[]{name, email, password, avatar, phone, dob, national_id, nationality};
+            String sql = "insert into users(name, email, password, avatar, phone, dob, national_id, is_admin, is_verified, cards_verified, nationality, registered_at) values(?, ?, ?, ?, ?, ?, ?, 'false', 'true', 'false', ?, ?);";
+            LocalDateTime currentDateTime = LocalDateTime.now();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            String current_date = currentDateTime.format(formatter);
+            String[] vars = new String[]{name, email, password, avatar, phone, dob, national_id, nationality, current_date};
             boolean status = DB.executeUpdate(sql, vars);
             if (status) {
                 req.getSession().setAttribute("mess", "success|" + language.getProperty("login_success"));
-                MyObject user = DB.getData("select * from users where email = ?", new String[]{email}, new String[]{"id", "name", "email", "password", "avatar", "phone", "dob", "national_id", "front_id_card", "back_id_card", "hash", "is_verified", "is_admin"}).get(0);
+                MyObject user = DB.getData("select * from users where email = ?", new String[]{email}, new String[]{"id", "name", "email", "password", "avatar", "phone", "dob", "national_id", "front_id_card", "back_id_card", "hash", "is_verified", "is_admin", "registered_at"}).get(0);
                 req.getSession().setAttribute("login", user);
                 resp.sendRedirect(req.getContextPath() + "/");
             } else {
