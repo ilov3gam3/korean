@@ -135,7 +135,10 @@
       },
       update_comment(e, value){
         e.preventDefault();
-        axios.post('${pageContext.request.contextPath}/admin/update-comments', value)
+        var form = new FormData();
+        form.append("content", value.content)
+        form.append("id", value.id)
+        axios.post('${pageContext.request.contextPath}/admin/update-comments', form)
                 .then((res)=>{
                     if (res.data.status){
                       toastr.success("<%=language.getProperty("update_id_card_success")%>")
