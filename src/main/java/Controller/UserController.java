@@ -49,10 +49,10 @@ public class UserController {
         }
 
         public static boolean checkPhone(String phone) {
-            return DB.getData("select * from users where email = ?", new String[]{phone}, new String[]{"id"}).size() == 0;
+            return DB.getData("select * from users where phone = ?", new String[]{phone}, new String[]{"id"}).size() == 0;
         }
         public static boolean checkPhoneExcept(String phone, String id) {
-            return DB.getData("select * from users where email = ? and id != ?", new String[]{phone, id}, new String[]{"id"}).size() == 0;
+            return DB.getData("select * from users where phone = ? and id != ?", new String[]{phone, id}, new String[]{"id"}).size() == 0;
         }
 
         public static boolean checkNational_id(String national_id) {
@@ -260,6 +260,13 @@ public class UserController {
                 boolean check = DB.executeUpdate(sql, vars);
                 if (check){
                     req.getSession().setAttribute("mess","success|" + language.getProperty("update_id_card_success"));
+                    user.email = email;
+                    user.phone = phone;
+                    user.national_id = national_id;
+                    user.nationality = nationality;
+                    user.name = name;
+                    user.dob = dob;
+                    req.getSession().setAttribute("login", user);
                 } else {
                     req.getSession().setAttribute("mess","error|" + language.getProperty("update_id_card_fail"));
                 }
@@ -313,7 +320,7 @@ public class UserController {
                                     req.setAttribute("avatar", avatar);
                                     req.getRequestDispatcher("/views/auth/add-more-info.jsp").forward(req, resp);
                                 } else {
-                                    MyObject user = DB.getData("select * from users where email = ?", new String[]{email}, new String[]{"id", "name", "email", "password", "avatar", "phone", "dob", "national_id", "front_id_card", "back_id_card", "hash", "is_verified", "is_admin", "registered_at"}).get(0);
+                                    MyObject user = DB.getData("select * from users where email = ?", new String[]{email}, new String[]{"id", "name", "email", "password", "avatar", "phone", "dob", "national_id", "front_id_card", "back_id_card", "hash", "is_verified", "is_admin", "registered_at", "nationality"}).get(0);
                                     req.getSession().setAttribute("login", user);
                                     req.getSession().setAttribute("mess", "success|" + language.getProperty("login_success"));
                                     resp.sendRedirect(req.getContextPath() + "/");

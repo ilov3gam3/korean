@@ -613,7 +613,7 @@ public class PropertyController {
         @Override
         protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
             String location_id = req.getParameter("location_id");
-            String sql = "select distinct top 8 properties.id, properties.name_vn, properties.name_kr, property_type, properties.description_vn, properties.description_kr, price, floor_numbers, at_floor, district_id, address, bathrooms, bedrooms, area, properties.user_id, hidden, for_sale, sold, created_at, gg_map_api, users.name as username, property_types.name_vn as property_type_name_vn, property_types.name_kr as property_type_name_kr, province_id, province_id, property_images.path as thumbnail, subscriptions.priority as priority\n" +
+            String sql = "select distinct top 6 properties.id, properties.name_vn, properties.name_kr, property_type, properties.description_vn, properties.description_kr, price, floor_numbers, at_floor, district_id, address, bathrooms, bedrooms, area, properties.user_id, hidden, for_sale, sold, created_at, gg_map_api, users.name as username, property_types.name_vn as property_type_name_vn, property_types.name_kr as property_type_name_kr, province_id, province_id, property_images.path as thumbnail, subscriptions.priority as priority\n" +
                     "from properties\n" +
                     "         inner join users on properties.user_id = users.id\n" +
                     "         inner join property_types on properties.property_type = property_types.id\n" +
@@ -637,8 +637,6 @@ public class PropertyController {
             Gson gson = new Gson();
             resp.getWriter().write(gson.toJson(job));
         }
-
-
     }
 
     @WebServlet("/api/get-top-1-property")

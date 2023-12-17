@@ -395,6 +395,7 @@
     const selected = "<%= user.nationality %>";
     $("#nationality option[value='" + selected + "']").prop('selected', true);
     $("#nationality").chosen();
+    // $("#nationality").val(selected)
     document.getElementById('image').addEventListener('change', function (e) {
         var file = e.target.files[0];
         var reader = new FileReader();

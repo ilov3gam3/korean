@@ -157,7 +157,7 @@
             commented: 0,
             is_admin: null,
             free_comments : <%=Config.config.getProperty("free_comments")%> ,
-            free_words : <%=Config.config.getProperty("free_comments")%> ,
+            free_words : <%=Config.config.getProperty("free_words")%> ,
             <% boolean new_account;
                 if (user == null){
                     new_account = false;

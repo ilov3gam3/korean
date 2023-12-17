@@ -29,6 +29,9 @@
         <div class="container-fluid text-center mt-2">
             <a href="${pageContext.request.contextPath}/register"><%= language.getProperty("login.register_instead") %></a>
         </div>
+        <div class="container-fluid text-center mt-2">
+            <a href="${pageContext.request.contextPath}/forgot-password"><span class="text-danger"><%= language.getProperty("login.forgot-password") %></span></a>
+        </div>
     </form>
 </div>
 <%@ include file="../master/foot.jsp" %>
