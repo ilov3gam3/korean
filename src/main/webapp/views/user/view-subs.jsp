@@ -40,7 +40,22 @@
                             </td>
                             <td><%=subs.get(i).getPrice_to_pay()%>₫ (- <%=subs.get(i).getDiscount()%>%)</td>
                             <td><%=subs.get(i).getCreate_order_at()%> <br><%=subs.get(i).getPaid_at() == null ? language.getProperty("no_paid") : subs.get(i).getPaid_at()%></td>
-                            <td><%=subs.get(i).getVnp_TransactionStatus().equals("00") ? "<button class='btn btn-success'>"+language.getProperty("view_subs_status_success")+"</button>" : "<span class='btn btn-danger'>"+language.getProperty("view_subs_status_fail")+"</span>"%></td>
+                            <td>
+                                <% if (subs.get(i).getVnp_TransactionStatus().equals("00")){ %>
+                                    <a href="${pageContext.request.contextPath}/user/cancel-subscription?id=<%=subs.get(i).getId()%>">
+                                        <button title="Click to cancel" class="btn btn-success"><%=language.getProperty("view_subs_status_success")%></button>
+                                    </a>
+                                <% } %>
+                                <% if (subs.get(i).getVnp_TransactionStatus().equals("02")){ %>
+                                    <button class="btn btn-danger"><%=language.getProperty("view_subs_transaction_paid_canceled")%></button>
+                                <% } %>
+                                <% if (subs.get(i).getVnp_TransactionStatus().equals("0")){ %>
+                                    <button class="btn btn-warning"><%=language.getProperty("view_subs_transaction_no_paid")%></button>
+                                <% } %>
+                                <% if (subs.get(i).getVnp_TransactionStatus().equals("-1")){ %>
+                                    <button class="btn btn-dark"><%=language.getProperty("view_subs_transaction_canceled")%></button>
+                                <% } %>
+                            </td>
                             <td>
                                 <% if (subs.get(i).getVnp_TransactionStatus().equals("00")){ %>
                                     <%=language.getProperty("view_subs_bank_code")%>: <%=subs.get(i).getVnp_BankCode()%><br>

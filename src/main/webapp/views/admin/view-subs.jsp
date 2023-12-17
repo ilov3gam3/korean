@@ -40,15 +40,28 @@
             </td>
             <td><%=subs.get(i).getPrice_to_pay()%>₫ (- <%=subs.get(i).getDiscount()%>%)</td>
             <td><%=subs.get(i).getCreate_order_at()%> <br><%=subs.get(i).getPaid_at() == null ? language.getProperty("no_paid") : subs.get(i).getPaid_at()%></td>
-            <td><%=subs.get(i).getVnp_TransactionStatus().equals("00") ? "<button class='btn btn-success'>"+language.getProperty("view_subs_status_success")+"</button>" : "<span class='btn btn-danger'>"+language.getProperty("view_subs_status_fail")+"</span>"%></td>
             <td>
                 <% if (subs.get(i).getVnp_TransactionStatus().equals("00")){ %>
-                <%=language.getProperty("view_subs_bank_code")%>: <%=subs.get(i).getVnp_BankCode()%><br>
-                <%=language.getProperty("view_subs_transaction_number")%>: <%=subs.get(i).getVnp_TransactionNo()%><br>
-                <%=language.getProperty("view_subs_transaction_status_code")%>: <%=subs.get(i).getVnp_TransactionStatus()%><br>
-                <%=language.getProperty("view_subs_transaction_card_type")%>: <%=subs.get(i).getVnp_CardType()%>
+                    <button class="btn btn-success"><%=language.getProperty("view_subs_status_success")%></button>
+                <% } %>
+                <% if (subs.get(i).getVnp_TransactionStatus().equals("02")){ %>
+                    <button class="btn btn-danger"><%=language.getProperty("view_subs_transaction_paid_canceled")%></button>
+                <% } %>
+                <% if (subs.get(i).getVnp_TransactionStatus().equals("0")){ %>
+                    <button class="btn btn-warning"><%=language.getProperty("view_subs_transaction_no_paid")%></button>
+                <% } %>
+                <% if (subs.get(i).getVnp_TransactionStatus().equals("-1")){ %>
+                    <button class="btn btn-dark"><%=language.getProperty("view_subs_transaction_canceled")%></button>
+                <% } %>
+            </td>
+            <td>
+                <% if (subs.get(i).getVnp_TransactionStatus().equals("00")){ %>
+                    <%=language.getProperty("view_subs_bank_code")%>: <%=subs.get(i).getVnp_BankCode()%><br>
+                    <%=language.getProperty("view_subs_transaction_number")%>: <%=subs.get(i).getVnp_TransactionNo()%><br>
+                    <%=language.getProperty("view_subs_transaction_status_code")%>: <%=subs.get(i).getVnp_TransactionStatus()%><br>
+                    <%=language.getProperty("view_subs_transaction_card_type")%>: <%=subs.get(i).getVnp_CardType()%>
                 <% } else { %>
-                <%=language.getProperty("view_subs_transaction_no_paid")%>
+                    <%=language.getProperty("view_subs_transaction_no_paid")%>
                 <% } %>
             </td>
         </tr>

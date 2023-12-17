@@ -594,4 +594,23 @@ public class SubscribeController {
             resp.sendRedirect(req.getContextPath() + "/admin/view-all-plans");
         }
     }
+
+    @WebServlet("/user/cancel-subscription")
+    public static class CancelSubscription extends HttpServlet{
+        @Override
+        protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            Properties language = (Properties) req.getAttribute("language");
+            String id = req.getParameter("id");
+            MyObject user = (MyObject) req.getSession().getAttribute("login");
+            String sql = "update subscriptions set vnp_TransactionStatus = -1 where id = ? and user_id = ?";
+            String[] vars = new String[]{id, user.id};
+            boolean check = DB.executeUpdate(sql, vars);
+            if (check){
+                req.getSession().setAttribute("mess", "success|" + language.getProperty("canceled_success"));
+            } else {
+                req.getSession().setAttribute("mess", "error|" + language.getProperty("canceled_fail"));
+            }
+            resp.sendRedirect(req.getContextPath() + "/user/transaction");
+        }
+    }
 }

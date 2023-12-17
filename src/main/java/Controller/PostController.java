@@ -226,7 +226,7 @@ public class PostController {
                 if (user == null){
                     sql = "select top 5 posts.*, users.name as username, users.avatar as avatar\n" +
                             "from posts\n" +
-                            "         inner join users on posts.user_id = users.id\n" +
+                            "         inner join users on posts.user_id = users.id where posts.is_verified = 'true'\n" +
                             "order by posts.id desc;";
                     vars = new String[]{};
                     fields = new String[]{"id", "user_id", "title", "content", "is_verified", "created_at", "username", "avatar"};
@@ -234,7 +234,7 @@ public class PostController {
                     sql = "select top 5 posts.*, users.name as username, users.avatar as avatar, likes.id as like_id\n" +
                             "from posts\n" +
                             "         inner join users on posts.user_id = users.id\n" +
-                            "         left join likes on posts.id = likes.post_id and likes.user_id = ?\n" +
+                            "         left join likes on posts.id = likes.post_id and likes.user_id = ? where posts.is_verified = 'true'\n" +
                             "order by posts.id desc";
                     vars = new String[]{user.id};
                     fields = new String[]{"id", "user_id", "title", "content", "is_verified", "created_at", "username", "avatar", "like_id"};
@@ -244,7 +244,7 @@ public class PostController {
                         sql = "select top 5 posts.*, users.name as username, users.avatar as avatar\n" +
                                 "from posts\n" +
                                 "         inner join users on posts.user_id = users.id\n" +
-                                "where posts.id < ?\n" +
+                                "where posts.id < ? and posts.is_verified = 'true'\n" +
                                 "order by id desc";
                         vars = new String[]{last_id};
                         fields = new String[]{"id", "user_id", "title", "content", "is_verified", "created_at", "username", "avatar"};
@@ -253,7 +253,7 @@ public class PostController {
                                 "from posts\n" +
                                 "         inner join users on posts.user_id = users.id\n" +
                                 "         left join likes on posts.id = likes.post_id and likes.user_id = ?\n" +
-                                "where posts.id < ?\n" +
+                                "where posts.id < ? and posts.is_verified = 'true'\n" +
                                 "order by id desc";
                         vars = new String[]{user.id, last_id};
                         fields = new String[]{"id", "user_id", "title", "content", "is_verified", "created_at", "username","avatar", "like_id"};

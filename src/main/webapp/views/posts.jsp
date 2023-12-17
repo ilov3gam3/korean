@@ -184,7 +184,6 @@
             if (this.logged_in){
                 this.get_word_count();
             }
-
         },
         methods: {
             get_posts() {

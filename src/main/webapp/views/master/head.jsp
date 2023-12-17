@@ -112,9 +112,9 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbarCollapse">
                     <div id="choose_location_head" class="navbar-nav ms-auto">
-                        <a href="${pageContext.request.contextPath}/"
-                           class="nav-item nav-link active"><%= language.getProperty("head.home") %>
-                        </a>
+<%--                        <a href="${pageContext.request.contextPath}/"--%>
+<%--                           class="nav-item nav-link active"><%= language.getProperty("head.home") %>--%>
+<%--                        </a>--%>
                         <div class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle"
                                data-bs-toggle="dropdown"><%= language.getProperty("head.language") %>
@@ -130,11 +130,7 @@
                                 </a>
                             </div>
                         </div>
-                        <a href="contact.html" class="nav-item nav-link"><%= language.getProperty("head.contact") %>
-
-                        </a>
                         <a href="${pageContext.request.contextPath}/posts" class="nav-item nav-link"><%= language.getProperty("head.view_post") %>
-
                         </a>
                         <a href="#" class="nav-item nav-link" v-on:click="choose_location()">
                             <span v-if="location == null"><%=language.getProperty("not_choose_city")%></span>
